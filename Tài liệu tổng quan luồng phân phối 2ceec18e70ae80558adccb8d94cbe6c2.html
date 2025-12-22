@@ -1,0 +1,718 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Tài liệu tổng quan luồng phân phối</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2ceec18e-70ae-8055-8adc-cb8d94cbe6c2" class="page sans"><header><h1 class="page-title" dir="auto">Tài liệu tổng quan luồng phân phối</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody></tbody></table></header><div class="page-body"><div style="display:contents" dir="auto"><h3 id="faeda640-dac4-4844-9dad-9606804fd78c" class="">1. ONBOARD</h3></div><div style="display:contents" dir="auto"><hr id="6098e4a1-3986-4462-ae54-9f3089f28bc9"/></div><div style="display:contents" dir="ltr"><table id="70fe4b0d-c3af-486e-8387-de3a7ced6ce4" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="8cf20af2-8bed-4638-83bd-b36c6fda8119"><th id="D{cg" class="simple-table-header-color simple-table-header"><strong>Nhóm tiêu chí</strong></th><th id=":CS?" class="simple-table-header-color simple-table-header" style="width:413px"><strong>PO – Phân phối (Thương mại / Sản xuất)</strong></th><th id="FQI\" class="simple-table-header-color simple-table-header" style="width:347px"><strong>SO – Shop Online / Bán sỉ</strong></th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="0e4fe144-85bb-4653-86f8-0632b56f8b9e"><td id="D{cg" class=""><strong>I. Đặc thù kinh doanh.</strong></td><td id=":CS?" class="" style="width:413px">1. Đơn vị <strong>PHẢI</strong> hoạt động theo mô hình <strong>phân phối B2B</strong> (distributor, nhà phân phối, nhà sản xuất kiêm phân phối).<br/>2. Khách hàng cuối <strong>PHẢI</strong> là một trong các nhóm sau:<br/>- Cửa hàng bán lẻ, siêu thị, minimart.<br/>- Nhà hàng, quán ăn, điểm tiêu thụ F&amp;B.<br/>- Doanh nghiệp, tổ chức, hoặc distributor cấp dưới.<br/>3. Các đặc điểm pháp lý sau <strong>thường xuất hiện ở đơn vị phân phối B2B</strong> và được sử dụng như <strong>dấu hiệu nhận diện khách phân phối (PO)</strong>:<br/>- Giấy phép kinh doanh ngành nghề phù hợp với nhóm sản phẩm phân phối.<br/>- Hồ sơ chứng minh nguồn gốc xuất xứ sản phẩm (hợp đồng mua bán, hóa đơn, C/O (Giấy chứng nhận xuất xứ hàng hóa), phiếu kiểm nghiệm, v.v.).<br/>- Trường hợp là <strong>đơn vị sản xuất kiêm phân phối</strong>: sản phẩm <strong>PHẢI</strong> hoàn tất thủ tục công bố với cơ quan quản lý (Sở Công Thương/Sở Y Tế...)<br/></td><td id="FQI\" class="" style="width:347px">1. Hoạt động chính là <strong>bán online/bán sỉ/bán lẻ</strong>, trong đó khách hàng cuối <strong>CHỦ YẾU</strong> là người tiêu dùng hoặc các shop/đại lý nhỏ.<br/>2. Đơn vị <strong>CÓ THỂ</strong> có hoặc chưa có đăng ký kinh doanh; hồ sơ sản phẩm <strong>KHÔNG ĐƯỢC QUẢN LÝ TẬP TRUNG</strong> tại đơn vị vận hành.<br/>3. Thông tin sản phẩm trên kênh bán <strong>DO SHOP TỰ KHAI BÁO</strong>, không có bộ hồ sơ chuẩn dùng làm căn cứ vận hành như kênh phân phối B2B.</td></tr></div><div style="display:contents" dir="ltr"><tr id="29984f64-26f8-4d3c-9baf-42ab09b28c4a"><td id="D{cg" class=""><strong>II. Đặc thù sản phẩm.</strong></td><td id=":CS?" class="" style="width:413px">1. Sản phẩm <strong>thuộc kênh phân phối chính thống</strong>, đã hoặc đang được khách hàng thực hiện đầy đủ các nghĩa vụ pháp lý theo quy định ngành hàng (công bố, kiểm nghiệm, ghi nhãn…).<br/>2. Sản phẩm <strong>PHẢI</strong> có <strong>quy cách đóng gói chuẩn hoá</strong>, bao gồm tối thiểu:<br/>- Thùng/kiện tiêu chuẩn.<br/>- Số lượng chuẩn trên mỗi thùng/kiện.<br/>- Trọng lượng chuẩn hoặc khoảng trọng lượng được quy định trước.<br/>3. Bao bì sản phẩm <strong>PHẢI</strong> có tem nhãn đầy đủ, bao gồm:<br/>- Tên sản phẩm, thành phần, định lượng.<br/>- Ngày sản xuất (NSX), hạn sử dụng (HSD).<br/>- Batch/lot, điều kiện bảo quản, cảnh báo (nếu có).<br/>4. Hệ thống vận hành <strong>PHẢI</strong> sử dụng được bộ mã sản phẩm sau:<br/>- Mã SKU, mã thùng, mã lô/batch.<br/>- Ưu tiên có barcode/QR để scan theo thùng/pallet.<br/>5. Yêu cầu bảo quản sản phẩm <strong>PHẢI</strong> được quy định rõ ràng (ví dụ: FMCG, thực phẩm khô, hàng dễ vỡ, hàng cần giữ lạnh...).<br/></td><td id="FQI\" class="" style="width:347px">1. Sản phẩm <strong>KHÔNG BẮT BUỘC</strong> tuân theo quy cách đóng gói chuẩn hoá theo thùng/kiện cố định; đơn vị bán <strong>TỰ QUYẾT ĐỊNH</strong> cách đóng gói theo từng đơn hàng.<br/>2. Tem nhãn ngoài thùng <strong>KHÔNG BẮT BUỘC</strong> phải đầy đủ như kênh phân phối; thực tế chỉ <strong>BẮT BUỘC</strong> có tem vận đơn của hãng vận chuyển để phát được hàng.<br/>3. Không bắt buộc có mã thùng/mã lô; mã sản phẩm (nếu tồn tại) thường do shop tự đặt và <strong>KHÔNG ĐƯỢC SỬ DỤNG</strong> làm căn cứ chính thức cho kiểm đếm theo SKU ở phía đơn vị vận hành.<br/>4. Yêu cầu bảo quản sản phẩm <strong>KHÔNG ĐƯỢC QUY ĐỊNH CHẶT CHẼ</strong>, thường mô tả chung chung hoặc không ghi rõ trong hồ sơ.</td></tr></div><div style="display:contents" dir="ltr"><tr id="01a0af89-56a1-487e-84c0-ac52dd13517b"><td id="D{cg" class=""><strong>III. Đặc điểm giao hàng &amp; thanh toán.</strong></td><td id=":CS?" class="" style="width:413px">1. Địa chỉ giao hàng <strong>BẮT BUỘC</strong> là một trong các loại sau:<br/>- Kho hàng, trung tâm phân phối (DC).<br/>- Cửa hàng, điểm bán, địa điểm kinh doanh cố định.<br/>2. Tần suất giao hàng <strong>BẮT BUỘC</strong> thể hiện được tính định kỳ, bao gồm:<br/>- Lịch giao lặp lại theo ngày/tuần/tháng cùng điểm giao cụ thể.<br/>3. Giờ giao hàng <strong>BẮT BUỘC</strong> nằm trong khung giờ có nhân sự chuyên trách tiếp nhận hàng hoá (thường là giờ hành chính hoặc khung giờ đã được thoả thuận trước trong hợp đồng).<br/>4. Chứng từ giao nhận (POD) <strong>BẮT BUỘC</strong> đáp ứng đồng thời:<br/>- Có người có thẩm quyền ký nhận, đóng dấu (nếu áp dụng).<br/>- Được sử dụng làm căn cứ đối soát công nợ và xử lý khiếu nại.<br/>5. Phương thức thanh toán và hợp đồng <strong>BẮT BUỘC</strong> thoả mãn:<br/>- Thanh toán theo hình thức <strong>công nợ</strong>, theo kỳ (15–30 ngày hoặc theo thoả thuận trong hợp đồng).<br/>- Có <strong>hợp đồng vận chuyển / frame contract</strong> quy định rõ: phạm vi dịch vụ, bảng giá, SLA, trách nhiệm và chế tài khi vi phạm.</td><td id="FQI\" class="" style="width:347px">1. Địa chỉ giao hàng chủ yếu là:<br/>- Địa chỉ dân cư, căn hộ, vị trí thay đổi theo từng đơn.<br/>2. Tần suất giao hàng:<br/>- Đơn hàng phát sinh <strong>ngẫu nhiên</strong>, không hình thành pattern giao lặp lại ổn định cùng điểm.<br/>3. Giờ giao hàng:<br/>- Phụ thuộc hoàn toàn vào người nhận; đơn vị vận hành <strong>KHÔNG CÓ QUYỀN</strong> yêu cầu cố định khung giờ tiếp nhận.<br/>4. Chứng từ giao nhận (POD):<br/>- Người nhận <strong>KHÔNG BẮT BUỘC</strong> phải có thẩm quyền; chỉ cần ký/nhận hàng là hoàn tất giao dịch.<br/>5. Thanh toán và hợp đồng:<br/>- <strong>BẮT BUỘC</strong> sử dụng thanh toán theo từng đơn (COD hoặc chuyển khoản trước).<br/>- Giao dịch <strong>KHÔNG DỰA TRÊN</strong> frame contract; áp dụng <strong>bảng giá công khai</strong> và SLA ở mức cam kết chung của dịch vụ.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8090-98f5-ddfffa556484" class=""><mark class="highlight-default"><mark class="highlight-default_background"><code>Hình minh hoạ sản phẩm thuộc kênh phân phối</code></mark></mark></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80a2-82c0-fbc34569c941" class="image"><a href="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/d427b094ea1fb65a5843694575750f48.jpg"><img style="width:384px" src="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/d427b094ea1fb65a5843694575750f48.jpg"/></a></figure></div><div style="display:contents" dir="auto"><h3 id="2ceec18e-70ae-8058-841a-e0265fc85386" class="">2. ĐĂNG ĐƠN</h3></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8008-bf26-fac2001731fb" class=""><strong>2.1. Cấu hình shop được phép đăng đơn.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80b2-9e7e-d80f760da1c2" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80e3-b232-e8b58af6010c"><th id="omna" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="MGl;" class="simple-table-header-color simple-table-header" style="width:537.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80ea-a633-d1bcfc2d69e7"><td id="omna" class="" style="width:236.33333333333334px">CSKH</td><td id="MGl;" class="" style="width:537.328125px"><strong>Bước 1 : Truy cập màn hình chi tiết shop.</strong><br/>• CSKH truy cập vào trang <em><mark class="highlight-default"><code><a href="http://dashboard.ghtk.vn/">dashboard.ghtk.vn</a></code></mark></em>, tại thanh chức năng chọn <code>&quot;Shop&quot;</code> → <code>Danh sách Shop</code> → tìm kiếm <code>mã Shop cần config</code> → bấm vào <code>&quot;Chi tiết&quot;</code> → truy cập màn hình cấu hình chi tiết của Shop<br/><strong>Bước 2 : Tại mục &quot;Đăng đơn&quot;</strong><br/>• CSKH tick chọn dịch vụ <code>&quot;Booking phân phối&quot;</code> và <code>&quot;Lưu thông tin&quot;</code><br/>*<em><strong><span style="border-bottom:0.05em solid">Lưu ý: </span></strong></em><em>Sau khi bấm lưu thông tin, vui lòng chờ 5 phút để config có hiệu lực</em></td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-804b-8731-f7e03f54b953" class="image"><a href="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/6208492445075442542.jpg"><img style="width:710px" src="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/6208492445075442542.jpg"/></a></figure></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8089-8dc6-f9d1bc151177" class="">
+</p></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8023-8871-fadf52db2fc4" class=""><strong>2.2. Chuẩn hoá kho sản phẩm.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80cd-8e35-f94c0e842b35" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80cc-ac25-c7c08ecba943"><th id="UAXK" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="gmAf" class="simple-table-header-color simple-table-header" style="width:520.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80b6-8f75-e5bb8ee89c9b"><td id="UAXK" class="" style="width:236.33333333333334px">CSKH | Shop</td><td id="gmAf" class="" style="width:520.328125px"><strong>Bước 1 : Truy cập màn hình chi tiết Shop tại màn : </strong><em><mark class="highlight-default"><code><a href="https://khachhang.ghtk.vn/web/kho-va-san-">https://khachhang.ghtk.vn/web/kho-va-san-ff</a></code></mark></em><br/>• CSKH/Shop truy cập vào thanh chức năng <code>&quot;Kho và sản phẩm&quot;</code><br/>• Trong giao diện chi tiết chọn <code>&quot;Xem&quot;</code> → <code>&quot;Chỉnh sửa&quot;</code> → cập nhật thông tin sản phẩm gồm :<br/>• Ảnh sản phẩm ( Bắt buộc nhập ).<br/>• Tên sản phẩm ( Bắt buộc nhập ).<br/>• Ngành hàng ( Bắt buộc nhập ).<br/>• Barcode ( Bắt buộc nhập ).<br/>• Khối lượng &amp; Kích thước<br/>• Giá, Tag<br/><strong>Bước 2 : Chọn </strong><code>&quot;Lưu sản phẩm&quot;</code></td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80a6-86e4-fb480d91c0b5" class="image"><a href="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/6208492445075442545.jpg"><img style="width:710px" src="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/6208492445075442545.jpg"/></a></figure></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80ec-b65e-e5c577e244dc" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2ceec18e-70ae-8021-ba52-d0ba83f7adf6" class="">3. ĐĂNG ĐƠN</h3></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-801d-b481-c3bbb0f5c9df" class=""><strong>3.1. Tạo PO ( PO điện tử ).</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-807e-838e-df7e38e8efb0" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80bb-9fd7-e9be42fe8df4"><th id="eWmF" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="&lt;qEt" class="simple-table-header-color simple-table-header" style="width:534.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8044-b8f9-e5ba69de6b48"><td id="eWmF" class="" style="width:236.33333333333334px"><strong>SHOP | SALE | DVKH</strong></td><td id="&lt;qEt" class="" style="width:534.328125px"><strong>📌 Tạo phiếu PO và đẩy đơn đồng thời :</strong><br/>- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Truy cập vào màn hình <code>&quot;Phiếu PO&quot;</code><br/>  • Shop thực hiện đăng nhập vào web <mark class="highlight-default"><code><a href="http://khachhang.ghtk.vn/">http://khachhang.ghtk.vn/</a></code></mark><mark class="highlight-yellow"> </mark>→ vào mục       <code>&quot;Đơn hàng&quot;</code> <em>( hoặc mục vận hành với giao diện mới → </em><em><code>&quot;Phiếu PO&quot;</code></em><em> )</em><br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Tạo phiếu PO.<br/>  • Shop bấm <code>&quot;+ Phiếu PO&quot;</code> → hệ thống hiển thị màn hình tạo phiếu PO<br/>- <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Điền thông tin phiếu PO<br/> + <em>Cách 1: Shop điền thủ công các thông tin cần thiết của phiếu PO bao gồm:</em><br/>  • Thời gian lấy<br/>  • Thông tin giao hàng<br/>  • Thông tin sản phẩm<br/>  • Mã khách hàng của PO<br/>+ <em>Cách 2: Upload phiếu PO:</em><br/>  • Shop bấm vào <code>Upload phiếu</code> trên màn tạo, hệ thống mở ra thư viện để chọn file. Tại đây shop có thể chọn <code>ảnh chụp</code> hoặc <code>file PO</code> để tải lên<br/>* <em><strong><span style="border-bottom:0.05em solid">Lưu ý:</span></strong></em> <em>Cần liên hệ với </em><em><mark class="highlight-default"><code>hanhnm12</code></mark></em><em> hoặc </em><em><mark class="highlight-default"><code>ngatpth1</code></mark></em><em> để cấu hình mẫu phiếu trước khi upload.</em><br/>- <strong>Bước 4 :</strong> Sau khi điền đầy đủ thông tin :<br/>  • Bấm <code>&quot;Tạo PO&quot;</code> → Hệ thống sinh ra mã PO ở trạng thái tạm.<br/>* <em><strong>Lưu ý:</strong></em> <em>Phiếu PO tạm được sử dụng để tài xế kéo tạo thành đơn hoặc shop kép tạo thành đơn.</em><br/></td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8004-b10e-f27e8de3a488"><td id="eWmF" class="" style="width:236.33333333333334px"><strong>SHOP | SALE | DVKH</strong></td><td id="&lt;qEt" class="" style="width:534.328125px"><strong>📌 Shop đăng đơn kèm phiếu tạm:</strong><br/><strong><span style="border-bottom:0.05em solid">Cách 1:</span></strong> Click vào <code>&quot;Tạo đơn hàng&quot;</code><br/> - Bước 1: Truy cập vào màn hình <code>đăng đơn</code>, bấm chọn <code>&quot;Đăng đơn PO&quot;</code>.<br/> - Bước 2: Chọn phiếu tạm đã tạo.<br/><em> * Shop thực hiện đăng nhiều PO hoặc từng PO một<br/></em>  <mark class="highlight-blue">+ TH1 :</mark> Chọn thủ công từng PO<br/>  • Shop bấm vào ô <code>&quot;Chọn PO&quot;</code> và <code>chọn phiếu</code> mong muốn → hệ thống tự động  điền các thông tin của PO vào đơn hàng.<br/>  <mark class="highlight-blue">+ TH2 :</mark> Chọn nhiều PO.<br/>  • Shop bấm vào mục <code>&quot;Danh sách PO&quot;</code> → chọn các PO cần đăng và bấm <code>&quot;Áp dụng&quot;</code>.<br/> - Bước 3 : Đăng đơn hàng<br/>  • Sau khi đã fill thông tin PO, shop chọn từng đơn hàng và bấm <code>&quot;Đăng đơn&quot;</code><br/>  • Các đơn hàng sau khi đăng sẽ được link tới PO đã chọn.<br/><strong><span style="border-bottom:0.05em solid">Cách 2 :</span></strong> Click vào <code>&quot;Tạo đơn PO&quot;</code><br/>- Bước 1 : Chọn phiếu PO tạm<br/>- Bước 2 : Nhấn chọn <code>&quot;Tạo đơn PO&quot;</code><br/>- Bước 3 : Bổ sung các thông tin yêu cầu để đăng đơn.<br/>- Bước 4 : Nhấn chọn <code>&quot;Đăng ĐH”</code></td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80a1-b195-eb9d1522b4a6"><div class="source"><a href="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/GHTK_-_Quan_li_at_hang_-_Google_Chrome_2025-10-29_17-21-21.mp4">attachment:6704bfa8-29d2-4918-b56f-ba6374ecc71d:GHTK_-_Quan_li_at_hang_-_Google_Chrome_2025-10-29_17-21-21.mp4</a></div></figure></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-8018-ab4f-ef52a440ccfb"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80a7-9b63-f5d744452fde" class=""><strong>3.2. Tạo Booking phân phối</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-803e-9504-feeb85525d0e" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-800b-8374-e4ab193ceaea"><th id=":p&gt;`" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="dh:[" class="simple-table-header-color simple-table-header" style="width:535.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8093-b0be-dce0f9660bc9"><td id=":p&gt;`" class="" style="width:236.33333333333334px"><strong>SHOP | SALE | DVKH</strong></td><td id="dh:[" class="" style="width:535.328125px">📌 Thao tác trên app :<br/>- <span style="border-bottom:0.05em solid">Bước 1:</span> Chọn tính năng &quot;Booking xe&quot;<br/>  • Hệ thống hiển thị giao diện tạo Booking<br/>- <span style="border-bottom:0.05em solid">Bước 2:</span> Điền thông tin tạo booking<br/>  • Booking xe : <code>Bấm vào</code> → Trả ra các <code>dịch vụ khác</code> → Chọn <code>dịch vụ khác</code> → Mở ra màn hình dịch vụ khác và fill thông tin đơn hàng.<br/>  • Bản đồ : Hiển thị bản đồ với địa chỉ của shop<br/>  • Lấy hàng : Mặc định hiển thị <code>kho lấy mặc định</code> của shop → <code>Bấm vào</code> →. Mở lên bottomsheet <code>danh sách địa chỉ kho lấy</code> của shop.<br/>  • Thời gian hẹn lấy : Mặc định hiển ca lấy sớm nhất theo tiêu chuẩn của shop. Shop có config <code>hẹn lấy cố định</code> → hiển thị danh sách <code>thời gian hẹn cố định</code>.<br/>  • Hàng hoá : Mặc định hiển thị hint text. <code>Bấm &quot;Chọn&quot;</code> → bottomsheet <code>nhập KL, KT hàng hoá</code><br/>  • Lưu nháp : Shop <code>lưu nháp</code> → Tạo ra 1 mã booking nháp với trạng thái <code>&quot;Chưa tiếp nhận&quot;</code>.<br/>  • Lưu thông tin : Shop bấm <code>lưu thông tin</code> → Validate các thông tin bắt buộc → Lưu thông tin thành công → Pop-up <code>&quot;Tạo booking lấy hàng thành công, Vui lòng kiểm tra trong danh sách booking&quot;</code> và lưu log <code>&quot;Đã tạo booking, Đã tiếp nhận booking&quot;</code><br/><em><strong><span style="border-bottom:0.05em solid">Lưu ý : </span></strong></em><em>Các booking phải có thông tin khác nhau, trường thông tin booking trùng với booking đã có ( trừ trường hợp booking cũ đã huỷ hoặc hoàn thành ) → Báo lỗi </em><em><code>&quot;Booking tương tự đã tồn tại và đang ở trạng thái &quot;</code></em><br/></td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8058-933c-e7fecd857356"><td id=":p&gt;`" class="" style="width:236.33333333333334px"><strong>SHOP | SALE | DVKH</strong></td><td id="dh:[" class="" style="width:535.328125px"><strong>📌 Thao tác trên web :</strong><br/> - <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Truy cập website cho shop: <mark class="highlight-gray"><code><a href="https://khachhang.ghtk.vn/">https://khachhang.ghtk.vn/</a></code></mark>, vào mục <code>Tạo đơn hàng</code>.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Chọn tính năng <code>Booking xe</code>, hệ thống hiển thị giao diện tạo booking<br/> - <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Điền thông tin để tạo booking.<br/>  • Các thông tin tương tự như trên app.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-802b-9cff-c1a8d4649b9c" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-800a-9d5e-caf7eeeca452" style="width:68.75%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8063-b3f3-df77567a5534" class="image"><a href="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/image.png"><img style="width:384px" src="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/image.png"/></a></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8031-adb6-dbf5c42a4e90" style="width:31.249999999999993%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8096-96a5-c32a3898e9ed" class="image"><a href="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/image%201.png"><img style="width:331.9921875px" src="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/image%201.png"/></a></figure></div></div></div></div></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-8064-a404-fce4fd6451a6"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8093-8914-da5363dcaed9" class=""><strong>3.3. Phân phối xe tải lấy hàng</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-8043-a7f1-f27b4830da83" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80c1-b587-f6ee9490cee6"><th id="Wds;" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="avRo" class="simple-table-header-color simple-table-header" style="width:570.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80d8-99d5-e4aa1a20c026"><td id="Wds;" class="" style="width:236.33333333333334px"><strong>VHXT | TECH</strong></td><td id="avRo" class="" style="width:570.328125px">- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Vận hành xe tải thao tác config kịch bản nổ điểm Lấy tại màn: <code><a href="https://bbs.ghtk.vn/bbs-">https://bbs.ghtk.vn/bbs-scenario</a></code> <em>(Config như kịch bản nổ điểm BBS)</em><br/> • Config nổ shop cố định: Shop phát sinh hàng cố định hàng ngày.<br/> • Config nổ shop : Shop phát sinh hàng không cố định.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Khi shop tạo booking:<br/> + Hệ thống check thông tin booking và tìm kịch bản thoả mãn nổ xe tải :<br/>  • <mark class="highlight-blue">UT1</mark>: Kịch bản nổ shop cố định ( Nổ gom theo thời gian config cố định trong kịch bản ).<br/>  • <mark class="highlight-blue">UT2</mark>: Kịch bản nổ shop ( Ưu tiên nổ theo thời gian hẹn trong leadtime hẹn lấy booking ).<br/>- <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Từ kịch bản thoả mãn:<br/>  • Hệ thống tìm ra được xe, được config trong kịch bản thoả mãn.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 4:</span></strong> Nổ điểm lấy lên tuyến của tài xế:<br/>  • Trường hợp fail nổ xe tải lấy (<em> không đảm bảo dư địa, không có kịch bản nào thoả mãn)</em> → <code>Tech support đẩy tay</code>.<br/><em><strong><span style="border-bottom:0.05em solid">Yêu cầu:</span></strong></em> <em>Cần có kịch bản nổ điểm để hệ thống có thể điều phối xe tải đến shop lấy hàng.</em></td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-802c-9e9f-e5975e001ea5" class="image"><a href="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/image%202.png"><img style="width:710px" src="T%C3%A0i%20li%E1%BB%87u%20t%E1%BB%95ng%20quan%20lu%E1%BB%93ng%20ph%C3%A2n%20ph%E1%BB%91i/image%202.png"/></a></figure></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-802c-874b-ee3fc633d81f"/></div><div style="display:contents" dir="auto"><h3 id="2ceec18e-70ae-804c-99de-f363da316462" class="">4. VẬN HÀNH.</h3></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-800d-b61e-da5c6577a459" class=""><strong>4.1. PO điện tử ( PO shop tạo sẵn).</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-807e-9bd7-dd2afb44fde9" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80f1-a547-fbd98377795d"><th id="N&lt;t`" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="CN?i" class="simple-table-header-color simple-table-header" style="width:562.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-809f-9a37-e4c032cb95c6"><td id="N&lt;t`" class="" style="width:236.33333333333334px"><strong>VHXT - TÀI XẾ | LM - COD</strong></td><td id="CN?i" class="" style="width:562.328125px">- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Tại màn hình các thao tác với điểm dừng chọn <code>&quot;QUÉT PHIẾU&quot;</code>.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Trong popup chọn đơn hoặc phiếu muốn tạo: <code>Chọn action &quot;Tạo phiếu PO&quot;</code>.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Tại màn hình tạo phiếu PO: <code>Chọn action &quot;KÉO THÊM&quot;</code><br/>- <strong><span style="border-bottom:0.05em solid">Bước 4:</span></strong> Kiểm tra các<code> &quot;Dịch vụ gia tăng&quot;</code> :<br/> • Nếu shop đăng kí các dịch vụ gia tăng và shop có nhu cầu <code>chọn dịch vụ</code> đó khi tạo PO → TX cần tích chọn đúng, đủ dịch vụ shop mong muốn <em>(các dịch vụ shop luôn đăng ký chọn sẽ được mặc định chọn trên màn hình)</em><br/> • Nếu shop không đăng ký các dịch vụ gia tăng → Phần dịch vụ gia tăng sẽ không hiển thị dịch vụ nào<br/>- <strong><span style="border-bottom:0.05em solid">Bước 5:</span></strong> Tại màn hình danh sách các phiếu ở <code>trạng thái Tạm thời</code> của shop: Chọn <code>&quot;01 PO&quot;</code> mong muốn kéo thêm trong danh sách.<br/> • Sau khi chọn HT fill sẵn thông tin của PO trên form tạo.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 6:</span></strong> Kiểm tra lại thông tin sản phẩm trong danh sách khớp với số lượng thực tế được bàn giao<br/> • Bấm <code>Xác nhận</code> và tạo phiếu.</td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8084-a50c-d4ba2c99fd50"><div class="source"><a href="https://drive.google.com/file/d/1KpqVtqyxROn014C70s7CU5bMfH5eF0BH/view?usp=sharing">https://drive.google.com/file/d/1KpqVtqyxROn014C70s7CU5bMfH5eF0BH/view?usp=sharing</a></div></figure></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-808c-a28e-da6095d04184"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-803e-b1f7-f89c15868c85" class=""><strong>4.2.  PO tiêu chuẩn ( Shop tạo booking phân phối ).</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80ac-90f2-ca21a3c6c099" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-805b-8b2e-da7279fbbfa4"><th id="uZZ[" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="b^zc" class="simple-table-header-color simple-table-header" style="width:554.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8040-a15d-f5bfb9429e7f"><td id="uZZ[" class="" style="width:236.33333333333334px"><strong>VHXT - TÀI XẾ | LM - COD</strong></td><td id="b^zc" class="" style="width:554.328125px"><strong>📌 Thao tác chung :</strong><br/>• Truy cập vào ứng dụng <a href="http://ghtk.co/">GHTK.Co</a>.<br/>• Tài xế chọn menu các điểm đang cần xử lý.<br/>• Tại màn hình danh sách các điểm: Tài xế chọn điểm <code>LẤY HÀNG</code> có label <code>Có hàng phân phối</code><br/>• Tại màn hình các action thực hiện với điểm → chọn action <code>&quot;Quét phiếu&quot;</code><br/>• Chọn <code>&quot;Tạo phiếu PO&quot;</code><br/></td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80a0-b490-faa055f77a05"><td id="uZZ[" class="" style="width:236.33333333333334px"><strong>VHXT - TÀI XẾ | LM - COD</strong></td><td id="b^zc" class="" style="width:554.328125px">🚫 <strong>Shop không có PO vật lý :</strong><br/>- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Tại màn hình các thông tin cần nhập để <code>tạo phiếu</code> → Tài xế nhập các thông tin người nhận hàng (do <code>shop cung cấp</code> | team <code>Sale phụ trách</code> shop cung cấp) &amp; <code>chọn sản phẩm</code>.<br/> • Nếu shop đăng kí các dịch vụ gia tăng và shop có nhu cầu chọn dịch vụ đó khi tạo PO → TX cần tích chọn đúng, đủ dịch vụ shop mong muốn (các dịch vụ shop luôn đăng ký chọn sẽ được mặc định chọn trên màn hình).<br/> • Nếu shop không đăng ký các dịch vụ gia tăng → Phần dịch vụ gia tăng sẽ không hiển thị dịch vụ nào.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Thêm sản phẩm vào PO.<br/> • TH1 : Đối với sản phẩm đã chuẩn hóa trước trong kho sản phẩm → Nhập <code>tên sản phẩm</code> cần tìm.<br/> • TH2 : Đối với sản phẩm <code>&quot;Chưa&quot;</code> có trong kho sản phẩm → TX chọn button <code>&quot;Thêm mới”</code> → Nhập thông tin sản phẩm ( bắt buộc ) → <code>Chọn số lượng &gt; 0</code><br/>- <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Sau khi điền đủ thông tin trên form <code>Tạo Phiếu</code> → Tài xế bấm <code>Xác nhận</code> để tạo <code>đơn phân phối</code><br/>- <strong><span style="border-bottom:0.05em solid">Bước 4:</span></strong> Kiểm tra lại thông tin sản phẩm trong danh sách khớp với số lượng thực tế được bàn giao.<br/> • Bấm <code>Xác nhận</code> và <code>tạo phiếu</code></td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8097-a30e-e136619107d0" class=""><code>Shop sử dụng DVGT</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8095-bedd-e25697aa0816"><div class="source"><a href="https://drive.google.com/file/d/1fZ7DG9pQtSl5jBLFWMAEBxFqq1Dk_RCG/view?usp=sharing">https://drive.google.com/file/d/1fZ7DG9pQtSl5jBLFWMAEBxFqq1Dk_RCG/view?usp=sharing</a></div></figure></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80a9-973a-d0343c52d958"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80cd-bcef-e30f82b1a679" class=""><code>Shop không sử dụng DVGT</code></p></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-809d-84ca-ec891990722e" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80e4-92ef-e3186d0f3922" style="width:50%" class="column"><div style="display:contents" dir="auto"><ol type="a" id="2ceec18e-70ae-80eb-a339-d3c9e3cbb0dc" class="numbered-list" start="1"><li>Khách mua lần đầu</li></ol></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8001-9a9d-c232eb521787"><div class="source"><a href="https://drive.google.com/file/d/1tnVy43bNPMZfDftDfJV5dVAGgVFZi5a5/view?usp=sharing">https://drive.google.com/file/d/1tnVy43bNPMZfDftDfJV5dVAGgVFZi5a5/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80b9-a497-fb636247d20c" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8098-a228-ffd51e99bd51" class="">b.  Đối với khách hàng cũ</p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8019-8c4b-df19d7bd9970"><div class="source"><a href="https://drive.google.com/file/d/15FNmtyHz_GQcQiU0A4CrI3ZsIHcYo5GU/view?usp=sharing">https://drive.google.com/file/d/15FNmtyHz_GQcQiU0A4CrI3ZsIHcYo5GU/view?usp=sharing</a></div></figure></div></div></div></div></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80c5-9392-fad47a185671"/></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-8087-aa3a-f32aff8f25a6" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8007-b291-daa2dbedd007"><th id="s]X&lt;" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="KMVb" class="simple-table-header-color simple-table-header" style="width:549.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80c7-bcbc-f984a0158cf4"><td id="s]X&lt;" class="" style="width:236.33333333333334px"><strong>VHXT - TÀI XẾ | LM - COD</strong></td><td id="KMVb" class="" style="width:549.328125px"><strong>📋 Shop có PO vật lý:</strong><br/> - <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Tại màn hình các thông tin cần nhập để <code>tạo phiếu</code> → <code>Tài xế chọn button</code> → HT hiển thị màn hình camera để chụp ảnh trực tiếp.<br/>  • Nếu shop gửi <code>file ảnh</code> hoặc <code>file PDF</code> có thể chọn action <code>Tải lên</code> → Chọn ảnh hoặc file PDF mong muốn.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Hệ thống tự đọc các thông tin từ ảnh/file để trả ra màn hình preview sản phẩm:<br/> + <mark class="highlight-blue">TH1</mark>: Sản phẩm đã được chuẩn hóa trong kho sản phẩm<br/>  • Nếu tất cả sản phẩm trong danh sách đã <code>Hợp lệ</code> → TX chọn nút <code>Tiếp tục</code> để chuyển các thông tin về màn tạo phiếu.<br/>  • Nếu tất cả sản phẩm trong danh sách <code>Không hợp lệ</code> TX chọn nút <code>tìm kiếm</code> lại sản phẩm theo mã <code>SKU</code> / <code>Barcode</code> đúng <em>(vì có thể HT đã đọc nhầm số trong bộ mã SKU và không tìm được sản phẩm đúng)</em> → Sửa các <code>sản phẩm</code> thành hợp lệ → TX chọn nút <code>&quot;Tiếp tục&quot;</code> để chuyển các thông tin về màn tạo phiếu.<br/> + <mark class="highlight-blue">TH2</mark>: Sản phẩm <code>CHƯA</code> được tạo hoặc chuẩn hóa trong kho sản phẩm<br/>  • HT kiểm tra <code>mã barcode</code> / <code>mã SKU</code> không trùng với thông tin của bất kì sản phẩm nào trong <code>Kho sản phẩm </code>→ sản phẩm đó có trạng thái là <code>sản phẩm mới</code><br/>  • Với sản phẩm mới tài xế có thể xem thông tin hoặc chỉnh sửa thông tin <em>(không bắt buộc chỉnh sửa)</em> → HT set sẵn các giá trị tối thiếu đối với thông tin sản phẩm như <code>giá bán</code>, <code>giá nhập</code>, <code>khối lượng</code>, <code>kích thướcDxRxC</code> | <code>Tên sản phẩm</code> &amp; s<code>ố lượng</code> → HT trích xuất từ PO bàn giao hàng hóa vừa upload.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80f6-bd74-e479d0bae050" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8040-85be-f4f98003d3f7" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-804b-bd94-d10f68124eae" class=""><code>Shop đăng ký DVGT</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-806b-b694-d08de3dd5eac"><div class="source"><a href="https://drive.google.com/file/d/1kd9t3IbFQX1isBjcGNT9T8az9NsG_Dou/view?usp=sharing">https://drive.google.com/file/d/1kd9t3IbFQX1isBjcGNT9T8az9NsG_Dou/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8070-99c2-d4a6ead4dfbe" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8016-9073-f16a13adce65" class=""><code>Shop không đăng ký DVGT</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-803b-9468-f5253fad7385"><div class="source"><a href="https://drive.google.com/file/d/15Uo2da0lMxaW7W6IcqIYZwzRwV96A5CE/view?usp=sharing">https://drive.google.com/file/d/15Uo2da0lMxaW7W6IcqIYZwzRwV96A5CE/view?usp=sharing</a></div></figure></div></div></div></div></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-8005-8d32-c85d62aaff0f"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8059-9933-dff7f791d193" class=""><strong>4.3. Xử lý tại điểm.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80a3-91a5-c10810e8110f" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80e1-9fea-f48be2a4c673"><th id="?w[x" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="wNmR" class="simple-table-header-color simple-table-header" style="width:547.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-804f-9598-e498bf1089a0"><td id="?w[x" class="" style="width:236.33333333333334px"><strong>VHXT - TÀI XẾ | LM - COD</strong></td><td id="wNmR" class="" style="width:547.328125px">📦 <strong>Vận hành không theo vật chứa:</strong><br/> - <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> <mark class="highlight-default"><code>In mã SKU sản phẩm ( Bắt buộc )</code></mark><br/>  • Bấm chọn để <code>in mã SKU sản phẩm</code> <em>(Áp dụng trong trường hợp sản phẩm shop bàn giao chưa có mã barcode trên thùng/bao, trường hợp sản phẩm đã có sẵn mã tài xế bỏ qua bước này)</em>.<br/>  • Chọn checkbox <code>Sản phẩm</code> muốn in mã <em>(có thể chọn tất cả sản phẩm trong danh sách)</em> → HT tự động hiển thị <code>số lượng</code> của mỗi sản phẩm trong phiếu → cho phép thay đổi số lượng trong trường hợp muốn in ít hơn.<br/>  • Chọn nút <code>In mã</code> để tiến hành in.<br/> *<em><strong>Lưu ý:</strong></em> <em>In mã SKU sản phẩm đối với các sản phẩm không có barcode trên thùng/ bao hàng</em>:<br/>  • Tại màn <code>Lấy hàng</code>: Tài xế chọn button <code>Xem thông tin phiếu</code> → HT hiển thị màn hình chi tiết phiếu.<br/>  • Tài xế chọn button <code>In mã SKU</code> → HT mở popup cho phép người dùng kết nối với <code>máy in</code> → Tài xế chọn <code>thiết bị in</code> cần kết nối → HT cho phép in các SKU tương ứng với từng sản phẩm.<br/>  • Tài xế chọn <code>sản phẩm</code> muốn in <code>mã SKU</code> → Tài xế dùng mã đã in để dán lên bao/ thùng SP chưa có mã để xử lý hàng hóa ở các khâu vận hành sau khi lấy thành công.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Kiểm tra lại thông tin sản phẩm trong danh sách khớp với số lượng thực tế được bàn giao → Bấm <code>Xác nhận</code> và <code>tạo phiếu</code><br/> - <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Tài xế <code>kéo phiếu</code> &amp; <code>Update thông tin</code> phiếu mới thành công → Lấy hàng đúng đủ số lượng trên PO.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-804a-832c-e28649bccd0f" class=""><code>In mã mặc định khi lấy đơn</code><div class="indented"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-803c-ac00-e3c87767e5c1" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-802a-8929-e9b6a9356740" style="width:50%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-807e-b0e6-efb0c5f90ea1"><div class="source"><a href="https://drive.google.com/file/d/1jBjLqZrpF13GTlr7MGXMPqs8C6SD_Vdm/view?usp=sharing">https://drive.google.com/file/d/1jBjLqZrpF13GTlr7MGXMPqs8C6SD_Vdm/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80ba-9bc3-f85151090984" style="width:50%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-805d-8686-e58875645640"><div class="source"><a href="https://drive.google.com/file/d/1NZoNccA-TnTASL5r8o6KJMWNPt7H_oAc/view?usp=sharing">https://drive.google.com/file/d/1NZoNccA-TnTASL5r8o6KJMWNPt7H_oAc/view?usp=sharing</a></div></figure></div></div></div></div></div></div></p></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8067-832c-c8902286ebc7" class=""><code>In trong chi tiết phiếu</code><div class="indented"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80b0-a1a0-d6268f304bd9" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8009-8308-daf4bc37ba2a" style="width:50%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8035-a67a-df24648d8cee"><div class="source"><a href="https://drive.google.com/file/d/1neNWxRceMvnZxO5CcdaKtkuhRlBvVQir/view?usp=sharing">https://drive.google.com/file/d/1neNWxRceMvnZxO5CcdaKtkuhRlBvVQir/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-800e-bcff-d4893723245d" style="width:50%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8003-9c38-e0133d822710"><div class="source"><a href="https://drive.google.com/file/d/1NiSO0RGHPQGxNQUiHjHTuF8knRZZ0sAG/view?usp=sharing">https://drive.google.com/file/d/1NiSO0RGHPQGxNQUiHjHTuF8knRZZ0sAG/view?usp=sharing</a></div></figure></div></div></div></div></div></div></p></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80f6-a836-ca0d426a0d8f"/></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-8074-8925-ef32698e3be0" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-803b-9897-e61e45ce4f0e"><th id="iFKp" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="{sYe" class="simple-table-header-color simple-table-header" style="width:595.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-805b-b0ba-d224a98b7d89"><td id="iFKp" class="" style="width:236.33333333333334px"><strong>VHXT - TÀI XẾ | LM - COD</strong></td><td id="{sYe" class="" style="width:595.328125px"><strong>🕋 Vận hành theo vật chứa :</strong><br/> - <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Sau khi tạo PO thành công → TX thao tác in <code>mã Pallet</code> bằng cách click chọn <code>&quot;In mã Pallet&quot;</code>.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Chọn loại mã cần in.<br/>  + Pallet của khách hàng:<br/>   • TX chọn <code>&quot;Mã Pallet đối tác&quot;</code> và <code>nhập số lượng</code>.<br/>  + Pallet G ( GHTK ):<br/>   • TX chọn <code>&quot;Mã Pallet của GHTK&quot;</code> → Chọn <code>mã pallet</code> từ danh sách.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Gán <code>&quot;Sản phẩm&quot;</code> lên pallet:<br/>   • Chọn <code>&quot;Gán Pallet&quot;</code> → Chọn <code>&quot;PO&quot;</code> cần gán → Chọn <code>&quot;Sản Phẩm&quot;</code> cần gán vào pallet ( Có thể chọn tất cả ) → <code>Scan mã pallet</code> → Nhập <code>&quot;SL gán&quot;</code> → Chọn <code>&quot;Xác nhận&quot;</code> → popup <code>&quot;Gán pallet thành công&quot;</code> → <code>&quot;Ok&quot;</code><br/>• Thao tác <code>&quot;Gán Pallet&quot;</code> có thể thực hiện tại điểm lấy hàng hoặc tại Hub, tuỳ vào vận hành thực tế.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 4:</span></strong> Kiểm tra lại thông tin sản phẩm trong danh sách trên pallet khớp với số lượng thực tế được bàn giao → Bấm <code>Xác nhận</code> và <code>tạo phiếu</code>.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 5:</span></strong> Tài xế <code>kéo phiếu</code> &amp; <code>Update</code> thông tin phiếu mới thành công → Lấy hàng đúng đủ số lượng pallet trên PO.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 6:</span></strong> Hệ thống gửi BBBG cho Shop</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8051-b9c4-d9f138f64afe" class=""><code>Gán vật chứa ( Pallet ) khi lấy hàng</code><div class="indented"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8000-95ed-daef1428d2de"><div class="source"><a href="https://drive.google.com/file/d/1l_1q2VfBz8rNjCCbLGAaQEbpE-rj5c6C/view?usp=sharing">https://drive.google.com/file/d/1l_1q2VfBz8rNjCCbLGAaQEbpE-rj5c6C/view?usp=sharing</a></div></figure></div></div></p></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80d5-a0c8-df050a946f4b"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80f9-8ad0-e09a29709156" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2ceec18e-70ae-8015-bf55-c1aa534c4e83" class="">5. HUB.</h3></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-808f-971e-fc8b9f153e1f" class=""><strong>5.1. Nhập kho nguồn.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-8053-9c6b-f22573be56d2" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8077-82f4-cc37d8322d3b"><th id="le{x" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="tdXD" class="simple-table-header-color simple-table-header" style="width:591.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8079-8db0-cfa6b05b9078"><td id="le{x" class="" style="width:236.33333333333334px"><strong>VHXT - TÀI XẾ</strong></td><td id="tdXD" class="" style="width:591.328125px"><strong>📌 TX gửi yêu cầu nhập kho.</strong><br/>- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Chọn truy cập vào ứng dụng.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Chọn <code>&quot;Nhập kho BBS&quot;</code> → HT hiển thị danh sách các đơn cần gửi yêu cầu nhập kho theo - điều kiện tương tự đơn hàng.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Click <code>chọn đơn hàng</code> cần gửi yêu cầu nhập kho → Gửi yêu cầu thành công HT hiện thị thông báo <code>&quot;đã gửi yêu cầu nhập kho thành công&quot;</code><br/>- <strong><span style="border-bottom:0.05em solid">Bước 4:</span></strong> Tài xế chờ XLHH/ NVBC <code>xác nhận</code>.</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-802c-bfc4-c4edb08da42a"><td id="le{x" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="tdXD" class="" style="width:591.328125px">- <strong><span style="border-bottom:0.05em solid">Bước 5:</span></strong> Chọn truy cập vào ứng dụng<br/>- <strong><span style="border-bottom:0.05em solid">Bước 6:</span></strong> Chọn menu <code>Xác nhận hàng BBS</code> → Chọn <code>&quot;Bấm để chọn xe tải&quot;</code> → Nhập thông tin <code>biển số xe</code> để tìm xe → HT hiển thị danh sách các đơn hàng thường và đơn phân phối.<br/><em><strong>*Lưu ý:</strong></em> <em>Các đơn theo luồng phân phối hiện tại được gắn tag đơn </em><em><code>&quot;Đơn phân phối”</code></em></td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8091-8e6e-d9a0c8ac47d1"><td id="le{x" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="tdXD" class="" style="width:591.328125px"><strong>📦 Luồng PO không gán vật chứa.</strong><br/> - Chọn <code>xem danh sách SKU</code> của đơn (phiếu) → HT hiển thị danh sách SKU của phiếu<br/> - Click <code>scan</code> để mở camera quét mã barcode sản phẩm → Click lại lần nữa để đóng<br/>camera.<br/>  • User lia camera vào <code>sản phẩm cần quét</code> -&gt; HT quét mã thành công hiển thị trường cho phép nhập số lượng cần xử lý.<br/>  • User kiểm đếm <code>sản phẩm</code> và <code>nhập số lượng</code> cần xử lý.<br/>  • Trong trường hợp đơn có <code>nhiều sản phẩm</code> → User thao tác tương tự với các sản phẩm còn lại trong danh sách<br/> - Chọn <code>&quot;Xác nhận&quot;</code> :<br/>  • HT ghi nhận nhập hàng cho SP vừa quét với số lượng hàng hóa tương ứng đã nhập ở trường số lượng.<br/>  • HT sinh log nhập hàng trung chuyển cho đơn hàng khi nhập đủ số lượng sản phẩm của SKU cuối cùng trong đơn (phiếu)<br/> - Chọn <code>&quot;Hoàn thành&quot;</code> → <code>&quot;chốt nhập&quot;</code> → <code>&quot;chốt seal&quot;</code> <em>(nếu xe cần chốt seal)</em> → và hoàn thành nhập hàng</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80fb-83db-d0876efae352" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8038-a702-e4ca4086d757" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80d6-ac7c-e9fc414c82ac" class=""><code>Tài xế gửi yêu cầu nhập kho</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80b6-94c6-c26d08429241"><div class="source"><a href="https://drive.google.com/file/d/1EUPyStIbR7Mr2pC7xjR1ozNZENNUGxty/view?usp=sharing">https://drive.google.com/file/d/1EUPyStIbR7Mr2pC7xjR1ozNZENNUGxty/view?usp=sharing</a></div></figure></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80ff-8cd3-c50053b80b7e" class=""><code>Gán pallet với đơn chưa gán.</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-806a-b134-cccab42c5843"><div class="source"><a href="https://drive.google.com/file/d/16Y4HRh0jFFcUpbs3A3Gf3945jgIZCn4I/view?usp=sharing">https://drive.google.com/file/d/16Y4HRh0jFFcUpbs3A3Gf3945jgIZCn4I/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-802d-bb6f-ecfa6dfdc805" style="width:50.00000000000004%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80b6-a12e-dff9aa7b273a" class=""><code>Xử lý hàng hoá duyệt yêu cầu nhập kho</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-803a-a350-ef37af487b90"><div class="source"><a href="https://drive.google.com/file/d/1qoFVnw4_8hn-Dqod92YGsbwMk5W9ZyIj/view?usp=sharing">https://drive.google.com/file/d/1qoFVnw4_8hn-Dqod92YGsbwMk5W9ZyIj/view?usp=sharing</a></div></figure></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8014-846f-fca61a9b88ff" class="">
+</p></div></div></div></div></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-8005-b3d4-f17a25258a5a"/></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80ed-9e7f-dfd91d7f397e" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8068-8124-edaa6c68de74"><th id="cip}" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="@hS^" class="simple-table-header-color simple-table-header" style="width:604.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8057-951a-cb9ed3eb3842"><td id="cip}" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="@hS^" class="" style="width:604.328125px">🕋 <strong>Luồng PO có gán vật chứa ( Thao tác trên vật chứa )</strong>.<br/> + <strong><span style="border-bottom:0.05em solid">TH1:</span></strong> Nhập kho đối với đơn đã được gán vật chứa.<br/>  • Quét mã <code>&quot;Pallet&quot;</code> đã gán vật chứa → HT hiển thị <code>số lượng &quot;Pallet&quot;</code> đã quét và hiển thị số lượng <code>&quot;Sản phẩm&quot;</code> đã được gán.<br/>  • Chọn <code>&quot;Xác nhận&quot;</code> và hoàn tất nhập kho → HT hiển thị thông báo <code>&quot;Nhập kho thành công cho các phiếu&quot;</code> → chọn <code>&quot;Ok&quot;</code> để hoàn tất nhập kho<br/> + <strong><span style="border-bottom:0.05em solid">TH2:</span></strong> Nhập kho đối với đơn chưa gán vật chứa ( TX chưa gán vật chứa tại điểm ).<br/>  • HT hiển thị thông báo <code>&quot;Đơn hàng cần gán với vật chứa”</code>. Vui lòng thao tác gán hoặc nhập kho <code>“theo mã SKU&quot;</code> → chọn <code>&quot;Gán ngay&quot;</code> → Chọn <code>&quot;Sản phẩm&quot;</code> cần gán vào vật chứa ( có thể chọn tất cả ) → chọn <code>&quot;Gán Pallet&quot;</code> → HT hiển thị danh sách sản phẩm cần gán → Nhập số lượng <code>&quot;Sản phẩm&quot;</code> cần gán vào vật chứa → chọn <code>&quot;Xác nhận&quot;</code> → HT hiển thị thông báo <code>&quot;Gán pallet thành công&quot;</code> → chọn <code>&quot;Ok&quot;</code> → HT hiển thị thông báo <code>&quot;Nhập kho thành công&quot;</code> → chọn <code>&quot;Ok&quot;</code> để hoàn tất nhập kho. </td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80a4-874e-d7c83f2d0867" class=""><code>Nhập kho với đơn đã gán pallet</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80b4-ac68-d767013940b1"><div class="source"><a href="https://drive.google.com/file/d/1xOX-9k6BSpWiAdN7NZ4GYMz3NxDqvTD9/view?usp=sharing">https://drive.google.com/file/d/1xOX-9k6BSpWiAdN7NZ4GYMz3NxDqvTD9/view?usp=sharing</a></div></figure></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80a0-b8df-e622b8a5aa6a"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80c2-b21a-d93e777e74ff" class=""><strong>5.2. Nhập kho trung chuyển.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-8067-936c-cd745269b96d" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8056-9c2b-c9653bacfbc5"><th id="N\Zk" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="N[TS" class="simple-table-header-color simple-table-header" style="width:632.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-809d-b05c-ca400bbbbefc"><td id="N\Zk" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="N[TS" class="" style="width:632.328125px">- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Chọn truy cập vào ứng dụng → Chọn menu <code>&quot;Nhập hàng&quot;</code><br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Nhập và <code>chọn BKS xe</code> cần nhập hàng → HT hiển thị danh sách các đơn cần nhập vào kho trung chuyển :<br/> • Điều kiện hiển thị đơn cần nhập theo config đường đi</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8097-9642-c77b4b97506b"><td id="N\Zk" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="N[TS" class="" style="width:632.328125px"><strong>📦 Luồng PO không gán vật chứa</strong><br/> - Chọn <code>xem danh sách SKU</code> của đơn (phiếu) → HT hiển thị danh sách SKU của phiếu.<br/> - Click chọn nút <code>scan</code> để mở camera quét mã barcode sản phẩm → Click lại lần nữa để đóng<br/>camera.<br/>  • User lia camera vào <code>sản phẩm</code> cần quét -&gt; HT quét mã thành công hiển thị trường cho phép nhập số lượng cần xử lý.<br/>  • User kiểm đếm <code>sản phẩm</code> và nhập số lượng cần xử lý và trường nhập.<br/>  • Trong trường hợp đơn có nhiều sản phẩm -&gt; User thao tác tương tự với các sản phẩm còn lại<br/>trong danh sách.<br/> - Click button <code>&quot;Xác nhận&quot;</code><br/>  • HT ghi nhận xuất hàng cho SP vừa quét với số lượng hàng hóa tương ứng đã nhập ở trường số lượng.<br/>  • HT sinh log xuất hàng trung chuyển cho đơn hàng khi nhập đủ số lượng sản phẩm của SKU cuối cùng trong đơn (phiếu).<br/> - Click button <code>Hoàn thành</code> → <code>chốt nhập</code> → <code>chốt seal</code> <em>(nếu xe cần chốt seal)</em> → và hoàn<br/>thành xuất hàng.</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-804e-8ca8-f8631c5b90d4"><td id="N\Zk" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="N[TS" class="" style="width:632.328125px"><strong>🕋 Luồng PO có gán vật chứa ( Thao tác trên vật chứa )</strong><br/>• Chọn <code>đơn hàng</code> cần thao tác → HT hiển thị <code>&quot;Danh sách Pallet gán với phiếu&quot;</code> → Quét <code>mã vật chứa</code><br/>→ HT hiển thị lượng <code>&quot;Pallet&quot;</code> và số lượng <code>&quot;Sản phẩm&quot;</code> → Chọn <code>&quot;Xác nhận&quot;</code> <em>(Tuỳ chọn xem chi tiết </em><code>&quot;Vật chứa gán với phiếu&quot;</code> và thông tin chi tiết sản phẩm có trong vật chứa ) → Chọn <code>&quot;Hoàn thành&quot;</code>để hoàn tất nhập kho.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-809e-92b5-cb4bd3ad22f7" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8066-8063-d2b128fafdb4" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8023-afb7-f72e13ed5b56" class=""><code>PO gán vật chứa ( pallet )</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8087-9756-cb8afbbb538b"><div class="source"><a href="https://drive.google.com/file/d/1qOtNVAb5Kv2hVsnEy0om0IzgvzWdGlxg/view?usp=sharing">https://drive.google.com/file/d/1qOtNVAb5Kv2hVsnEy0om0IzgvzWdGlxg/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8044-92a5-e5cfaafca2c0" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80d2-9078-c750d03eb6d2" class=""><code>PO không gán vật chứa ( pallet )</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80a6-8a78-e022e8914380"><div class="source"><a href="https://drive.google.com/file/d/1sKJP-nGuJ1Ef4yljwuWjE4VnCs-78O1C/view?usp=sharing">https://drive.google.com/file/d/1sKJP-nGuJ1Ef4yljwuWjE4VnCs-78O1C/view?usp=sharing</a></div></figure></div></div></div></div></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80ab-b39a-f05e8d11789e"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80c5-af7f-d6b11882019c" class=""><strong>5.3. Xuất trung chuyển.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80d7-8068-f659ede186aa" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8078-870b-c08f2bd66f19"><th id="tYEo" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="^Ze|" class="simple-table-header-color simple-table-header" style="width:599.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80ae-b179-f7c043adaade"><td id="tYEo" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="^Ze|" class="" style="width:599.328125px">- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Chọn truy cập vào ứng dụng → Chọn menu &quot;Xuất hàng&quot;<br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Nhập và chọn <code>BKS xe cần nhập hàng</code> → HT hiển thị danh sách các đơn cần nhập vào kho trung chuyển.<br/> • Điều kiện hiển thị đơn cần nhập theo config đường đi.</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8098-b9fc-edfa5e455100"><td id="tYEo" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="^Ze|" class="" style="width:599.328125px"><strong>📦 Luồng PO không gán vật chứa</strong><br/> - Chọn <code>xem danh sách SKU</code> của đơn (phiếu) → HT hiển thị danh sách SKU của phiếu.<br/> - Click chọn nút <code>scan</code> để mở camera quét mã barcode sản phẩm → Click lại lần nữa để đóng camera.<br/>  • User lia camera vào <code>sản phẩm cần quét</code> → HT quét mã thành công hiển thị trường cho phép <code>nhập số lượng</code> cần xử lý.<br/>  • User kiểm đếm <code>sản phẩm</code> và <code>nhập số lượng</code> cần xử lý.<br/>  • Trong trường hợp đơn có nhiều sản phẩm → User thao tác tương tự với các sản phẩm còn lại trong danh sách.<br/> - Click button <code>&quot;Xác nhận&quot;</code><br/>  • HT ghi nhận xuất hàng cho SP vừa quét với số lượng hàng hóa tương ứng đã nhập ở trường số lượng.<br/>  • HT sinh log xuất hàng trung chuyển cho đơn hàng khi nhập đủ số lượng sản phẩm của SKU cuối cùng trong đơn (phiếu).<br/> - Click button <code>Hoàn thành</code> → <code>chốt nhập</code> → <code>chốt seal</code> <em>(nếu xe cần chốt seal)</em> → và hoàn thành xuất hàng.</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80d8-99c4-fc5dd23aa208"><td id="tYEo" class="" style="width:236.33333333333334px"><strong>HUB - XLHH</strong></td><td id="^Ze|" class="" style="width:599.328125px"><strong>🕋 Luồng PO có gán vật chứa ( Thao tác trên vật chứa ).</strong><br/>• Chọn <code>PO cần thao tác</code> <em>( Có thể xem trước số lượng pallet và chi tiết sản phẩm )</em> → HT hiển thị <code>Danh sách &quot;Vật chứa&quot;</code> cần xử lý → <code>Quét mã vật chứa</code> → HT hiển thị lượng <code>&quot;Pallet&quot;</code> và <code>số lượng &quot;Sản phẩm&quot;</code> → Chọn <code>&quot;Xác nhận&quot;</code>→ HT hiển thị danh sách các đơn hàng đã thao tác → Chọn <code>&quot;Hoàn thành&quot;</code> để hoàn tất xuất kho.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80a5-b177-c6abcc48807d" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8010-b804-fb2b69753c30" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8013-a1de-dd4377fd50b3" class=""><code>PO gán vật chứa ( pallet )</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-803b-ba25-e8ab1096deb1"><div class="source"><a href="https://drive.google.com/file/d/10-Ac5tCUuSHnE_aWHZ2c85wDFGNZVf_B/view?usp=sharing">https://drive.google.com/file/d/10-Ac5tCUuSHnE_aWHZ2c85wDFGNZVf_B/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8032-ba11-eddcae7b1eed" style="width:50%" class="column"><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-807a-8cea-d8ebcb11666c" class=""><code>PO không gán vật chứa ( pallet )</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8036-96e7-e324f76de246"><div class="source"><a href="https://drive.google.com/file/d/17Y9pbB7xYGlf-fVIaTFEnBCaMjpfuQtS/view?usp=sharing">https://drive.google.com/file/d/17Y9pbB7xYGlf-fVIaTFEnBCaMjpfuQtS/view?usp=sharing</a></div></figure></div></div></div></div></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-8089-b7a8-fefab0af8724"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80dd-9323-db3a79d45a1f" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2ceec18e-70ae-80f7-b543-da5e740ce5cc" class="">6. KHO ĐÍCH.</h3></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80c3-8a01-c4a1a0bd983d" class=""><strong>6.1. Xuất giao đơn phân phối.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-8008-b424-db5827a04d84" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8025-8ef0-da33b396aa86"><th id="?DaU" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="hA&lt;b" class="simple-table-header-color simple-table-header" style="width:587.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80e9-90ab-cae3745f6172"><td id="?DaU" class="" style="width:236.33333333333334px"><strong>HUB - Tài xế | LM - Cod</strong></td><td id="hA&lt;b" class="" style="width:587.328125px">- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Truy cập vào ứng dụng <code><a href="http://ghtk.co/">GHTK.Co</a></code><br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Chọn Điểm cần thao tác.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Chọn menu <code>&quot;Xuất giao/ Xuất trả&quot;</code> → HT hiển thị danh sách các đơn tài xế cần xuất giao / xuất trả.<br/> • Các đơn phân phối được gán tag <code>“Đơn Booking”</code><br/> • Tài xế thao tác nhận đơn, gửi yêu cầu cho GS duyệt.</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8097-ad7b-d89ad0927b39"><td id="?DaU" class="" style="width:236.33333333333334px"><strong>VHXT - GSX | LM - XLHH</strong></td><td id="hA&lt;b" class="" style="width:587.328125px"><strong>📌 Thao tác chung :</strong><br/> - <strong><span style="border-bottom:0.05em solid">Bước 4:</span></strong> Truy cập vào ứng dụng <code><a href="http://ghtk.co/">GHTK.Co</a></code><br/> - <strong><span style="border-bottom:0.05em solid">Bước 5:</span></strong> Chọn menu <code>Xác nhận xuất giao BBS</code> → HT hiển thị danh sách các tài xế đã gửi yêu cầu xuất giao.<br/>  • Đối với tài xế có đơn <code>Phân phối</code> đã gửi yêu cầu xuất giao chờ xác nhận → <code>HT gắn</code>.<br/>  • Bấm chọn tài xế có <code>đơn phân phối</code> → HT hiển thị danh sách các đơn thường và <code>đơn booking</code> cần xác nhận yêu cầu.<br/>  • User chọn tab <code>&quot;Đơn phân phối&quot;</code><br/>  • Chọn button <code>Scan</code> để mở popup quét <code>mã barcode</code></td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8009-847a-de2a138cbc4e"><td id="?DaU" class="" style="width:236.33333333333334px"><strong>VHXT - GSX | LM - XLHH</strong></td><td id="hA&lt;b" class="" style="width:587.328125px"><strong>📦 Luồng PO không gán vật chứa</strong><br/> • User lia camera vào <code>barcode sản phẩm</code> → <code>Quét mã hợp lệ</code> → HT tự động tích chọn sản phẩm đó trong danh sách.<br/> • User quét đủ các <code>sản phẩm</code> và <code>nhập số lượng</code> trong danh sách</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80de-b7a7-c7d602325dcb"><td id="?DaU" class="" style="width:236.33333333333334px"><strong>VHXT - GSX | LM - XLHH</strong></td><td id="hA&lt;b" class="" style="width:587.328125px"><strong>🕋 Luồng PO có gán vật chứa ( Thao tác trên vật chứa )<br/></strong> • User lia camera vào barcode <code>&quot;Pallet&quot;</code> → <code>Quét mã Pallet</code> → HT hiển thị danh sách các sản phẩm cho trong <code>&quot;Pallet&quot;</code> → Quét mã <code>&quot;Sản phẩm&quot;</code> → HT tự động tích chọn sản phẩm đó trong danh sách.<br/> • User quét đủ các <code>sản phẩm</code> và <code>nhập số lượng</code> trong danh sách</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8017-9bf2-f680c4e61a90"><td id="?DaU" class="" style="width:236.33333333333334px"><strong>VHXT - GSX | LM - XLHH</strong></td><td id="hA&lt;b" class="" style="width:587.328125px"><strong>📌 Thao tác chung</strong><br/> - <strong><span style="border-bottom:0.05em solid">Bước 6:</span></strong> Bấm <code>xác nhận</code> → HT ghi nhận xuất giao thành công đơn cho tài xế.<br/> - <strong><span style="border-bottom:0.05em solid">Bước 7:</span></strong> Xuất giao thành công đơn (phiếu) cho tài xế.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80c6-b543-c8e0584de8f0" class=""><code>Tài xế gửi y/c xuất giao</code></p></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80ba-8f8c-cd1fe27fb471" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-802b-a9dd-fa3bb1fa25ab" style="width:33.33333333333333%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80e2-85e2-c40210b03a83"><div class="source"><a href="https://drive.google.com/file/d/1_N4CdbKaBH0NG8fNhy81zOK9nJb7C9Xp/view?usp=sharing">https://drive.google.com/file/d/1_N4CdbKaBH0NG8fNhy81zOK9nJb7C9Xp/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-801a-a73d-d868cb95ca91" style="width:33.33333333333333%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80f8-8092-d777b6346bd5"><div class="source"><a href="https://drive.google.com/file/d/1G4XZUchapZ0YiIfeTDp8s4x9JJ5Hp2_Z/view?usp=sharing">https://drive.google.com/file/d/1G4XZUchapZ0YiIfeTDp8s4x9JJ5Hp2_Z/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-80da-ad87-e8c0fe281208" style="width:33.33333333333333%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8028-b135-d2f510e456ea"><div class="source"><a href="https://drive.google.com/file/d/1r_KWGAcN_H2TvvNeQMRAfIb__2jHBsm1/view?usp=sharing">https://drive.google.com/file/d/1r_KWGAcN_H2TvvNeQMRAfIb__2jHBsm1/view?usp=sharing</a></div></figure></div></div></div></div></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-801f-bbed-d5a0b1cd9835" class=""><code>XLHH duyệt y/c</code></p></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8018-9fe5-cdf0bb9f12be" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-808a-a1f7-d133ea845562" style="width:25%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8062-a180-f60ff85abb38"><div class="source"><a href="https://drive.google.com/file/d/10GbdhMmie-q-_xPsQAeB6WXxjEUucVx5/view?usp=sharing">https://drive.google.com/file/d/10GbdhMmie-q-_xPsQAeB6WXxjEUucVx5/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8076-a30e-d283f0c0b718" style="width:25%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80d0-8a9e-cf946a06f878"><div class="source"><a href="https://drive.google.com/file/d/1F3Xro0bmqWG1OgKpXp56IRJT2f0YM_40/view?usp=sharing">https://drive.google.com/file/d/1F3Xro0bmqWG1OgKpXp56IRJT2f0YM_40/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8078-a361-f8c1145765ab" style="width:25%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8026-be52-d1ee22a7927d"><div class="source"><a href="https://drive.google.com/file/d/1gzNMLMAjELIlFWuSQP8OLYnpM0t9plIW/view?usp=sharing">https://drive.google.com/file/d/1gzNMLMAjELIlFWuSQP8OLYnpM0t9plIW/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-806a-a163-ee88938efdfe" style="width:25%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-803a-b4af-e8faa926f90c"><div class="source"><a href="https://drive.google.com/file/d/16g4oaTFy9h8JPBk4oSOMLN-mH-PCbwap/view?usp=sharing">https://drive.google.com/file/d/16g4oaTFy9h8JPBk4oSOMLN-mH-PCbwap/view?usp=sharing</a></div></figure></div></div></div></div></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80b6-8a30-c84159bbb3c1" class=""><code>Đơn gán vật chứa ( pallet ).</code><div class="indented"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80ef-97c8-c714f44b473d"><div class="source"><a href="https://drive.google.com/file/d/1PYqXJZH13AZWVSVnjEFGheLrr7SbjCSY/view?usp=sharing">https://drive.google.com/file/d/1PYqXJZH13AZWVSVnjEFGheLrr7SbjCSY/view?usp=sharing</a></div></figure></div></div></p></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80c5-a199-e37c3b06c56f"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-807e-ad33-deda7b3080eb" class=""><strong>6.2. Giao hàng.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80dc-8daa-eff73336229f" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80bd-9d96-e2acd533a516"><th id="aspe" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="h:_u" class="simple-table-header-color simple-table-header" style="width:662.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-805f-8825-e00f7bfba61b"><td id="aspe" class="" style="width:236.33333333333334px"><strong>VHXT - Tài xế | LM - Cod</strong></td><td id="h:_u" class="" style="width:662.328125px"><strong>📌 Thao tác chung :<br/></strong>- <strong><span style="border-bottom:0.05em solid">Bước 1:</span></strong> Vào màn <code>đang giao</code>, chọn <code>đơn/điểm</code> cần thao tác.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 2:</span></strong> Bấm <code>Thao tác</code>.<br/>- <strong><span style="border-bottom:0.05em solid">Bước 3:</span></strong> Chọn hình thức <code>giao hàng một phần</code> | <code>giao toàn phần</code>.</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80b5-bdb2-e8e4462c490a"><td id="aspe" class="" style="width:236.33333333333334px"><strong>VHXT - Tài xế | LM - Cod</strong></td><td id="h:_u" class="" style="width:662.328125px"><strong>📦 Luồng giao hàng theo SKU<br/></strong> • Chụp ảnh. <code>đến điểm</code>,<br/> • Thu tiền.<br/> • Bấm. <code>Hoàn thành</code> → HT hiển thị popup <code>danh sách các sản phẩm</code> trong phiếu<br/>  + TH1: Nếu chọn <code>Giao hàng toàn bộ</code><br/>   • <code>Tài xế/ Cod</code> HT quét <code>mã barcode</code> các sản phẩm trong danh sách.<br/>   • <code>Tài xế/ Cod</code> nhập số lượng sản phẩm muốn giao → HT tự động hiển thị số lượng còn lại là số<br/>lượng sản phẩm mang về (= <code>Tổng số lượng SP</code> - <code>Số lượng SP muốn giao</code>)<br/>   • Bấm <code>Xác nhận</code> để hoàn thành giao hàng.<br/>  + TH2: Nếu chọn <code>Giao hàng toàn bộ</code><br/>   • <code>Tài xế/ Cod</code> quét <code>mã barcode</code> các sản phẩm trong danh sách</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8092-abf4-f12934bbc3f6"><td id="aspe" class="" style="width:236.33333333333334px"><strong>VHXT - Tài xế | LM - Cod</strong></td><td id="h:_u" class="" style="width:662.328125px"><strong>🕋 Luồng giao hàng theo Pallet<br/> </strong>- TX/Cod chọn tab <code>&quot;Đơn thu hồi Vật chứa&quot;</code><br/> - Giao hàng 1 phần :<br/>  • <code>Tài xế/Cod</code> quét <code>mã vật chứa</code> để giao và thu hồi → Chọn <code>sản phẩm giao</code> và <code>nhập số lượng giao 1 phần</code> → Chọn <code>các kiện</code> chuẩn bị giao 1 phần cho khách hàng → HT hiển thị thông báo <code>&quot;Bạn có chắc chắn ĐH chỉ thu tiền và hoàn trả toàn bộ số kiện hàng cho shop?&quot;</code><br/> - Giao hàng toàn phần :<br/>  • <code>Tài xế/Cod</code> quét <code>mã vật chứa</code> để giao và thu hồi → <code>Quét mã vật chứa</code></td></tr></div><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8008-83b0-f480fd4aa8a8"><td id="aspe" class="" style="width:236.33333333333334px"><strong>VHXT - Tài xế | LM - Cod</strong></td><td id="h:_u" class="" style="width:662.328125px"><strong>📌 Thao tác chung:</strong><br/>- <strong><span style="border-bottom:0.05em solid">Bước 4:</span></strong> Bấm <code>Xác nhận</code> để hoàn thành giao hàng.</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8039-b9f6-fccb1a5b8aff" class=""><code>Theo SKU</code></p></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8033-9f18-e887cc8c1a2c"><div class="source"><a href="https://drive.google.com/file/d/1KuA87RhhNBHvIy4gQ9Uj661AkJmcSwh5/view?usp=sharing">https://drive.google.com/file/d/1KuA87RhhNBHvIy4gQ9Uj661AkJmcSwh5/view?usp=sharing</a></div></figure></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-80b5-999a-d17e3471c1a4" class=""><code>Giao hàng theo vật chứa ( pallet )</code></p></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-805b-95af-ce4782115214" class="column-list"><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-8011-8c9f-fc75a994f593" style="width:50%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-80ec-bc55-d169ac3bc7d3"><div class="source"><a href="https://drive.google.com/file/d/10o1l6qqOlelGzdsMShN_2R5kdiVi3DcN/view?usp=sharing">https://drive.google.com/file/d/10o1l6qqOlelGzdsMShN_2R5kdiVi3DcN/view?usp=sharing</a></div></figure></div></div></div><div style="display:contents" dir="auto"><div id="2ceec18e-70ae-806f-9027-d84d2717c371" style="width:50%" class="column"><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8036-803d-c8864d567f4f"><div class="source"><a href="https://drive.google.com/file/d/1EDcGnaewy_3k2wjcSGbJN6lzexKYjP5W/view?usp=sharing">https://drive.google.com/file/d/1EDcGnaewy_3k2wjcSGbJN6lzexKYjP5W/view?usp=sharing</a></div></figure></div></div></div></div></div><div style="display:contents" dir="auto"><hr id="2ceec18e-70ae-80c7-b689-ce034b37c3c3"/></div><div style="display:contents" dir="auto"><p id="2ceec18e-70ae-8025-b87b-e8a8cff21849" class=""><strong>6.3. Trả hàng.</strong></p></div><div style="display:contents" dir="ltr"><table id="2ceec18e-70ae-80aa-b861-c6afdec35654" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-8013-aa7a-d4671231b7b0"><th id="Ecr|" class="simple-table-header-color simple-table-header" style="width:236.33333333333334px">Bộ phận thực hiện</th><th id="GxiB" class="simple-table-header-color simple-table-header" style="width:602.328125px">Nội dung</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2ceec18e-70ae-80fb-8788-cb28b3cc7322"><td id="Ecr|" class="" style="width:236.33333333333334px"><strong>VHXT - Tài xế | LM - Cod</strong></td><td id="GxiB" class="" style="width:602.328125px"><strong><span style="border-bottom:0.05em solid">- Bước 1:</span></strong> Chọn <code>đơn cần trả</code> / <code>điểm cần trả </code><br/><strong><span style="border-bottom:0.05em solid">- Bước 2:</span></strong> Chọn <code> Trả hàng</code><br/><strong><span style="border-bottom:0.05em solid">- Bước 3:</span></strong> Thao tác trả hàng<br/> • Chụp ảnh<br/> • Bấm <code>Hoàn thành</code> → HT hiển thị popup danh sách các sản phẩm trong phiếu.<br/> • <code>Tài xế/ Cod</code> quét <code>mã barcode</code> sản phẩm trong phiếu.</td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure id="2ceec18e-70ae-8069-bbc1-cbf85b1e421c"><div class="source"><a href="https://drive.google.com/file/d/1KqJWYuYVKCZPjsA3FWY-O0obn5UiFVrG/view?usp=sharing">https://drive.google.com/file/d/1KqJWYuYVKCZPjsA3FWY-O0obn5UiFVrG/view?usp=sharing</a></div></figure></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
