@@ -2349,7 +2349,25 @@ td code, td a {
                 return data;
             } catch (error) {
                 console.error(`✗ Error fetching ${sheetName}:`, error);
-                console.error('Check: 1) Sheet ID correct? 2) Sheet published? 3) Sheet name matches?');
+                
+                // Specific error messages
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    console.error('❌ CORS Error: Google Sheet chưa được publish to web!');
+                    console.error('📋 Hướng dẫn fix:');
+                    console.error('   1. Mở Google Sheet');
+                    console.error('   2. File → Share → Publish to web');
+                    console.error('   3. Sheet: "MasterData" | Format: "Web page"');
+                    console.error('   4. ✓ Check "Automatically republish..."');
+                    console.error('   5. Click "Publish" → Confirm');
+                    console.error('');
+                    console.error('📖 Chi tiết: Xem file PUBLISH_SHEET_GUIDE.md');
+                } else {
+                    console.error('Check:');
+                    console.error('   1) Sheet ID correct? Current:', CONFIG.SHEET_ID);
+                    console.error('   2) Sheet published to web? (File → Share → Publish to web)');
+                    console.error('   3) Sheet name matches? Expected: "MasterData"');
+                }
+                
                 return [];
             }
         },
@@ -2654,7 +2672,13 @@ td code, td a {
                 
             } catch (error) {
                 console.error('✗ Error loading content:', error);
-                this.showNotification('⚠️ Không thể tải nội dung từ database', 'error');
+                
+                // User-friendly error notification
+                if (error.message && error.message.includes('No data found')) {
+                    this.showNotification('⚠️ Sheet chưa có dữ liệu hoặc chưa được publish', 'error');
+                } else {
+                    this.showNotification('⚠️ Không thể tải nội dung - Kiểm tra Console để biết chi tiết', 'error');
+                }
             }
         },
         
