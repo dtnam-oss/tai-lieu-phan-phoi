@@ -2296,6 +2296,9 @@ td code, td a {
 (function() {
     'use strict';
 
+    // Google Apps Script Web App URL
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec';
+
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         initTableOfContents();
@@ -2385,7 +2388,7 @@ td code, td a {
         let hoverTimer = null;
 
         interactiveTerms.forEach(term => {
-            // Click event - existing functionality
+            // Click event - Show Edit/Delete popup
             term.addEventListener('click', function(e) {
                 e.stopPropagation();
 
@@ -2395,22 +2398,54 @@ td code, td a {
                     currentTooltip = null;
                 }
 
-                // Create new tooltip
+                // Get term data
                 const termId = this.getAttribute('data-term-id');
                 const termText = this.textContent.trim();
 
-                const tooltip = createTooltip(termId, termText);
-                document.body.appendChild(tooltip);
-                currentTooltip = tooltip;
+                // Try to get full data from cache
+                let termData = null;
+                try {
+                    const dbData = window.masterDataCache;
+                    if (dbData && Array.isArray(dbData)) {
+                        termData = dbData.find(row => row && row.id_the === termId);
+                    }
+                } catch (error) {
+                    console.warn('Could not fetch term data:', error);
+                }
 
-                // Position tooltip
-                positionTooltip(tooltip, e);
+                // Create edit/delete popup
+                const popup = createEditPopup(termId, termText, termData);
+                document.body.appendChild(popup);
+                currentTooltip = popup;
+
+                // Position popup
+                positionTooltip(popup, e);
 
                 // Close button
-                tooltip.querySelector('.tooltip-close').addEventListener('click', function() {
-                    tooltip.remove();
+                popup.querySelector('.tooltip-close').addEventListener('click', function() {
+                    popup.remove();
                     currentTooltip = null;
                 });
+
+                // Edit button
+                const editBtn = popup.querySelector('.edit-btn');
+                if (editBtn) {
+                    editBtn.addEventListener('click', function() {
+                        handleEditTerm(termId, termData);
+                        popup.remove();
+                        currentTooltip = null;
+                    });
+                }
+
+                // Delete button
+                const deleteBtn = popup.querySelector('.delete-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', function() {
+                        handleDeleteTerm(termId, termText);
+                        popup.remove();
+                        currentTooltip = null;
+                    });
+                }
             });
 
             // Hover event - show image preview
@@ -2522,6 +2557,72 @@ td code, td a {
             orphanedPreviews.forEach(preview => preview.remove());
         }
 
+        // Handle Edit Term
+        async function handleEditTerm(termId, termData) {
+            const newName = prompt('Nhập tên mới cho khối:', termData ? termData.ten_the : '');
+            if (!newName || newName.trim() === '') return;
+
+            const newUrl = prompt('Nhập URL ảnh/video mới:', termData ? termData.url : '');
+            if (newUrl === null) return; // User cancelled
+
+            const formData = {
+                action: 'update',
+                id_the: termId,
+                ten_the: newName.trim(),
+                url: newUrl.trim(),
+                hang_muc: termData ? termData.hang_muc : ''
+            };
+
+            console.log('📝 Updating term:', formData);
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(formData)
+                });
+
+                alert('✅ Cập nhật thành công!\n\nVui lòng reload trang để thấy thay đổi.');
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (error) {
+                console.error('Error updating term:', error);
+                alert('❌ Có lỗi xảy ra! Vui lòng thử lại.');
+            }
+        }
+
+        // Handle Delete Term
+        async function handleDeleteTerm(termId, termText) {
+            const confirmed = confirm(
+                `⚠️ Bạn có chắc chắn muốn xóa khối này?\n\n` +
+                `ID: ${termId}\n` +
+                `Tên: ${termText}\n\n` +
+                `Hành động này không thể hoàn tác!`
+            );
+
+            if (!confirmed) return;
+
+            console.log('🗑️ Deleting term:', termId);
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'delete',
+                        id_the: termId
+                    })
+                });
+
+                alert('✅ Xóa thành công!\n\nVui lòng reload trang để thấy thay đổi.');
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (error) {
+                console.error('Error deleting term:', error);
+                alert('❌ Có lỗi xảy ra! Vui lòng thử lại.');
+            }
+        }
+
         function positionImagePreview(preview, event) {
             const padding = 20;
             let left = event.clientX + padding;
@@ -2556,6 +2657,32 @@ td code, td a {
             return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
                    imageHosts.some(host => lowerUrl.includes(host));
         }
+    }
+
+    function createEditPopup(termId, termText, termData) {
+        const popup = document.createElement('div');
+        popup.className = 'tooltip-popup';
+        
+        const hangMuc = termData ? termData.hang_muc : 'N/A';
+        const url = termData ? termData.url : '';
+        const hasImage = url && isImageUrl(url);
+        
+        popup.innerHTML = `
+            <div class="tooltip-header">
+                <strong>Khối: ${escapeHtml(termText)}</strong>
+                <button class="tooltip-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="tooltip-body">
+                <p><strong>ID:</strong> ${escapeHtml(termId)}</p>
+                <p><strong>Hạng mục:</strong> ${escapeHtml(hangMuc)}</p>
+                ${hasImage ? `<p><strong>URL:</strong> <a href="${escapeHtml(url)}" target="_blank" style="color: #4CAF50; text-decoration: underline;">Xem ảnh</a></p>` : ''}
+                <div class="tooltip-actions" style="margin-top: 16px; display: flex; gap: 8px;">
+                    <button class="edit-btn" style="flex: 1; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">✏️ Chỉnh sửa</button>
+                    <button class="delete-btn" style="flex: 1; padding: 8px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">🗑️ Xóa</button>
+                </div>
+            </div>
+        `;
+        return popup;
     }
 
     function createTooltip(termId, termText) {
@@ -3541,15 +3668,42 @@ td code, td a {
 
             console.log('📋 Form Data:', formData);
             
-            // TODO: Implement Google Sheets API call
-            alert('✅ Chức năng đang được phát triển!\n\n' +
-                  'Dữ liệu sẽ được gửi lên Google Sheets:\n' +
-                  `- Hạng mục: ${formData.hang_muc}\n` +
-                  `- ID: ${formData.id_the}\n` +
-                  `- Tên: ${formData.ten_the}\n` +
-                  `- URL: ${formData.url}`);
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Đang lưu...';
 
-            closeModal();
+            try {
+                // Call Google Apps Script Web App
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Required for Apps Script
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        action: 'create',
+                        ...formData
+                    })
+                });
+
+                // Note: no-cors mode doesn't return response body
+                // Assume success and reload cache
+                alert('✅ Tạo khối thành công!\n\n' +
+                      `ID: ${formData.id_the}\n` +
+                      `Tên: ${formData.ten_the}\n\n` +
+                      'Vui lòng reload trang để thấy khối mới.');
+
+                // Reload page to fetch new data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error creating term:', error);
+                alert('❌ Có lỗi xảy ra! Vui lòng thử lại.\n\n' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Tạo Khối';
+            }
         });
 
         function resetForm() {
