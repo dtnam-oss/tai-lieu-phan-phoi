@@ -2120,11 +2120,10 @@ td code, td a {
         function isImageUrl(url) {
             if (!url) return false;
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const imageHosts = ['image', 'imgur', 'cloudinary', 'postimg', 'imgbb', 'flickr', 'photobucket'];
             const lowerUrl = url.toLowerCase();
             return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
-                   lowerUrl.includes('image') || 
-                   lowerUrl.includes('imgur') || 
-                   lowerUrl.includes('cloudinary');
+                   imageHosts.some(host => lowerUrl.includes(host));
         }
     }
 
