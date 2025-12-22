@@ -1,0 +1,20 @@
+hang_muc,id_the,ten_the,url
+ONBOARD,section-onboard,1. ONBOARD,
+ONBOARD,faeda640-dac4-4844-9dad-9606804fd78c,<p>Nội dung chi tiết phần ONBOARD...</p>,
+ONBOARD,2ceec18e-70ae-80a2-82c0-fbc34569c941,,https://i.imgur.com/example1.jpg
+ONBOARD,2ceec18e-70ae-8090-98f5-ddfffa556484,Hình minh hoạ sản phẩm thuộc kênh phân phối,
+CẤU HÌNH,section-dang-don,2. ĐĂNG ĐƠN,
+CẤU HÌNH,2ceec18e-70ae-80b2-9e7e-d80f760da1c2,Cấu hình shop được phép đăng đơn,
+CẤU HÌNH,2ceec18e-70ae-804b-8731-f7e03f54b953,,https://i.imgur.com/example2.jpg
+ĐĂNG ĐƠN,section-dang-don-3,3. ĐĂNG ĐƠN,
+ĐĂNG ĐƠN,2ceec18e-70ae-8021-ba52-d0ba83f7adf6,Tạo PO điện tử,
+ĐĂNG ĐƠN,2ceec18e-70ae-80a1-b195-eb9d1522b4a6,,https://drive.google.com/file/d/example/view
+VẬN HÀNH,section-van-hanh,4. VẬN HÀNH,
+VẬN HÀNH,2ceec18e-70ae-804c-99de-f363da316462,Quy trình vận hành chi tiết,
+VẬN HÀNH,2ceec18e-70ae-8084-a50c-d4ba2c99fd50,,https://drive.google.com/file/d/example2/view
+HUB,section-hub,5. HUB,
+HUB,2ceec18e-70ae-8015-bf55-c1aa534c4e83,Xử lý tại Hub,
+HUB,2ceec18e-70ae-80b6-94c6-c26d08429241,,https://drive.google.com/file/d/example3/view
+KHO ĐÍCH,section-kho-dich,6. KHO ĐÍCH,
+KHO ĐÍCH,2ceec18e-70ae-80f7-b543-da5e740ce5cc,Giao hàng tại kho đích,
+KHO ĐÍCH,2ceec18e-70ae-8033-9f18-e887cc8c1a2c,,https://drive.google.com/file/d/example4/view

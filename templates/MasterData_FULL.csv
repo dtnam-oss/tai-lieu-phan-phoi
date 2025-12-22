@@ -1,0 +1,127 @@
+hang_muc,id_the,ten_the,url
+ONBOARD,section-onboard,1. ONBOARD,
+ONBOARD,70fe4b0d-c3af-486e-8387-de3a7ced6ce4,Bảng tiêu chí PO/SO,
+ONBOARD,image-001,Hình minh hoạ sản phẩm phân phối,https://i.imgur.com/placeholder-onboard-001.jpg
+CẤU HÌNH,section-dang-don,2. CẤU HÌNH,
+CẤU HÌNH,2ceec18e-70ae-8008-bf26-fac2001731fb,2.1. Cấu hình shop được phép đăng đơn,
+CẤU HÌNH,2ceec18e-70ae-80b2-9e7e-d80f760da1c2,Bảng cấu hình shop,
+CẤU HÌNH,image-002,Hình minh hoạ cấu hình shop,https://i.imgur.com/placeholder-config-002.jpg
+CẤU HÌNH,2ceec18e-70ae-8023-8871-fadf52db2fc4,2.2. Chuẩn hoá kho sản phẩm,
+CẤU HÌNH,2ceec18e-70ae-80cd-8e35-f94c0e842b35,Bảng chuẩn hoá kho sản phẩm,
+CẤU HÌNH,image-003,Hình minh hoạ kho sản phẩm,https://i.imgur.com/placeholder-config-003.jpg
+ĐĂNG ĐƠN,section-dang-don-3,3. ĐĂNG ĐƠN,
+ĐĂNG ĐƠN,2ceec18e-70ae-801d-b481-c3bbb0f5c9df,3.1. Tạo PO (PO điện tử),
+ĐĂNG ĐƠN,2ceec18e-70ae-807e-838e-df7e38e8efb0,Bảng tạo phiếu PO,
+ĐĂNG ĐƠN,2ceec18e-70ae-8044-b8f9-e5ba69de6b48,Bước 1-4: Tạo PO và đẩy đơn,
+ĐĂNG ĐƠN,2ceec18e-70ae-8004-b10e-f27e8de3a488,Shop đăng đơn kèm phiếu tạm,
+ĐĂNG ĐƠN,image-004,Hình minh hoạ tạo PO,https://i.imgur.com/placeholder-dangdon-004.jpg
+ĐĂNG ĐƠN,2ceec18e-70ae-80a7-9b63-f5d744452fde,3.2. Tạo Booking phân phối,
+ĐĂNG ĐƠN,2ceec18e-70ae-803e-9504-feeb85525d0e,Bảng booking phân phối,
+ĐĂNG ĐƠN,2ceec18e-70ae-8093-b0be-dce0f9660bc9,Thao tác trên app,
+ĐĂNG ĐƠN,2ceec18e-70ae-8058-933c-e7fecd857356,Thao tác trên web,
+ĐĂNG ĐƠN,image-005,Hình minh hoạ booking app,https://i.imgur.com/placeholder-dangdon-005.jpg
+ĐĂNG ĐƠN,image-007,Hình minh hoạ booking web,https://i.imgur.com/placeholder-dangdon-007.jpg
+ĐĂNG ĐƠN,2ceec18e-70ae-8093-8914-da5363dcaed9,3.3. Phân phối xe tải lấy hàng,
+ĐĂNG ĐƠN,2ceec18e-70ae-8043-a7f1-f27b4830da83,Bảng phân phối xe tải,
+ĐĂNG ĐƠN,2ceec18e-70ae-80d8-99d5-e4aa1a20c026,Config kịch bản nổ điểm,
+ĐĂNG ĐƠN,image-006,Hình minh hoạ phân phối xe tải,https://i.imgur.com/placeholder-dangdon-006.jpg
+VẬN HÀNH,section-van-hanh,4. VẬN HÀNH,
+VẬN HÀNH,2ceec18e-70ae-800d-b61e-da5c6577a459,4.1. PO điện tử (PO shop tạo sẵn),
+VẬN HÀNH,2ceec18e-70ae-807e-9bd7-dd2afb44fde9,Bảng PO điện tử,
+VẬN HÀNH,2ceec18e-70ae-809f-9a37-e4c032cb95c6,Bước 1-6: Tài xế kéo PO,
+VẬN HÀNH,2ceec18e-70ae-8084-a50c-d4ba2c99fd50,Video hướng dẫn PO điện tử,https://drive.google.com/file/d/1KpqVtqyxROn014C70s7CU5bMfH5eF0BH/view
+VẬN HÀNH,2ceec18e-70ae-803e-b1f7-f89c15868c85,4.2. PO tiêu chuẩn (Shop tạo booking),
+VẬN HÀNH,2ceec18e-70ae-80ac-90f2-ca21a3c6c099,Bảng PO tiêu chuẩn,
+VẬN HÀNH,2ceec18e-70ae-8040-a15d-f5bfb9429e7f,Thao tác chung tài xế,
+VẬN HÀNH,2ceec18e-70ae-80a0-b490-faa055f77a05,Shop không có PO vật lý,
+VẬN HÀNH,2ceec18e-70ae-8097-a30e-e136619107d0,Shop sử dụng DVGT,
+VẬN HÀNH,2ceec18e-70ae-8095-bedd-e25697aa0816,Video DVGT,https://drive.google.com/file/d/1fZ7DG9pQtSl5jBLFWMAEBxFqq1Dk_RCG/view
+VẬN HÀNH,2ceec18e-70ae-80cd-bcef-e30f82b1a679,Shop không sử dụng DVGT,
+VẬN HÀNH,2ceec18e-70ae-8001-9a9d-c232eb521787,Video khách mua lần đầu,https://drive.google.com/file/d/1tnVy43bNPMZfDftDfJV5dVAGgVFZi5a5/view
+VẬN HÀNH,2ceec18e-70ae-8019-8c4b-df19d7bd9970,Video khách hàng cũ,https://drive.google.com/file/d/15FNmtyHz_GQcQiU0A4CrI3ZsIHcYo5GU/view
+VẬN HÀNH,2ceec18e-70ae-8087-aa3a-f32aff8f25a6,Bảng shop có PO vật lý,
+VẬN HÀNH,2ceec18e-70ae-80c7-bcbc-f984a0158cf4,Shop có PO vật lý - upload,
+VẬN HÀNH,2ceec18e-70ae-806b-b694-d08de3dd5eac,Video shop đăng ký DVGT,https://drive.google.com/file/d/1kd9t3IbFQX1isBjcGNT9T8az9NsG_Dou/view
+VẬN HÀNH,2ceec18e-70ae-803b-9468-f5253fad7385,Video shop không đăng ký DVGT,https://drive.google.com/file/d/15Uo2da0lMxaW7W6IcqIYZwzRwV96A5CE/view
+VẬN HÀNH,2ceec18e-70ae-8059-9933-dff7f791d193,4.3. Xử lý tại điểm,
+VẬN HÀNH,2ceec18e-70ae-80a3-91a5-c10810e8110f,Bảng xử lý tại điểm,
+VẬN HÀNH,2ceec18e-70ae-804f-9598-e498bf1089a0,Vận hành không theo vật chứa,
+VẬN HÀNH,term-default-007,In mã SKU sản phẩm (Bắt buộc),
+VẬN HÀNH,2ceec18e-70ae-804a-832c-e28649bccd0f,In mã mặc định khi lấy đơn,
+VẬN HÀNH,2ceec18e-70ae-807e-b0e6-efb0c5f90ea1,Video in mã mặc định,https://drive.google.com/file/d/1jBjLqZrpF13GTlr7MGXMPqs8C6SD_Vdm/view
+VẬN HÀNH,2ceec18e-70ae-805d-8686-e58875645640,Video in mã mặc định 2,https://drive.google.com/file/d/1NZoNccA-TnTASL5r8o6KJMWNPt7H_oAc/view
+VẬN HÀNH,2ceec18e-70ae-8067-832c-c8902286ebc7,In trong chi tiết phiếu,
+VẬN HÀNH,2ceec18e-70ae-8035-a67a-df24648d8cee,Video in trong chi tiết 1,https://drive.google.com/file/d/1neNWxRceMvnZxO5CcdaKtkuhRlBvVQir/view
+VẬN HÀNH,2ceec18e-70ae-8003-9c38-e0133d822710,Video in trong chi tiết 2,https://drive.google.com/file/d/1NiSO0RGHPQGxNQUiHjHTuF8knRZZ0sAG/view
+VẬN HÀNH,2ceec18e-70ae-8074-8925-ef32698e3be0,Bảng vận hành theo vật chứa,
+VẬN HÀNH,2ceec18e-70ae-805b-b0ba-d224a98b7d89,Vận hành theo vật chứa (Pallet),
+VẬN HÀNH,2ceec18e-70ae-8051-b9c4-d9f138f64afe,Gán vật chứa (Pallet) khi lấy hàng,
+VẬN HÀNH,2ceec18e-70ae-8000-95ed-daef1428d2de,Video gán pallet,https://drive.google.com/file/d/1l_1q2VfBz8rNjCCbLGAaQEbpE-rj5c6C/view
+HUB,section-hub,5. HUB,
+HUB,2ceec18e-70ae-808f-971e-fc8b9f153e1f,5.1. Nhập kho nguồn,
+HUB,2ceec18e-70ae-8053-9c6b-f22573be56d2,Bảng nhập kho nguồn,
+HUB,2ceec18e-70ae-8079-8db0-cfa6b05b9078,TX gửi yêu cầu nhập kho,
+HUB,2ceec18e-70ae-802c-bfc4-c4edb08da42a,HUB-XLHH xác nhận,
+HUB,2ceec18e-70ae-8091-8e6e-d9a0c8ac47d1,Luồng PO không gán vật chứa,
+HUB,2ceec18e-70ae-80ed-9e7f-dfd91d7f397e,Bảng PO có gán vật chứa,
+HUB,2ceec18e-70ae-8057-951a-cb9ed3eb3842,Luồng PO có gán vật chứa,
+HUB,2ceec18e-70ae-80d6-ac7c-e9fc414c82ac,Tài xế gửi yêu cầu nhập kho,
+HUB,2ceec18e-70ae-80b6-94c6-c26d08429241,Video TX gửi yêu cầu,https://drive.google.com/file/d/1EUPyStIbR7Mr2pC7xjR1ozNZENNUGxty/view
+HUB,2ceec18e-70ae-80ff-8cd3-c50053b80b7e,Gán pallet với đơn chưa gán,
+HUB,2ceec18e-70ae-806a-b134-cccab42c5843,Video gán pallet đơn chưa gán,https://drive.google.com/file/d/16Y4HRh0jFFcUpbs3A3Gf3945jgIZCn4I/view
+HUB,2ceec18e-70ae-80b6-a12e-dff9aa7b273a,Xử lý hàng hoá duyệt yêu cầu,
+HUB,2ceec18e-70ae-803a-a350-ef37af487b90,Video XLHH duyệt yêu cầu,https://drive.google.com/file/d/1qoFVnw4_8hn-Dqod92YGsbwMk5W9ZyIj/view
+HUB,2ceec18e-70ae-80a4-874e-d7c83f2d0867,Nhập kho với đơn đã gán pallet,
+HUB,2ceec18e-70ae-80b4-ac68-d767013940b1,Video nhập kho đã gán pallet,https://drive.google.com/file/d/1xOX-9k6BSpWiAdN7NZ4GYMz3NxDqvTD9/view
+HUB,2ceec18e-70ae-80c2-b21a-d93e777e74ff,5.2. Nhập kho trung chuyển,
+HUB,2ceec18e-70ae-8067-936c-cd745269b96d,Bảng nhập kho trung chuyển,
+HUB,2ceec18e-70ae-809d-b05c-ca400bbbbefc,Chọn BKS xe cần nhập,
+HUB,2ceec18e-70ae-8097-9642-c77b4b97506b,Luồng PO không gán vật chứa (TC),
+HUB,2ceec18e-70ae-804e-8ca8-f8631c5b90d4,Luồng PO có gán vật chứa (TC),
+HUB,2ceec18e-70ae-8023-afb7-f72e13ed5b56,PO gán vật chứa (pallet),
+HUB,2ceec18e-70ae-8087-9756-cb8afbbb538b,Video PO gán pallet TC,https://drive.google.com/file/d/1qOtNVAb5Kv2hVsnEy0om0IzgvzWdGlxg/view
+HUB,2ceec18e-70ae-80d2-9078-c750d03eb6d2,PO không gán vật chứa (pallet),
+HUB,2ceec18e-70ae-80a6-8a78-e022e8914380,Video PO không gán pallet TC,https://drive.google.com/file/d/1sKJP-nGuJ1Ef4yljwuWjE4VnCs-78O1C/view
+HUB,2ceec18e-70ae-80c5-af7f-d6b11882019c,5.3. Xuất trung chuyển,
+HUB,2ceec18e-70ae-80d7-8068-f659ede186aa,Bảng xuất trung chuyển,
+HUB,2ceec18e-70ae-80ae-b179-f7c043adaade,Chọn BKS xe xuất hàng,
+HUB,2ceec18e-70ae-8098-b9fc-edfa5e455100,Luồng PO không gán vật chứa (Xuất),
+HUB,2ceec18e-70ae-80d8-99c4-fc5dd23aa208,Luồng PO có gán vật chứa (Xuất),
+HUB,2ceec18e-70ae-8013-a1de-dd4377fd50b3,PO gán vật chứa xuất TC,
+HUB,2ceec18e-70ae-803b-ba25-e8ab1096deb1,Video PO gán pallet xuất TC,https://drive.google.com/file/d/10-Ac5tCUuSHnE_aWHZ2c85wDFGNZVf_B/view
+HUB,2ceec18e-70ae-807a-8cea-d8ebcb11666c,PO không gán vật chứa xuất TC,
+HUB,2ceec18e-70ae-8036-96e7-e324f76de246,Video PO không gán pallet xuất TC,https://drive.google.com/file/d/17Y9pbB7xYGlf-fVIaTFEnBCaMjpfuQtS/view
+KHO ĐÍCH,section-kho-dich,6. KHO ĐÍCH,
+KHO ĐÍCH,2ceec18e-70ae-80c3-8a01-c4a1a0bd983d,6.1. Xuất giao đơn phân phối,
+KHO ĐÍCH,2ceec18e-70ae-8008-b424-db5827a04d84,Bảng xuất giao đơn,
+KHO ĐÍCH,2ceec18e-70ae-80e9-90ab-cae3745f6172,Tài xế chọn điểm thao tác,
+KHO ĐÍCH,2ceec18e-70ae-8097-ad7b-d89ad0927b39,GSX/XLHH xác nhận xuất giao,
+KHO ĐÍCH,2ceec18e-70ae-8009-847a-de2a138cbc4e,Luồng PO không gán vật chứa (Xuất giao),
+KHO ĐÍCH,2ceec18e-70ae-80de-b7a7-c7d602325dcb,Luồng PO có gán vật chứa (Xuất giao),
+KHO ĐÍCH,2ceec18e-70ae-8017-9bf2-f680c4e61a90,Xác nhận xuất giao thành công,
+KHO ĐÍCH,2ceec18e-70ae-80c6-b543-c8e0584de8f0,Tài xế gửi y/c xuất giao,
+KHO ĐÍCH,2ceec18e-70ae-80e2-85e2-c40210b03a83,Video TX yêu cầu 1,https://drive.google.com/file/d/1_N4CdbKaBH0NG8fNhy81zOK9nJb7C9Xp/view
+KHO ĐÍCH,2ceec18e-70ae-80f8-8092-d777b6346bd5,Video TX yêu cầu 2,https://drive.google.com/file/d/1G4XZUchapZ0YiIfeTDp8s4x9JJ5Hp2_Z/view
+KHO ĐÍCH,2ceec18e-70ae-8028-b135-d2f510e456ea,Video TX yêu cầu 3,https://drive.google.com/file/d/1r_KWGAcN_H2TvvNeQMRAfIb__2jHBsm1/view
+KHO ĐÍCH,2ceec18e-70ae-801f-bbed-d5a0b1cd9835,XLHH duyệt y/c,
+KHO ĐÍCH,2ceec18e-70ae-8062-a180-f60ff85abb38,Video XLHH duyệt 1,https://drive.google.com/file/d/10GbdhMmie-q-_xPsQAeB6WXxjEUucVx5/view
+KHO ĐÍCH,2ceec18e-70ae-80d0-8a9e-cf946a06f878,Video XLHH duyệt 2,https://drive.google.com/file/d/1F3Xro0bmqWG1OgKpXp56IRJT2f0YM_40/view
+KHO ĐÍCH,2ceec18e-70ae-8026-be52-d1ee22a7927d,Video XLHH duyệt 3,https://drive.google.com/file/d/1gzNMLMAjELIlFWuSQP8OLYnpM0t9plIW/view
+KHO ĐÍCH,2ceec18e-70ae-803a-b4af-e8faa926f90c,Video XLHH duyệt 4,https://drive.google.com/file/d/16g4oaTFy9h8JPBk4oSOMLN-mH-PCbwap/view
+KHO ĐÍCH,2ceec18e-70ae-80b6-8a30-c84159bbb3c1,Đơn gán vật chứa (pallet),
+KHO ĐÍCH,2ceec18e-70ae-80ef-97c8-c714f44b473d,Video đơn gán pallet,https://drive.google.com/file/d/1PYqXJZH13AZWVSVnjEFGheLrr7SbjCSY/view
+KHO ĐÍCH,2ceec18e-70ae-807e-ad33-deda7b3080eb,6.2. Giao hàng,
+KHO ĐÍCH,2ceec18e-70ae-80dc-8daa-eff73336229f,Bảng giao hàng,
+KHO ĐÍCH,2ceec18e-70ae-805f-8825-e00f7bfba61b,Thao tác chung giao hàng,
+KHO ĐÍCH,2ceec18e-70ae-80b5-bdb2-e8e4462c490a,Luồng giao hàng theo SKU,
+KHO ĐÍCH,2ceec18e-70ae-8092-abf4-f12934bbc3f6,Luồng giao hàng theo Pallet,
+KHO ĐÍCH,2ceec18e-70ae-8008-83b0-f480fd4aa8a8,Xác nhận hoàn thành giao hàng,
+KHO ĐÍCH,2ceec18e-70ae-8039-b9f6-fccb1a5b8aff,Theo SKU,
+KHO ĐÍCH,2ceec18e-70ae-8033-9f18-e887cc8c1a2c,Video giao hàng theo SKU,https://drive.google.com/file/d/1KuA87RhhNBHvIy4gQ9Uj661AkJmcSwh5/view
+KHO ĐÍCH,2ceec18e-70ae-80b5-999a-d17e3471c1a4,Giao hàng theo vật chứa (pallet),
+KHO ĐÍCH,2ceec18e-70ae-80ec-bc55-d169ac3bc7d3,Video giao hàng pallet 1,https://drive.google.com/file/d/10o1l6qqOlelGzdsMShN_2R5kdiVi3DcN/view
+KHO ĐÍCH,2ceec18e-70ae-8036-803d-c8864d567f4f,Video giao hàng pallet 2,https://drive.google.com/file/d/1EDcGnaewy_3k2wjcSGbJN6lzexKYjP5W/view
+KHO ĐÍCH,2ceec18e-70ae-8025-b87b-e8a8cff21849,6.3. Trả hàng,
+KHO ĐÍCH,2ceec18e-70ae-80aa-b861-c6afdec35654,Bảng trả hàng,
+KHO ĐÍCH,2ceec18e-70ae-80fb-8788-cb28b3cc7322,Chọn đơn/điểm trả hàng,
+KHO ĐÍCH,2ceec18e-70ae-8069-bbc1-cbf85b1e421c,Video trả hàng,https://drive.google.com/file/d/1KqJWYuYVKCZPjsA3FWY-O0obn5UiFVrG/view
