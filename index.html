@@ -2035,15 +2035,22 @@ td code, td a {
 
         // Image preview functions
         function showImagePreview(termId, imageUrl, event) {
-            // Try to get URL from database first
-            const dbData = window.SheetDB.getMasterData();
+            // Try to get URL from database cache first
             let finalUrl = imageUrl;
             
-            if (dbData && dbData.length > 0) {
-                const termData = dbData.find(row => row.id_the === termId);
-                if (termData && termData.url) {
-                    finalUrl = termData.url;
+            try {
+                // Use global cache (synchronous, safe)
+                const dbData = window.masterDataCache;
+                
+                if (dbData && Array.isArray(dbData) && dbData.length > 0) {
+                    const termData = dbData.find(row => row && row.id_the === termId);
+                    if (termData && termData.url) {
+                        finalUrl = termData.url;
+                    }
                 }
+            } catch (error) {
+                console.warn('Could not fetch data from cache:', error);
+                // Continue with imageUrl from HTML attribute
             }
 
             // Check if URL is valid image
@@ -2248,7 +2255,7 @@ td code, td a {
         // Thay YOUR_SHEET_ID bằng ID của Google Sheet
         // Ví dụ: https://docs.google.com/spreadsheets/d/1ABC123xyz/edit
         // => SHEET_ID = '1ABC123xyz'
-        SHEET_ID: 'YOUR_SHEET_ID_HERE',
+        SHEET_ID: '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4',
         
         // Tab name - CHỈ CÓ 1 TAB DUY NHẤT
         SHEET_NAME: 'MasterData',      // Tên tab chứa toàn bộ dữ liệu
@@ -2305,38 +2312,72 @@ td code, td a {
                 const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
                 
                 const response = await fetch(url);
+                
+                // Check response status
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const text = await response.text();
                 
+                // Validate response format
+                if (!text || text.length < 50) {
+                    throw new Error('Invalid response format');
+                }
+                
                 // Parse Google Sheets JSON response
-                const json = JSON.parse(text.substr(47).slice(0, -2));
+                // Remove the callback wrapper: google.visualization.Query.setResponse(...)
+                let jsonString = text;
+                if (text.startsWith('/*O_o*/')) {
+                    jsonString = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+                } else {
+                    jsonString = text.substring(47, text.length - 2);
+                }
+                
+                const json = JSON.parse(jsonString);
+                
+                // Check if data exists
+                if (!json.table || !json.table.rows) {
+                    throw new Error('No table data found in response');
+                }
+                
                 const data = this.parseGoogleSheetsData(json);
                 
                 CacheManager.set(cacheKey, data);
-                console.log(`✓ Fetched ${sheetName} from Google Sheets`);
+                console.log(`✓ Fetched ${sheetName} from Google Sheets (${data.length} rows)`);
                 
                 return data;
             } catch (error) {
                 console.error(`✗ Error fetching ${sheetName}:`, error);
-                return null;
+                console.error('Check: 1) Sheet ID correct? 2) Sheet published? 3) Sheet name matches?');
+                return [];
             }
         },
         
         // Parse Google Sheets JSON format
         parseGoogleSheetsData(json) {
-            const rows = json.table.rows;
-            const cols = json.table.cols;
-            
-            // Get headers from first row
-            const headers = cols.map(col => col.label || col.id);
-            
-            // Convert to array of objects
-            return rows.map(row => {
-                const obj = {};
-                row.c.forEach((cell, index) => {
-                    obj[headers[index]] = cell ? cell.v : '';
-                });
-                return obj;
-            });
+            try {
+                const rows = json.table.rows;
+                const cols = json.table.cols;
+                
+                // Get headers from first row
+                const headers = cols.map(col => col.label || col.id || '');
+                
+                // Convert to array of objects
+                return rows.map(row => {
+                    const obj = {};
+                    if (row.c) {
+                        row.c.forEach((cell, index) => {
+                            const header = headers[index] || `col_${index}`;
+                            obj[header] = cell && cell.v !== null && cell.v !== undefined ? cell.v : '';
+                        });
+                    }
+                    return obj;
+                }).filter(row => Object.keys(row).length > 0); // Remove empty rows
+            } catch (error) {
+                console.error('Error parsing Google Sheets data:', error);
+                return [];
+            }
         }
     };
     
@@ -2572,8 +2613,11 @@ td code, td a {
     const SheetLoader = {
         async init() {
             // Check if Sheet ID is configured
-            if (CONFIG.SHEET_ID === 'YOUR_SHEET_ID_HERE') {
+            if (!CONFIG.SHEET_ID || CONFIG.SHEET_ID === 'YOUR_SHEET_ID_HERE') {
                 console.warn('⚠️ Google Sheet ID not configured. Using static content.');
+                console.info('💡 To enable dynamic content: Update CONFIG.SHEET_ID in the code');
+                // Initialize empty master data for safety
+                window.masterDataCache = [];
                 return;
             }
             
@@ -2586,6 +2630,9 @@ td code, td a {
                 if (!masterData || masterData.length === 0) {
                     throw new Error('No data found in master table');
                 }
+                
+                // Store in global cache for hover preview
+                window.masterDataCache = masterData;
                 
                 // Update content from master data (with auto-creation)
                 const updateStats = ContentUpdater.updateFromMasterData(masterData);
@@ -2702,7 +2749,18 @@ td code, td a {
         clearCache: () => CacheManager.clear(),
         config: CONFIG,
         getMasterData: async () => {
-            return await GoogleSheetsAPI.fetchSheet(CONFIG.SHEET_NAME);
+            // Return cached data first if available
+            if (window.masterDataCache && Array.isArray(window.masterDataCache)) {
+                return window.masterDataCache;
+            }
+            // Check if configured
+            if (!CONFIG.SHEET_ID || CONFIG.SHEET_ID === 'YOUR_SHEET_ID_HERE') {
+                console.warn('Sheet ID not configured');
+                return [];
+            }
+            // Fetch from API
+            const data = await GoogleSheetsAPI.fetchSheet(CONFIG.SHEET_NAME);
+            return data || [];
         },
         updateFromData: (data) => {
             return ContentUpdater.updateFromMasterData(data);
@@ -2711,6 +2769,9 @@ td code, td a {
             return ContentUpdater.getStats(data);
         }
     };
+    
+    // Initialize global cache
+    window.masterDataCache = [];
     
 })();
 
