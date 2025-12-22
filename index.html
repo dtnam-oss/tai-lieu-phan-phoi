@@ -1300,6 +1300,206 @@ body {
     margin-right: 0.5rem;
 }
 
+/* ====== CREATE TERM MODAL STYLES ====== */
+#create-term-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 32px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 999;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#create-term-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+#create-term-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+#create-term-modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 2px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+#content-area {
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fafafa;
+    line-height: 1.6;
+    user-select: text;
+    cursor: text;
+}
+
+#content-area.has-selection {
+    border-color: #4CAF50;
+    background: #f0fff4;
+}
+
+.selected-text-info {
+    margin-top: 12px;
+    padding: 12px;
+    background: #e8f5e9;
+    border-left: 4px solid #4CAF50;
+    border-radius: 4px;
+    display: none;
+}
+
+.selected-text-info.active {
+    display: block;
+}
+
+.selected-text-info strong {
+    color: #2e7d32;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 2px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #45a049;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Back to top button - Green Theme */
 .back-to-top {
     position: fixed;
@@ -1868,6 +2068,60 @@ td code, td a {
     <!-- Back to Top Button -->
     <button class="back-to-top" aria-label="Back to top">↑</button>
 
+    <!-- Create Term Button -->
+    <button id="create-term-btn" title="Tạo khối tương tác mới">+</button>
+
+    <!-- Create Term Modal -->
+    <div id="create-term-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tạo Khối Tương Tác Mới</h2>
+                <button class="modal-close" id="modal-close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="hang-muc-select">1. Chọn Hạng Mục:</label>
+                    <select id="hang-muc-select">
+                        <option value="">-- Chọn hạng mục --</option>
+                        <option value="1. ONBOARD">1. ONBOARD</option>
+                        <option value="2. CẤU HÌNH">2. CẤU HÌNH</option>
+                        <option value="3. ĐĂNG ĐƠN">3. ĐĂNG ĐƠN</option>
+                        <option value="4. VẬN HÀNH.">4. VẬN HÀNH</option>
+                        <option value="5. HUB.">5. HUB</option>
+                        <option value="6. KHO ĐÍCH.">6. KHO ĐÍCH</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>2. Chọn Văn Bản Cần Tạo Khối:</label>
+                    <div id="content-area">Vui lòng chọn hạng mục để hiển thị nội dung...</div>
+                    <div class="selected-text-info" id="selected-text-info">
+                        <strong>Đã chọn:</strong> <span id="selected-text-display"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id-the-input">3. ID Khối (Auto):</label>
+                    <input type="text" id="id-the-input" readonly placeholder="Tự động tạo...">
+                </div>
+
+                <div class="form-group">
+                    <label for="ten-the-input">4. Tên Khối:</label>
+                    <input type="text" id="ten-the-input" readonly placeholder="Từ văn bản đã chọn...">
+                </div>
+
+                <div class="form-group">
+                    <label for="url-input">5. URL Ảnh/Video:</label>
+                    <input type="url" id="url-input" placeholder="https://i.postimg.cc/...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-btn">Hủy</button>
+                <button class="btn btn-primary" id="submit-btn" disabled>Tạo Khối</button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script>
     
@@ -1885,6 +2139,7 @@ td code, td a {
         initHighlightedTerms();
         initBackToTop();
         initMobileMenu();
+        initCreateTermModal();
     });
 
     /* ====== TABLE OF CONTENTS ====== */
@@ -2910,6 +3165,206 @@ td code, td a {
     
     // Initial active section
     updateActiveNav();
+    
+    /* ====== CREATE TERM MODAL ====== */
+    function initCreateTermModal() {
+        const createBtn = document.getElementById('create-term-btn');
+        const modal = document.getElementById('create-term-modal');
+        const closeBtn = document.getElementById('modal-close-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const hangMucSelect = document.getElementById('hang-muc-select');
+        const contentArea = document.getElementById('content-area');
+        const selectedTextInfo = document.getElementById('selected-text-info');
+        const selectedTextDisplay = document.getElementById('selected-text-display');
+        const idTheInput = document.getElementById('id-the-input');
+        const tenTheInput = document.getElementById('ten-the-input');
+        const urlInput = document.getElementById('url-input');
+
+        let selectedText = '';
+        let currentHangMuc = '';
+
+        // Section mapping - match với sections trong HTML
+        const sectionMap = {
+            '1. ONBOARD': 'section-onboard',
+            '2. CẤU HÌNH': 'section-dang-don',
+            '3. ĐĂNG ĐƠN': 'section-dang-don-3',
+            '4. VẬN HÀNH.': 'section-van-hanh',
+            '5. HUB.': 'section-hub',
+            '6. KHO ĐÍCH.': 'section-kho-dich'
+        };
+
+        // Open modal
+        createBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+            resetForm();
+        });
+
+        // Close modal
+        const closeModal = () => {
+            modal.classList.remove('active');
+            resetForm();
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Hạng mục selection
+        hangMucSelect.addEventListener('change', (e) => {
+            currentHangMuc = e.target.value;
+            if (currentHangMuc) {
+                loadSectionContent(currentHangMuc);
+            } else {
+                contentArea.innerHTML = 'Vui lòng chọn hạng mục để hiển thị nội dung...';
+                contentArea.classList.remove('has-selection');
+            }
+            resetSelection();
+        });
+
+        // Load section content
+        function loadSectionContent(hangMuc) {
+            const sectionId = sectionMap[hangMuc];
+            if (!sectionId) {
+                contentArea.innerHTML = '<p style="color: red;">Không tìm thấy nội dung cho hạng mục này.</p>';
+                return;
+            }
+
+            const sectionElement = document.getElementById(sectionId);
+            if (!sectionElement) {
+                contentArea.innerHTML = '<p style="color: red;">Không tìm thấy section trong trang.</p>';
+                return;
+            }
+
+            // Get section content (exclude heading)
+            const heading = sectionElement.querySelector('h3');
+            let content = sectionElement.innerHTML;
+            
+            // Remove heading from content
+            if (heading) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = content;
+                const headingClone = tempDiv.querySelector('h3');
+                if (headingClone) {
+                    headingClone.remove();
+                }
+                content = tempDiv.innerHTML;
+            }
+
+            // Display content (first 3000 characters to avoid too much text)
+            const truncatedContent = content.substring(0, 3000);
+            contentArea.innerHTML = truncatedContent + (content.length > 3000 ? '...' : '');
+            contentArea.classList.remove('has-selection');
+
+            // Enable text selection
+            enableTextSelection();
+        }
+
+        // Enable text selection in content area
+        function enableTextSelection() {
+            contentArea.addEventListener('mouseup', handleTextSelection);
+            contentArea.addEventListener('touchend', handleTextSelection);
+        }
+
+        // Handle text selection
+        function handleTextSelection() {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+
+            if (text.length > 0 && text.length <= 100) {
+                selectedText = text;
+                selectedTextDisplay.textContent = text;
+                selectedTextInfo.classList.add('active');
+                contentArea.classList.add('has-selection');
+
+                // Auto-fill form fields
+                tenTheInput.value = text;
+                idTheInput.value = generateId(text, currentHangMuc);
+                
+                // Enable submit button if URL is provided
+                updateSubmitButton();
+            }
+        }
+
+        // Generate ID from text
+        function generateId(text, hangMuc) {
+            // Remove dấu
+            const normalized = text
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toUpperCase()
+                .replace(/[^A-Z0-9\s]/g, '')
+                .replace(/\s+/g, '_')
+                .substring(0, 30);
+
+            // Prefix from hạng mục
+            const prefixMap = {
+                '1. ONBOARD': 'OB',
+                '2. CẤU HÌNH': 'CH',
+                '3. ĐĂNG ĐƠN': 'DD',
+                '4. VẬN HÀNH.': 'VH',
+                '5. HUB.': 'HUB',
+                '6. KHO ĐÍCH.': 'KD'
+            };
+
+            const prefix = prefixMap[hangMuc] || 'TERM';
+            return `${prefix}_${normalized}`;
+        }
+
+        // URL input validation
+        urlInput.addEventListener('input', updateSubmitButton);
+
+        function updateSubmitButton() {
+            const hasText = tenTheInput.value.trim().length > 0;
+            const hasUrl = urlInput.value.trim().length > 0;
+            submitBtn.disabled = !(hasText && hasUrl);
+        }
+
+        // Submit form
+        submitBtn.addEventListener('click', async () => {
+            const formData = {
+                hang_muc: currentHangMuc,
+                id_the: idTheInput.value,
+                ten_the: tenTheInput.value,
+                url: urlInput.value
+            };
+
+            console.log('📋 Form Data:', formData);
+            
+            // TODO: Implement Google Sheets API call
+            alert('✅ Chức năng đang được phát triển!\n\n' +
+                  'Dữ liệu sẽ được gửi lên Google Sheets:\n' +
+                  `- Hạng mục: ${formData.hang_muc}\n` +
+                  `- ID: ${formData.id_the}\n` +
+                  `- Tên: ${formData.ten_the}\n` +
+                  `- URL: ${formData.url}`);
+
+            closeModal();
+        });
+
+        function resetForm() {
+            hangMucSelect.value = '';
+            contentArea.innerHTML = 'Vui lòng chọn hạng mục để hiển thị nội dung...';
+            contentArea.classList.remove('has-selection');
+            resetSelection();
+            urlInput.value = '';
+            submitBtn.disabled = true;
+        }
+
+        function resetSelection() {
+            selectedText = '';
+            selectedTextInfo.classList.remove('active');
+            selectedTextDisplay.textContent = '';
+            idTheInput.value = '';
+            tenTheInput.value = '';
+        }
+    }
     
 })();
 
