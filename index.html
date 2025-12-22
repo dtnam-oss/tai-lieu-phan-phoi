@@ -1500,6 +1500,141 @@ body {
     cursor: not-allowed;
 }
 
+/* Upload area styles */
+.upload-area {
+    margin-top: 12px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #fafafa;
+}
+
+.upload-area:hover {
+    border-color: #4CAF50;
+    background: #f0fff4;
+}
+
+.upload-area.dragover {
+    border-color: #4CAF50;
+    background: #e8f5e9;
+    transform: scale(1.02);
+}
+
+.upload-area input[type="file"] {
+    display: none;
+}
+
+.upload-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.upload-text {
+    color: #666;
+    font-size: 14px;
+}
+
+.upload-text strong {
+    color: #4CAF50;
+}
+
+.upload-preview {
+    margin-top: 16px;
+    display: none;
+}
+
+.upload-preview.active {
+    display: block;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.upload-progress {
+    margin-top: 12px;
+    display: none;
+}
+
+.upload-progress.active {
+    display: block;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 24px;
+    background: #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.upload-status {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #666;
+    text-align: center;
+}
+
+.upload-status.success {
+    color: #4CAF50;
+}
+
+.upload-status.error {
+    color: #e74c3c;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+.file-name {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+}
+
+.remove-file {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.remove-file:hover {
+    background: #c0392b;
+}
+
 /* Back to top button - Green Theme */
 .back-to-top {
     position: fixed;
@@ -2111,8 +2246,37 @@ td code, td a {
                 </div>
 
                 <div class="form-group">
-                    <label for="url-input">5. URL Ảnh/Video:</label>
-                    <input type="url" id="url-input" placeholder="https://i.postimg.cc/...">
+                    <label for="url-input">5. Ảnh/Video:</label>
+                    
+                    <!-- Upload Area -->
+                    <div class="upload-area" id="upload-area">
+                        <input type="file" id="file-input" accept="image/*,video/*">
+                        <span class="upload-icon">📤</span>
+                        <div class="upload-text">
+                            <strong>Click để chọn file</strong> hoặc kéo thả vào đây<br>
+                            <small>Hỗ trợ: JPG, PNG, GIF, MP4 (Max 10MB)</small>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="upload-preview" id="upload-preview">
+                        <img class="preview-image" id="preview-image" alt="Preview">
+                        <div class="file-info">
+                            <span class="file-name" id="file-name"></span>
+                            <button class="remove-file" id="remove-file">Xóa</button>
+                        </div>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="upload-progress" id="upload-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill">0%</div>
+                        </div>
+                        <div class="upload-status" id="upload-status"></div>
+                    </div>
+
+                    <!-- URL Input (hidden, auto-filled after upload) -->
+                    <input type="url" id="url-input" placeholder="URL sẽ tự động điền sau khi upload" readonly style="margin-top: 12px;">
                 </div>
             </div>
             <div class="modal-footer">
@@ -3180,9 +3344,19 @@ td code, td a {
         const idTheInput = document.getElementById('id-the-input');
         const tenTheInput = document.getElementById('ten-the-input');
         const urlInput = document.getElementById('url-input');
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const uploadPreview = document.getElementById('upload-preview');
+        const previewImage = document.getElementById('preview-image');
+        const fileName = document.getElementById('file-name');
+        const removeFileBtn = document.getElementById('remove-file');
+        const uploadProgress = document.getElementById('upload-progress');
+        const progressFill = document.getElementById('progress-fill');
+        const uploadStatus = document.getElementById('upload-status');
 
         let selectedText = '';
         let currentHangMuc = '';
+        let uploadedFile = null;
 
         // Section mapping - match với sections trong HTML
         const sectionMap = {
@@ -3317,6 +3491,36 @@ td code, td a {
             return `${prefix}_${normalized}`;
         }
 
+        // File upload handlers
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+        
+        removeFileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetUpload();
+        });
+
         // URL input validation
         urlInput.addEventListener('input', updateSubmitButton);
 
@@ -3353,7 +3557,7 @@ td code, td a {
             contentArea.innerHTML = 'Vui lòng chọn hạng mục để hiển thị nội dung...';
             contentArea.classList.remove('has-selection');
             resetSelection();
-            urlInput.value = '';
+            resetUpload();
             submitBtn.disabled = true;
         }
 
@@ -3363,6 +3567,130 @@ td code, td a {
             selectedTextDisplay.textContent = '';
             idTheInput.value = '';
             tenTheInput.value = '';
+        }
+
+        // File upload functions
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('⚠️ File quá lớn! Vui lòng chọn file dưới 10MB.');
+                fileInput.value = '';
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4'];
+            if (!validTypes.includes(file.type)) {
+                alert('⚠️ File không hợp lệ! Chỉ hỗ trợ JPG, PNG, GIF, WEBP, MP4');
+                fileInput.value = '';
+                return;
+            }
+
+            uploadedFile = file;
+            showPreview(file);
+            uploadToImgur(file);
+        }
+
+        function showPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (file.type.startsWith('image/')) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                } else {
+                    previewImage.style.display = 'none';
+                }
+                fileName.textContent = file.name;
+                uploadPreview.classList.add('active');
+                uploadArea.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function uploadToImgur(file) {
+            // Imgur API Client ID (public, free tier)
+            const IMGUR_CLIENT_ID = '547b0c065feb937';
+            
+            uploadProgress.classList.add('active');
+            uploadStatus.textContent = '⏳ Đang upload...';
+            uploadStatus.className = 'upload-status';
+            progressFill.style.width = '0%';
+            progressFill.textContent = '0%';
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                // Simulate progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    if (progress <= 90) {
+                        progressFill.style.width = progress + '%';
+                        progressFill.textContent = progress + '%';
+                    }
+                }, 200);
+
+                const response = await fetch('https://api.imgur.com/3/image', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`
+                    },
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.success && data.data.link) {
+                    const imageUrl = data.data.link;
+                    
+                    // Complete progress
+                    progressFill.style.width = '100%';
+                    progressFill.textContent = '100%';
+                    
+                    // Update status
+                    uploadStatus.textContent = '✅ Upload thành công!';
+                    uploadStatus.className = 'upload-status success';
+                    
+                    // Fill URL input
+                    urlInput.value = imageUrl;
+                    updateSubmitButton();
+                    
+                    // Hide progress after 2s
+                    setTimeout(() => {
+                        uploadProgress.classList.remove('active');
+                    }, 2000);
+                } else {
+                    throw new Error('Invalid response');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                progressFill.style.width = '100%';
+                progressFill.textContent = 'Error';
+                uploadStatus.textContent = '❌ Upload thất bại! Vui lòng thử lại.';
+                uploadStatus.className = 'upload-status error';
+            }
+        }
+
+        function resetUpload() {
+            fileInput.value = '';
+            uploadedFile = null;
+            uploadPreview.classList.remove('active');
+            uploadProgress.classList.remove('active');
+            uploadArea.style.display = 'block';
+            urlInput.value = '';
+            previewImage.src = '';
+            fileName.textContent = '';
+            updateSubmitButton();
         }
     }
     
