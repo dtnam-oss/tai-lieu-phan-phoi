@@ -1996,6 +1996,10 @@ td code, td a {
 
             // Hover event - show image preview
             term.addEventListener('mouseenter', function(e) {
+                // Clear any existing timer and preview first
+                clearTimeout(hoverTimer);
+                hideImagePreview();
+                
                 const termId = this.getAttribute('data-term-id');
                 const imageUrl = this.getAttribute('data-image-url');
                 
@@ -2035,6 +2039,9 @@ td code, td a {
 
         // Image preview functions
         function showImagePreview(termId, imageUrl, event) {
+            // CRITICAL: Clear any existing preview first
+            hideImagePreview();
+            
             // Try to get URL from database cache first
             let finalUrl = imageUrl;
             
@@ -2085,10 +2092,15 @@ td code, td a {
         }
 
         function hideImagePreview() {
+            // Remove from DOM
             if (imagePreview) {
                 imagePreview.remove();
                 imagePreview = null;
             }
+            
+            // CRITICAL: Cleanup any orphaned previews (safety net)
+            const orphanedPreviews = document.querySelectorAll('.image-preview-tooltip');
+            orphanedPreviews.forEach(preview => preview.remove());
         }
 
         function positionImagePreview(preview, event) {
