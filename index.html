@@ -2752,15 +2752,37 @@ td code, td a {
     // ============================================
     // AUTO-INITIALIZE
     // ============================================
+    
+    // Test Mode: Add ?test=true to URL to enable test image
+    function enableTestMode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('test') === 'true') {
+            console.log('🧪 TEST MODE ENABLED');
+            const testImageUrl = 'https://i.postimg.cc/SsrBk5Jg/6201954590022896843.jpg';
+            const terms = document.querySelectorAll('.interactive-term[data-term-id]');
+            
+            setTimeout(() => {
+                terms.forEach(term => {
+                    term.setAttribute('data-image-url', testImageUrl);
+                });
+                console.log(`✅ Added test image URL to ${terms.length} terms`);
+                console.log(`📸 Test image: ${testImageUrl}`);
+                console.log('👉 Hover over any colored text to see image preview!');
+            }, 1000);
+        }
+    }
+    
     // Load content when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             SheetLoader.init();
             SheetLoader.addRefreshButton();
+            enableTestMode();
         });
     } else {
         SheetLoader.init();
         SheetLoader.addRefreshButton();
+        enableTestMode();
     }
     
     // Expose API for manual control
