@@ -2576,6 +2576,7 @@ td code, td a {
             console.log('📝 Updating term:', formData);
 
             try {
+                // Call API
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -2583,7 +2584,16 @@ td code, td a {
                     body: new URLSearchParams(formData)
                 });
 
-                // Update immediately in DOM
+                // Wait for API to process (Google Sheets needs time)
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Clear cache and reload from Sheets
+                if (window.SheetDB && typeof window.SheetDB.refresh === 'function') {
+                    console.log('🔄 Reloading data from Google Sheets...');
+                    await window.SheetDB.refresh();
+                }
+
+                // Update DOM with new data
                 const termElements = document.querySelectorAll(`[data-term-id="${termId}"]`);
                 termElements.forEach(el => {
                     el.textContent = newName.trim();
@@ -2592,26 +2602,7 @@ td code, td a {
                     }
                 });
 
-                // Update cache
-                if (window.masterDataCache && Array.isArray(window.masterDataCache)) {
-                    const index = window.masterDataCache.findIndex(row => row && row.id_the === termId);
-                    if (index !== -1) {
-                        window.masterDataCache[index] = {
-                            ...window.masterDataCache[index],
-                            ten_the: newName.trim(),
-                            url: newUrl.trim()
-                        };
-                    }
-                }
-
                 alert('✅ Cập nhật thành công!');
-                
-                // Optional: Reload page after 2s to ensure full sync
-                setTimeout(() => {
-                    if (confirm('Reload trang để đồng bộ hoàn toàn?')) {
-                        window.location.reload();
-                    }
-                }, 500);
             } catch (error) {
                 console.error('Error updating term:', error);
                 alert('❌ Có lỗi xảy ra! Vui lòng thử lại.');
@@ -2632,6 +2623,7 @@ td code, td a {
             console.log('🗑️ Deleting term:', termId);
 
             try {
+                // Call API
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -2642,30 +2634,24 @@ td code, td a {
                     })
                 });
 
-                // Remove from DOM immediately
+                // Wait for API to process
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Clear cache and reload from Sheets
+                if (window.SheetDB && typeof window.SheetDB.refresh === 'function') {
+                    console.log('🔄 Reloading data from Google Sheets...');
+                    await window.SheetDB.refresh();
+                }
+
+                // Remove from DOM
                 const termElements = document.querySelectorAll(`[data-term-id="${termId}"]`);
                 termElements.forEach(el => {
-                    // Replace with plain text (remove interactive class)
                     const text = el.textContent;
                     const textNode = document.createTextNode(text);
                     el.parentNode.replaceChild(textNode, el);
                 });
 
-                // Update cache
-                if (window.masterDataCache && Array.isArray(window.masterDataCache)) {
-                    window.masterDataCache = window.masterDataCache.filter(
-                        row => !(row && row.id_the === termId)
-                    );
-                }
-
                 alert('✅ Xóa thành công!');
-                
-                // Optional: Reload page after 2s to ensure full sync
-                setTimeout(() => {
-                    if (confirm('Reload trang để đồng bộ hoàn toàn?')) {
-                        window.location.reload();
-                    }
-                }, 500);
             } catch (error) {
                 console.error('Error deleting term:', error);
                 alert('❌ Có lỗi xảy ra! Vui lòng thử lại.');
@@ -3383,12 +3369,12 @@ td code, td a {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             SheetLoader.init();
-            SheetLoader.addRefreshButton();
+            // Removed: SheetLoader.addRefreshButton();
             enableTestMode();
         });
     } else {
         SheetLoader.init();
-        SheetLoader.addRefreshButton();
+        // Removed: SheetLoader.addRefreshButton();
         enableTestMode();
     }
     
