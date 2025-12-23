@@ -156,6 +156,12 @@ figcaption {
 	display: none;
 }
 
+/* Hide interactive terms that are not inside tables */
+.page-body > div[style*="display:contents"] > p code.interactive-term,
+.page-body > div[style*="display:contents"] > p .interactive-term {
+	display: none !important;
+}
+
 /* Extract data button */
 #extract-data-btn {
 	position: fixed;
@@ -1149,8 +1155,9 @@ body {
 
 .interactive-term:hover {
     transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);  /* Green shadow */
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);  /* Green shadow */
     border-color: var(--primary-color);  /* Green border */
+    background: rgba(46, 204, 113, 0.15);
     z-index: 10;
 }
 
@@ -2178,16 +2185,19 @@ td code, td a {
 
 
 /* ===== STICKY NAVIGATION BAR ===== */
-/* Sticky Navigation Bar */
+/* Fixed Modern Navigation Bar */
 .main-nav {
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  z-index: 1000;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.95) 0%, rgba(69, 160, 73, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 9999;
   padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .nav-container {
@@ -2237,6 +2247,10 @@ td code, td a {
 }
 
 /* Adjust body padding for fixed nav */
+article.page {
+  padding-top: 80px;
+}
+
 body {
   padding-top: 0 !important;
 }
