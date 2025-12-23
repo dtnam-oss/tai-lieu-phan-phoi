@@ -2510,8 +2510,11 @@ td code, td a {
                 const termId = this.getAttribute('data-term-id');
                 const imageUrl = this.getAttribute('data-image-url');
                 
+                console.log('🐭 Mouse entered term:', { termId, imageUrl, hasUrl: !!imageUrl });
+                
                 // Delay before showing preview
                 hoverTimer = setTimeout(() => {
+                    console.log('⏰ Timer fired, calling showImagePreview...');
                     showImagePreview(termId, imageUrl, e);
                 }, 500); // 500ms delay
             });
@@ -2546,6 +2549,8 @@ td code, td a {
 
         // Image preview functions
         function showImagePreview(termId, imageUrl, event) {
+            console.log('🖼️ showImagePreview called:', { termId, imageUrl });
+            
             // CRITICAL: Clear any existing preview first
             hideImagePreview();
             
@@ -2561,6 +2566,7 @@ td code, td a {
                     const termData = dbData.slice(1).find(row => row && row.B === termId);
                     if (termData && termData.D) {
                         finalUrl = termData.D;
+                        console.log('✅ Found URL in cache:', finalUrl);
                     }
                 }
             } catch (error) {
@@ -2568,11 +2574,16 @@ td code, td a {
                 // Continue with imageUrl from HTML attribute
             }
 
+            console.log('🔍 Final URL:', finalUrl, '| isImageUrl:', isImageUrl(finalUrl));
+
             // Check if URL is valid image
             if (!finalUrl || !isImageUrl(finalUrl)) {
+                console.log('⚠️ No valid image URL, skipping preview');
                 return; // Don't show preview if no image URL
             }
 
+            console.log('✅ Creating image preview...');
+            
             // Create preview tooltip
             imagePreview = document.createElement('div');
             imagePreview.className = 'image-preview-tooltip';
@@ -2585,6 +2596,7 @@ td code, td a {
             // Load image
             const img = new Image();
             img.onload = function() {
+                console.log('✅ Image loaded successfully');
                 if (imagePreview) {
                     imagePreview.innerHTML = '';
                     imagePreview.appendChild(img);
@@ -2592,6 +2604,7 @@ td code, td a {
                 }
             };
             img.onerror = function() {
+                console.error('❌ Failed to load image:', finalUrl);
                 if (imagePreview) {
                     imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải hình ảnh</div>';
                 }
