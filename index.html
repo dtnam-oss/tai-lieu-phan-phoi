@@ -2306,7 +2306,7 @@ td code, td a {
         initHighlightedTerms();
         initBackToTop();
         initMobileMenu();
-        initCreateTermModal();
+        // initCreateTermModal will be initialized in its own closure below
     });
 
     /* ====== TABLE OF CONTENTS ====== */
@@ -3847,6 +3847,11 @@ td code, td a {
             updateSubmitButton();
         }
     }
+    
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        initCreateTermModal();
+    });
     
 })();
 
