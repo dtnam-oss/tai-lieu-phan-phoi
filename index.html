@@ -2609,7 +2609,7 @@ td code, td a {
 
             // Check if it's a Google Drive preview URL (iframe needed)
             if (directUrl.includes('drive.google.com') && directUrl.includes('/preview')) {
-                console.log('📹 Loading as iframe (Google Drive)...');
+                console.log('📹 Loading as iframe (Google Drive - may have performance issues)...');
                 const iframe = document.createElement('iframe');
                 iframe.src = directUrl;
                 iframe.style.width = '100%';
@@ -2630,6 +2630,32 @@ td code, td a {
                     console.error('❌ Failed to load iframe:', directUrl);
                     if (imagePreview) {
                         imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải nội dung</div>';
+                    }
+                };
+            // Check if it's a YouTube embed URL (iframe needed)
+            } else if (directUrl.includes('youtube.com/embed/')) {
+                console.log('🎬 Loading as iframe (YouTube)...');
+                const iframe = document.createElement('iframe');
+                iframe.src = directUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                
+                iframe.onload = function() {
+                    console.log('✅ YouTube iframe loaded successfully');
+                    if (imagePreview) {
+                        imagePreview.innerHTML = '';
+                        imagePreview.appendChild(iframe);
+                        setTimeout(() => imagePreview.classList.add('show'), 10);
+                    }
+                };
+                
+                iframe.onerror = function() {
+                    console.error('❌ Failed to load YouTube iframe:', directUrl);
+                    if (imagePreview) {
+                        imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải video</div>';
                     }
                 };
             } else {
@@ -2807,7 +2833,7 @@ td code, td a {
             if (!url) return false;
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
             const videoExtensions = ['.mp4', '.webm', '.ogg'];
-            const imageHosts = ['image', 'imgur', 'cloudinary', 'postimg', 'imgbb', 'flickr', 'photobucket', 'drive.google.com'];
+            const imageHosts = ['image', 'imgur', 'cloudinary', 'postimg', 'imgbb', 'flickr', 'photobucket', 'drive.google.com', 'youtube.com', 'youtu.be'];
             const lowerUrl = url.toLowerCase();
             return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
                    videoExtensions.some(ext => lowerUrl.includes(ext)) ||
@@ -2820,11 +2846,23 @@ td code, td a {
             
             console.log('🔍 getDirectImageUrl input:', url);
             
+            // Handle YouTube URLs: https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID
+            const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+            if (youtubeMatch) {
+                const videoId = youtubeMatch[1];
+                console.log('✅ YouTube detected! Video ID:', videoId);
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                console.log('🔄 Converted to:', embedUrl);
+                return embedUrl;
+            }
+            
             // Handle Google Drive URLs: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+            // NOTE: Google Drive không khuyến nghị cho embedding do performance và CORS issues
             const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
             if (driveMatch) {
                 const fileId = driveMatch[1];
-                console.log('✅ Google Drive detected! File ID:', fileId);
+                console.log('⚠️ Google Drive detected (not recommended for performance)! File ID:', fileId);
+                console.log('💡 Tip: Use Imgur or YouTube instead for better performance');
                 // Use preview endpoint which works for both images and videos
                 const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
                 console.log('🔄 Converted to:', previewUrl);
