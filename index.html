@@ -2643,15 +2643,25 @@ td code, td a {
                     await window.SheetDB.refresh();
                 }
 
-                // Remove from DOM
+                // Remove interactive format, keep text
                 const termElements = document.querySelectorAll(`[data-term-id="${termId}"]`);
+                console.log(`🗑️ Removing format from ${termElements.length} elements`);
+                
                 termElements.forEach(el => {
+                    // Get original text
                     const text = el.textContent;
+                    
+                    // Create plain text node (no styling, no interaction)
                     const textNode = document.createTextNode(text);
-                    el.parentNode.replaceChild(textNode, el);
+                    
+                    // Replace interactive element with plain text
+                    if (el.parentNode) {
+                        el.parentNode.replaceChild(textNode, el);
+                        console.log(`✓ Converted "${text}" to plain text`);
+                    }
                 });
 
-                alert('✅ Xóa thành công!');
+                alert('✅ Xóa khối thành công!\n\nVăn bản được giữ nguyên (không còn tương tác)');
             } catch (error) {
                 console.error('Error deleting term:', error);
                 alert('❌ Có lỗi xảy ra! Vui lòng thử lại.');
