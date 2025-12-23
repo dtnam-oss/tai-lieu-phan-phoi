@@ -1086,7 +1086,7 @@ body {
 
 /* Enhanced tables - Green Theme & Responsive */
 .simple-table {
-    width: 100%;
+    width: auto;
     max-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
@@ -1097,7 +1097,7 @@ body {
     overflow-y: hidden;
     box-shadow: var(--shadow-md);
     display: table;
-    table-layout: fixed !important;
+    table-layout: auto !important;
 }
 
 .simple-table thead {
@@ -1141,36 +1141,12 @@ body {
     border-bottom: none;
 }
 
-/* Force consistent column widths across all tables */
+/* Auto-size columns based on content */
 .simple-table th,
 .simple-table td {
-    width: auto !important;
-}
-
-.simple-table th[style*="width"],
-.simple-table td[style*="width"] {
-    width: auto !important;
-}
-
-.simple-table th:first-child,
-.simple-table td:first-child {
-    width: 30% !important;
-}
-
-.simple-table th:nth-child(2),
-.simple-table td:nth-child(2) {
-    width: 70% !important;
-}
-
-/* For 3-column tables (like the first one) */
-.simple-table th:nth-child(3),
-.simple-table td:nth-child(3) {
-    width: auto !important;
-}
-
-.simple-table thead th:first-child,
-.simple-table tbody td:first-child {
-    width: 30% !important;
+    width: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Interactive highlighted terms */
@@ -2146,7 +2122,7 @@ article.page.sans {
 
 /* 4. TABLE CONTENT WRAPPING - Force text wrapping in tables */
 table {
-    table-layout: fixed !important;
+    table-layout: auto !important;
     width: 100% !important;
 }
 
