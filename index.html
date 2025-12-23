@@ -156,6 +156,81 @@ figcaption {
 	display: none;
 }
 
+/* Extract data button */
+#extract-data-btn {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 10000;
+	padding: 12px 24px;
+	background: #28a745;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: bold;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+	transition: all 0.2s;
+}
+
+#extract-data-btn:hover {
+	background: #218838;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#extract-data-modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0,0,0,0.8);
+	z-index: 10001;
+	padding: 20px;
+	overflow: auto;
+}
+
+#extract-data-modal.show {
+	display: block;
+}
+
+#extract-data-content {
+	background: white;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 30px;
+	border-radius: 8px;
+	position: relative;
+}
+
+#extract-close-btn {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: #dc3545;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+#extract-data-output {
+	background: #f5f5f5;
+	padding: 15px;
+	border-radius: 4px;
+	max-height: 500px;
+	overflow: auto;
+	font-family: monospace;
+	font-size: 12px;
+	white-space: pre;
+	margin-top: 20px;
+}
+
 mark {
 	background-color: transparent;
 }
@@ -2202,7 +2277,101 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
+
+/* Extract Data Button & Modal */
+#extract-data-btn {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 10000;
+	padding: 12px 24px;
+	background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-weight: bold;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+	transition: all 0.3s ease;
+	font-size: 14px;
+}
+
+#extract-data-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(40, 167, 69, 0.6);
+}
+
+#extract-data-modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.7);
+	z-index: 9999;
+	overflow: auto;
+	padding: 20px;
+}
+
+#extract-data-modal.show {
+	display: block;
+}
+
+#extract-data-content {
+	background: white;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 30px;
+	border-radius: 8px;
+	position: relative;
+}
+
+#extract-close-btn {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: #dc3545;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+#extract-data-output {
+	background: #f5f5f5;
+	padding: 15px;
+	border-radius: 4px;
+	max-height: 500px;
+	overflow: auto;
+	font-family: monospace;
+	font-size: 12px;
+	white-space: pre;
+	margin-top: 20px;
+}
 </style></head><body>
+
+<!-- Extract Data Button -->
+<button id="extract-data-btn" onclick="openExtractModal()">📊 Extract Data</button>
+
+<!-- Extract Data Modal -->
+<div id="extract-data-modal">
+	<div id="extract-data-content">
+		<button id="extract-close-btn" onclick="closeExtractModal()">✕ Đóng</button>
+		<h2>📊 Extract Data từ Interactive Terms</h2>
+		<p>Data từ các highlighted terms đang hiển thị trên trang</p>
+		
+		<button onclick="extractTermsData()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">🔄 Extract</button>
+		<button onclick="copyExtractedData()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">📋 Copy</button>
+		<button onclick="downloadExtractedCSV()" style="padding: 10px 20px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">💾 Download CSV</button>
+		
+		<div id="extract-stats" style="margin: 15px 0; padding: 15px; background: #e9ecef; border-radius: 4px;"></div>
+		<div id="extract-data-output"></div>
+	</div>
+</div>
+
 <nav class="main-nav">
   <div class="nav-container">
     <a href="#faeda640-dac4-4844-9dad-9606804fd78c" class="nav-link">1. ONBOARD</a>
@@ -4070,5 +4239,134 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
         }
       });
     });
+
+/* ============================================
+   EXTRACT DATA FUNCTIONS
+   ============================================ */
+let extractedTermsData = '';
+
+function openExtractModal() {
+	document.getElementById('extract-data-modal').classList.add('show');
+	extractTermsData(); // Auto extract on open
+}
+
+function closeExtractModal() {
+	document.getElementById('extract-data-modal').classList.remove('show');
+}
+
+function extractTermsData() {
+	const terms = document.querySelectorAll('.interactive-term');
+	const output = document.getElementById('extract-data-output');
+	const stats = document.getElementById('extract-stats');
+	
+	if (terms.length === 0) {
+		stats.innerHTML = '<p style="color: red;">❌ Không tìm thấy interactive terms nào! Vui lòng đợi page load xong.</p>';
+		output.textContent = '';
+		return;
+	}
+	
+	const data = [];
+	let withId = 0;
+	let withUrl = 0;
+	
+	terms.forEach(term => {
+		const idThe = term.dataset.id || '';
+		const tenThe = term.textContent.trim();
+		const url = term.dataset.imageUrl || '';
+		
+		// Find hang_muc from nearest heading
+		let hangMuc = '';
+		let el = term.parentElement;
+		
+		// Search backwards for nearest heading
+		while (el) {
+			const prevHeading = el.querySelector('h1, h2, h3');
+			if (prevHeading) {
+				hangMuc = prevHeading.textContent.trim();
+				break;
+			}
+			
+			// Check previous siblings
+			let prev = el.previousElementSibling;
+			while (prev && !hangMuc) {
+				if (prev.tagName && (prev.tagName === 'H1' || prev.tagName === 'H2' || prev.tagName === 'H3')) {
+					hangMuc = prev.textContent.trim();
+					break;
+				}
+				prev = prev.previousElementSibling;
+			}
+			
+			if (hangMuc) break;
+			el = el.parentElement;
+		}
+		
+		if (!hangMuc) hangMuc = 'Chưa xác định';
+		
+		data.push({
+			hang_muc: hangMuc,
+			id_the: idThe,
+			ten_the: tenThe,
+			url: url
+		});
+		
+		if (idThe) withId++;
+		if (url) withUrl++;
+	});
+	
+	// Sort by hang_muc then ten_the
+	data.sort((a, b) => {
+		if (a.hang_muc !== b.hang_muc) return a.hang_muc.localeCompare(b.hang_muc);
+		return a.ten_the.localeCompare(b.ten_the);
+	});
+	
+	// Create tab-separated format
+	extractedTermsData = 'hang_muc\tid_the\tten_the\turl\n';
+	data.forEach(item => {
+		extractedTermsData += `${item.hang_muc}\t${item.id_the}\t${item.ten_the}\t${item.url}\n`;
+	});
+	
+	output.textContent = extractedTermsData;
+	
+	stats.innerHTML = `
+		<p><strong>✅ Đã extract ${data.length} terms</strong></p>
+		<ul style="margin: 10px 0; list-style: none; padding-left: 0;">
+			<li>📊 Terms có ID: <strong>${withId}</strong> (${(withId/data.length*100).toFixed(1)}%)</li>
+			<li>❌ Terms chưa có ID: <strong>${data.length - withId}</strong></li>
+			<li>🖼️ Terms có URL: <strong>${withUrl}</strong> (${(withUrl/data.length*100).toFixed(1)}%)</li>
+		</ul>
+		<p style="margin-top: 10px; color: #6c757d;">💡 Tip: Bấm "Copy" rồi paste vào Google Sheets để update hàng loạt</p>
+	`;
+}
+
+function copyExtractedData() {
+	if (!extractedTermsData) {
+		alert('⚠️ Vui lòng extract data trước!');
+		return;
+	}
+	
+	navigator.clipboard.writeText(extractedTermsData).then(() => {
+		alert('✅ Đã copy vào clipboard!\n\nBước tiếp theo:\n1. Mở Google Sheets\n2. Select cell A1\n3. Paste bằng Cmd+V (Mac) hoặc Ctrl+V (Windows)');
+	}).catch(() => {
+		alert('❌ Không thể copy tự động.\n\nVui lòng:\n1. Select toàn bộ text trong box\n2. Copy bằng Cmd+C (Mac) hoặc Ctrl+C (Windows)');
+	});
+}
+
+function downloadExtractedCSV() {
+	if (!extractedTermsData) {
+		alert('⚠️ Vui lòng extract data trước!');
+		return;
+	}
+	
+	const csv = extractedTermsData.replace(/\t/g, ',');
+	const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = `terms_data_${new Date().toISOString().slice(0, 10)}.csv`;
+	a.click();
+	URL.revokeObjectURL(url);
+	alert('✅ Đã download CSV file!');
+}
+
 </script>
 </body></html>
