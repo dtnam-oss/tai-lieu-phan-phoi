@@ -1,0 +1,215 @@
+hang_muc	id_the	ten_the	url
+CẤU HÌNH	term-code-001	Shop	
+CẤU HÌNH	term-code-002	Danh sách Shop	
+CẤU HÌNH	term-code-003	mã Shop cần config	
+CẤU HÌNH	term-code-004	Chi tiết	
+CẤU HÌNH	term-code-005	Booking phân phối	
+CẤU HÌNH	term-code-006	Lưu thông tin	
+CẤU HÌNH	term-default-007	dashboard.ghtk.vn	http://dashboard.ghtk.vn/
+CẤU HÌNH	term-code-008	Kho và sản phẩm	
+CẤU HÌNH	term-code-009	Xem	
+CẤU HÌNH	term-code-010	Chỉnh sửa	
+CẤU HÌNH	term-code-011	Lưu sản phẩm	
+CẤU HÌNH	term-default-012	https://khachhang.ghtk.vn/web/kho-va-san-ff	https://khachhang.ghtk.vn/web/kho-va-san-
+ĐĂNG ĐƠN	term-code-013	Phiếu PO	
+ĐĂNG ĐƠN	term-code-014	Đơn hàng	
+ĐĂNG ĐƠN	term-code-015	Phiếu PO	
+ĐĂNG ĐƠN	term-code-016	+ Phiếu PO	
+ĐĂNG ĐƠN	term-code-017	Upload phiếu	
+ĐĂNG ĐƠN	term-code-018	Tạo PO	
+ĐĂNG ĐƠN	term-code-019	Tạo đơn hàng	
+ĐĂNG ĐƠN	term-code-020	Đăng đơn PO	
+ĐĂNG ĐƠN	term-code-021	Chọn PO	
+ĐĂNG ĐƠN	term-code-022	chọn phiếu	
+ĐĂNG ĐƠN	term-code-023	Danh sách PO	
+ĐĂNG ĐƠN	term-code-024	Áp dụng	
+ĐĂNG ĐƠN	term-code-025	Đăng đơn	
+ĐĂNG ĐƠN	term-code-026	Tạo đơn PO	
+ĐĂNG ĐƠN	term-code-027	Đăng ĐH	
+ĐĂNG ĐƠN	term-default-028	http://khachhang.ghtk.vn/	http://khachhang.ghtk.vn/
+ĐĂNG ĐƠN	term-yellow-029	ảnh chụp	
+ĐĂNG ĐƠN	term-yellow-030	file PO	
+ĐĂNG ĐƠN	term-yellow-031	hanhnm12	
+ĐĂNG ĐƠN	term-yellow-032	ngatpth1	
+ĐĂNG ĐƠN	term-code-033	Booking xe	
+ĐĂNG ĐƠN	term-code-034	Click để mở danh sách	
+ĐĂNG ĐƠN	term-code-035	thời gian hẹn cố định	
+ĐĂNG ĐƠN	term-code-036	nhập KL, KT hàng hoá	
+ĐĂNG ĐƠN	term-code-037	Lưu nháp	
+ĐĂNG ĐƠN	term-code-038	&quot;Chưa tiếp nhận&quot;	
+ĐĂNG ĐƠN	term-code-039	Lưu thông tin	
+ĐĂNG ĐƠN	term-code-040	Tạo đơn hàng	
+ĐĂNG ĐƠN	term-code-041	Booking xe	
+ĐĂNG ĐƠN	term-gray-042	https://khachhang.ghtk.vn/	https://khachhang.ghtk.vn/
+VẬN HÀNH	term-code-043	QUÉT PHIẾU	
+VẬN HÀNH	term-code-044	Tạo phiếu PO	
+VẬN HÀNH	term-code-045	KÉO THÊM	
+VẬN HÀNH	term-code-046	Chọn dịch vụ	
+VẬN HÀNH	term-code-047	Chọn PO	
+VẬN HÀNH	term-code-048	Xác nhận	
+VẬN HÀNH	term-code-049	LẤY HÀNG	
+VẬN HÀNH	term-code-050	Có hàng phân phối	
+VẬN HÀNH	term-code-051	Quét phiếu	
+VẬN HÀNH	term-code-052	Tạo phiếu PO	
+VẬN HÀNH	term-code-053	chọn sản phẩm	
+VẬN HÀNH	term-code-054	tên sản phẩm	
+VẬN HÀNH	term-code-055	Thêm mới	
+VẬN HÀNH	term-code-056	Chọn số lượng &gt; 0	
+VẬN HÀNH	term-code-057	Tạo Phiếu	
+VẬN HÀNH	term-code-058	Xác nhận	
+VẬN HÀNH	term-code-059	Xác nhận	
+VẬN HÀNH	term-code-060	tạo phiếu	
+VẬN HÀNH	term-code-061	Tài xế chọn UpLoad	
+VẬN HÀNH	term-code-062	Tải lên	
+VẬN HÀNH	term-code-063	Hợp lệ	
+VẬN HÀNH	term-code-064	Tiếp tục	
+VẬN HÀNH	term-code-065	Không hợp lệ	
+VẬN HÀNH	term-code-066	tìm kiếm	
+VẬN HÀNH	term-code-067	sản phẩm	
+VẬN HÀNH	term-code-068	Tiếp tục	
+VẬN HÀNH	term-code-069	CHƯA	
+VẬN HÀNH	term-code-070	giá bán	
+VẬN HÀNH	term-code-071	giá nhập	
+VẬN HÀNH	term-code-072	khối lượng	
+VẬN HÀNH	term-code-073	kích thướcDxRxC	
+VẬN HÀNH	term-code-074	Tên sản phẩm	
+VẬN HÀNH	term-code-075	số lượng	
+VẬN HÀNH	term-code-076	in mã SKU sản phẩm	
+VẬN HÀNH	term-code-077	Sản phẩm	
+VẬN HÀNH	term-code-078	In mã	
+VẬN HÀNH	term-code-079	Lấy hàng	
+VẬN HÀNH	term-code-080	Xem thông tin phiếu	
+VẬN HÀNH	term-code-081	In mã SKU	
+VẬN HÀNH	term-code-082	máy in	
+VẬN HÀNH	term-code-083	thiết bị in	
+VẬN HÀNH	term-code-084	sản phẩm	
+VẬN HÀNH	term-code-085	Xác nhận	
+VẬN HÀNH	term-code-086	tạo phiếu	
+VẬN HÀNH	term-code-087	kéo phiếu	
+VẬN HÀNH	term-code-088	Update thông tin	
+VẬN HÀNH	term-code-089	In mã Pallet	
+VẬN HÀNH	term-code-090	Mã Pallet đối tác	
+VẬN HÀNH	term-code-091	nhập số lượng	
+VẬN HÀNH	term-code-092	Mã Pallet của GHTK	
+VẬN HÀNH	term-code-093	mã pallet	
+VẬN HÀNH	term-code-094	Sản phẩm	
+VẬN HÀNH	term-code-095	Gán Pallet	
+VẬN HÀNH	term-code-096	Chọn PO cần gán	
+VẬN HÀNH	term-code-097	Sản Phẩm	
+VẬN HÀNH	term-code-098	Scan mã pallet	
+VẬN HÀNH	term-code-099	SL gán	
+VẬN HÀNH	term-code-100	Xác nhận	
+VẬN HÀNH	term-code-101	Gán pallet thành công	
+VẬN HÀNH	term-code-102	Ok	
+VẬN HÀNH	term-code-103	Gán Pallet	
+VẬN HÀNH	term-code-104	Xác nhận	
+VẬN HÀNH	term-code-105	tạo phiếu	
+VẬN HÀNH	term-code-106	kéo phiếu	
+VẬN HÀNH	term-code-107	Update	
+UNKNOWN	term-code-108	Nhập kho BBS	
+UNKNOWN	term-code-109	chọn đơn hàng	
+UNKNOWN	term-code-110	xác nhận	
+UNKNOWN	term-code-111	Xác nhận hàng BBS	
+UNKNOWN	term-code-112	Bấm để chọn xe tải	
+UNKNOWN	term-code-113	&quot;Đơn phân phối”	
+UNKNOWN	term-code-114	xem danh sách SKU	
+UNKNOWN	term-code-115	scan	
+UNKNOWN	term-code-116	sản phẩm cần quét	
+UNKNOWN	term-code-117	sản phẩm	
+UNKNOWN	term-code-118	nhập số lượng	
+UNKNOWN	term-code-119	nhiều sản phẩm	
+UNKNOWN	term-code-120	Xác nhận	
+UNKNOWN	term-code-121	Hoàn thành	
+UNKNOWN	term-code-122	chốt nhập	
+UNKNOWN	term-code-123	chốt seal	
+UNKNOWN	term-code-124	Pallet	
+UNKNOWN	term-code-125	Sản phẩm	
+UNKNOWN	term-code-126	Xác nhận	
+UNKNOWN	term-code-127	Ok	
+UNKNOWN	term-code-128	theo mã SKU	
+UNKNOWN	term-code-129	Gán ngay	
+UNKNOWN	term-code-130	Sản phẩm	
+UNKNOWN	term-code-131	Gán Pallet	
+UNKNOWN	term-code-132	Sản phẩm	
+UNKNOWN	term-code-133	Xác nhận	
+UNKNOWN	term-code-134	Gán pallet thành công	
+UNKNOWN	term-code-135	Ok	
+UNKNOWN	term-code-136	Ok	
+UNKNOWN	term-code-137	Nhập hàng	
+UNKNOWN	term-code-138	chọn BKS xe	
+UNKNOWN	term-code-139	xem danh sách SKU	
+UNKNOWN	term-code-140	scan	
+UNKNOWN	term-code-141	sản phẩm	
+UNKNOWN	term-code-142	sản phẩm	
+UNKNOWN	term-code-143	Xác nhận	
+UNKNOWN	term-code-144	Hoàn thành → chốt nhập → chốt seal	
+UNKNOWN	term-code-145	đơn hàng	
+UNKNOWN	term-code-146	mã vật chứa	
+UNKNOWN	term-code-147	Pallet	
+UNKNOWN	term-code-148	Sản phẩm	
+UNKNOWN	term-code-149	Xác nhận	
+UNKNOWN	term-code-150	Hoàn thành	
+UNKNOWN	term-code-151	BKS xe cần nhập hàng	
+UNKNOWN	term-code-152	xem danh sách SKU	
+UNKNOWN	term-code-153	scan	
+UNKNOWN	term-code-154	sản phẩm cần quét	
+UNKNOWN	term-code-155	nhập số lượng	
+UNKNOWN	term-code-156	sản phẩm	
+UNKNOWN	term-code-157	nhập số lượng	
+UNKNOWN	term-code-158	Xác nhận	
+UNKNOWN	term-code-159	Hoàn thành → chốt nhập → chốt seal	
+UNKNOWN	term-code-160	PO cần thao tác	
+UNKNOWN	term-code-161	Danh sách Vật chứa	
+UNKNOWN	term-code-162	Quét mã vật chứa	
+UNKNOWN	term-code-163	số	
+UNKNOWN	term-code-164	Pallet	
+UNKNOWN	term-code-165	&quot;Sản phẩm&quot;	
+UNKNOWN	term-code-166	Xác nhận	
+UNKNOWN	term-code-167	Hoàn thành	
+UNKNOWN	term-code-168	Xuất giao/ Xuất trả	
+UNKNOWN	term-code-169	“Đơn Booking”	
+UNKNOWN	term-code-170	Xác nhận xuất giao BBS	
+UNKNOWN	term-code-171	Phân phối	
+UNKNOWN	term-code-172	HT gắn	
+UNKNOWN	term-code-173	đơn phân phối	
+UNKNOWN	term-code-174	đơn booking	
+UNKNOWN	term-code-175	&quot;Đơn phân phối&quot;	
+UNKNOWN	term-code-176	Scan	
+UNKNOWN	term-code-177	mã barcode	
+UNKNOWN	term-code-178	barcode sản phẩm	
+UNKNOWN	term-code-179	Quét mã hợp lệ	
+UNKNOWN	term-code-180	sản phẩm	
+UNKNOWN	term-code-181	nhập số lượng	
+UNKNOWN	term-code-182	Pallet	
+UNKNOWN	term-code-183	Quét mã Pallet	
+UNKNOWN	term-code-184	Pallet	
+UNKNOWN	term-code-185	Sản phẩm	
+UNKNOWN	term-code-186	xác nhận	
+UNKNOWN	term-code-187	đang giao	
+UNKNOWN	term-code-188	đơn/điểm	
+UNKNOWN	term-code-189	Thao tác	
+UNKNOWN	term-code-190	giao hàng một phần	
+UNKNOWN	term-code-191	giao toàn phần	
+UNKNOWN	term-code-192	đến điểm	
+UNKNOWN	term-code-193	Hoàn thành	
+UNKNOWN	term-code-194	danh sách các sản phẩm	
+UNKNOWN	term-code-195	Giao hàng toàn bộ	
+UNKNOWN	term-code-196	mã barcode	
+UNKNOWN	term-code-197	Xác nhận	
+UNKNOWN	term-code-198	Giao hàng toàn bộ	
+UNKNOWN	term-code-199	mã barcode	
+UNKNOWN	term-code-200	Đơn thu hồi Vật chứa	
+UNKNOWN	term-code-201	mã vật chứa	
+UNKNOWN	term-code-202	sản phẩm giao	
+UNKNOWN	term-code-203	nhập số lượng giao 1 phần	
+UNKNOWN	term-code-204	các kiện	
+UNKNOWN	term-code-205	mã vật chứa	
+UNKNOWN	term-code-206	Quét mã vật chứa	
+UNKNOWN	term-code-207	Xác nhận	
+UNKNOWN	term-code-208	đơn cần trả	
+UNKNOWN	term-code-209	điểm cần trả	
+UNKNOWN	term-code-210	Trả hàng	
+UNKNOWN	term-code-211	Hoàn thành	
+UNKNOWN	term-code-212	mã barcode	
+
+Total terms extracted: 212

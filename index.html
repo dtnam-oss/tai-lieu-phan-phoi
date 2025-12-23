@@ -1141,6 +1141,26 @@ body {
     border-bottom: none;
 }
 
+/* Force consistent column widths across all tables */
+.simple-table th:nth-child(1),
+.simple-table td:nth-child(1) {
+    width: 236px !important;
+    min-width: 236px;
+    max-width: 236px;
+}
+
+.simple-table th:nth-child(2),
+.simple-table td:nth-child(2) {
+    width: calc(100% - 236px) !important;
+    min-width: 537px;
+}
+
+/* For 3-column tables (like the first one) */
+.simple-table th:nth-child(3),
+.simple-table td:nth-child(3) {
+    width: auto !important;
+}
+
 /* Interactive highlighted terms */
 .interactive-term {
     cursor: pointer;
