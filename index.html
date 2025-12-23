@@ -1259,6 +1259,14 @@ body {
     object-fit: contain;
 }
 
+.image-preview-tooltip iframe {
+    display: block;
+    width: 480px;
+    height: 360px;
+    border-radius: 4px;
+    background: #000;
+}
+
 .image-preview-loading {
     padding: 2rem;
     text-align: center;
@@ -2588,7 +2596,7 @@ td code, td a {
                 console.log('🔄 Converted to direct URL:', directUrl);
             }
 
-            console.log('✅ Creating image preview...');
+            console.log('✅ Creating preview...');
             
             // Create preview tooltip
             imagePreview = document.createElement('div');
@@ -2599,23 +2607,51 @@ td code, td a {
             // Position preview
             positionImagePreview(imagePreview, event);
 
-            // Load image
-            const img = new Image();
-            img.onload = function() {
-                console.log('✅ Image loaded successfully');
-                if (imagePreview) {
-                    imagePreview.innerHTML = '';
-                    imagePreview.appendChild(img);
-                    setTimeout(() => imagePreview.classList.add('show'), 10);
-                }
-            };
-            img.onerror = function() {
-                console.error('❌ Failed to load image:', directUrl);
-                if (imagePreview) {
-                    imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải hình ảnh</div>';
-                }
-            };
-            img.src = directUrl;
+            // Check if it's a Google Drive preview URL (iframe needed)
+            if (directUrl.includes('drive.google.com') && directUrl.includes('/preview')) {
+                console.log('📹 Loading as iframe (Google Drive)...');
+                const iframe = document.createElement('iframe');
+                iframe.src = directUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.allow = 'autoplay';
+                
+                iframe.onload = function() {
+                    console.log('✅ Iframe loaded successfully');
+                    if (imagePreview) {
+                        imagePreview.innerHTML = '';
+                        imagePreview.appendChild(iframe);
+                        setTimeout(() => imagePreview.classList.add('show'), 10);
+                    }
+                };
+                
+                iframe.onerror = function() {
+                    console.error('❌ Failed to load iframe:', directUrl);
+                    if (imagePreview) {
+                        imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải nội dung</div>';
+                    }
+                };
+            } else {
+                // Load as regular image
+                console.log('🖼️ Loading as image...');
+                const img = new Image();
+                img.onload = function() {
+                    console.log('✅ Image loaded successfully');
+                    if (imagePreview) {
+                        imagePreview.innerHTML = '';
+                        imagePreview.appendChild(img);
+                        setTimeout(() => imagePreview.classList.add('show'), 10);
+                    }
+                };
+                img.onerror = function() {
+                    console.error('❌ Failed to load image:', directUrl);
+                    if (imagePreview) {
+                        imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải hình ảnh</div>';
+                    }
+                };
+                img.src = directUrl;
+            }
         }
 
         function hideImagePreview() {
@@ -2770,15 +2806,25 @@ td code, td a {
         function isImageUrl(url) {
             if (!url) return false;
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
-            const imageHosts = ['image', 'imgur', 'cloudinary', 'postimg', 'imgbb', 'flickr', 'photobucket'];
+            const videoExtensions = ['.mp4', '.webm', '.ogg'];
+            const imageHosts = ['image', 'imgur', 'cloudinary', 'postimg', 'imgbb', 'flickr', 'photobucket', 'drive.google.com'];
             const lowerUrl = url.toLowerCase();
             return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
+                   videoExtensions.some(ext => lowerUrl.includes(ext)) ||
                    imageHosts.some(host => lowerUrl.includes(host));
         }
         
-        // Convert postimg.cc page URL to direct image URL
+        // Convert page URLs to direct image/video URLs
         function getDirectImageUrl(url) {
             if (!url) return url;
+            
+            // Handle Google Drive URLs: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+            const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (driveMatch) {
+                const fileId = driveMatch[1];
+                // Use preview endpoint which works for both images and videos
+                return `https://drive.google.com/file/d/${fileId}/preview`;
+            }
             
             // Handle postimg.cc page URLs: https://postimg.cc/k621yTNS
             const postimgPageMatch = url.match(/https?:\/\/postimg\.cc\/([a-zA-Z0-9]+)/);
