@@ -2502,42 +2502,77 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
         let populated = 0;
         
         // Debug: Show sample data
-        console.log('🔍 DEBUG: Cache has', window.masterDataCache.length, 'rows');
-        console.log('🔍 DEBUG: Found', terms.length, 'interactive terms');
-        console.log('🔍 DEBUG: First 3 term IDs:', Array.from(terms).slice(0,3).map(t => t.getAttribute('data-term-id')));
-        console.log('🔍 DEBUG: First cache row structure:', window.masterDataCache[0]);
-        console.log('🔍 DEBUG: Second cache row (first data):', window.masterDataCache[1]);
-        console.log('🔍 DEBUG: Row keys format - using A,B,C,D or property names?');
+        console.log('='.repeat(80));
+        console.log('🔍 DEBUG: MAPPING ANALYSIS');
+        console.log('='.repeat(80));
+        console.log('📦 Cache has', window.masterDataCache.length, 'rows');
+        console.log('🎯 Found', terms.length, 'interactive terms in HTML');
+        console.log('');
+        
+        // Show first 3 terms from HTML
+        console.log('📄 SAMPLE HTML TERMS (first 3):');
+        Array.from(terms).slice(0, 5).forEach((term, i) => {
+            console.log(`  ${i+1}. ID="${term.getAttribute('data-term-id')}" Text="${term.textContent.trim()}"`);
+        });
+        console.log('');
+        
+        // Show cache structure
+        console.log('💾 CACHE STRUCTURE:');
+        console.log('  Header row:', window.masterDataCache[0]);
+        console.log('  First data row:', window.masterDataCache[1]);
+        console.log('  Second data row:', window.masterDataCache[2]);
+        console.log('');
         
         // Skip header row (index 0) and start from index 1
         const dataRows = window.masterDataCache.slice(1);
-        console.log('🔍 DEBUG: Processing', dataRows.length, 'data rows (skipped header)');
+        console.log(`📊 Processing ${dataRows.length} data rows (skipped header)`);
+        console.log('');
+        
+        // Show first 5 IDs from database
+        console.log('💿 SAMPLE DATABASE IDs (column B, first 5):');
+        dataRows.slice(0, 5).forEach((row, i) => {
+            console.log(`  ${i+1}. ID="${row.B}" Name="${row.C}" URL="${row.D || '(empty)'}"`);
+        });
+        console.log('');
+        console.log('🔄 STARTING MAPPING...');
+        console.log('='.repeat(80));
         
         terms.forEach((term, index) => {
             const termId = term.getAttribute('data-term-id');
+            const termText = term.textContent.trim();
+            
             if (!termId) {
-                if (index < 3) console.log(`🔍 DEBUG: Term ${index} has no ID`);
+                if (index < 3) console.log(`⚠️ Term ${index} "${termText}" has no data-term-id attribute`);
                 return;
             }
             
             // Find matching data in cache (using column letters A, B, C, D)
             const termData = dataRows.find(row => row && row.B === termId);
+            
             if (termData) {
-                if (index < 3) console.log(`🔍 DEBUG: Found match for ${termId}:`, termData);
                 // URL is in column D
                 if (termData.D && termData.D.trim()) {
                     term.setAttribute('data-image-url', termData.D.trim());
                     populated++;
-                    if (index < 3) console.log(`✅ Set image URL for ${termId}: ${termData.D}`);
+                    if (index < 5) {
+                        console.log(`✅ [${index+1}] MATCHED: "${termId}" → URL: ${termData.D}`);
+                    }
                 } else {
-                    if (index < 3) console.log(`⚠️ ${termId} has no URL in database (column D is empty)`);
+                    if (index < 5) {
+                        console.log(`⚠️ [${index+1}] MATCHED but NO URL: "${termId}" (column D is empty)`);
+                    }
                 }
             } else {
-                if (index < 3) console.log(`❌ No match found for ${termId} in column B`);
+                if (index < 5) {
+                    console.log(`❌ [${index+1}] NOT FOUND: "${termId}" (text: "${termText}")`);
+                }
             }
         });
         
-        console.log(`✅ Populated ${populated}/${terms.length} interactive terms with image URLs`);
+        console.log('');
+        console.log('='.repeat(80));
+        console.log(`✅ RESULT: Populated ${populated}/${terms.length} interactive terms with image URLs`);
+        console.log('='.repeat(80));
     }
     
     // Expose for external use
