@@ -163,26 +163,11 @@ figcaption {
 
 /* Extract data button */
 #extract-data-btn {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	z-index: 10000;
-	padding: 12px 24px;
-	background: #28a745;
-	color: white;
-	border: none;
-	border-radius: 6px;
-	cursor: pointer;
-	font-size: 14px;
-	font-weight: bold;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-	transition: all 0.2s;
+	display: none !important;
 }
 
-#extract-data-btn:hover {
-	background: #218838;
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+#debug-btn {
+	display: none !important;
 }
 
 #extract-data-modal {
@@ -1148,31 +1133,47 @@ body {
     overflow-wrap: break-word;
 }
 
+/* Override all inline width styles */
+.simple-table th[style*="width"],
+.simple-table td[style*="width"] {
+    width: auto !important;
+}
+
 /* Default 2-column tables: 25% / 75% */
 .simple-table th:first-child,
 .simple-table td:first-child {
     width: 25% !important;
+    min-width: 25% !important;
+    max-width: 25% !important;
 }
 
 .simple-table th:nth-child(2),
 .simple-table td:nth-child(2) {
     width: 75% !important;
+    min-width: 75% !important;
+    max-width: 75% !important;
 }
 
 /* ONBOARD table (3 columns): 20% / 40% / 40% */
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:first-child,
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:first-child {
     width: 20% !important;
+    min-width: 20% !important;
+    max-width: 20% !important;
 }
 
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(2),
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(2) {
     width: 40% !important;
+    min-width: 40% !important;
+    max-width: 40% !important;
 }
 
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(3),
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(3) {
     width: 40% !important;
+    min-width: 40% !important;
+    max-width: 40% !important;
 }
 
 /* Interactive highlighted terms */
