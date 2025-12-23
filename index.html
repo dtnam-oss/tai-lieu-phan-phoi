@@ -1086,7 +1086,7 @@ body {
 
 /* Enhanced tables - Green Theme & Responsive */
 .simple-table {
-    width: auto;
+    width: 100%;
     max-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
@@ -1097,7 +1097,7 @@ body {
     overflow-y: hidden;
     box-shadow: var(--shadow-md);
     display: table;
-    table-layout: auto !important;
+    table-layout: fixed !important;
 }
 
 .simple-table thead {
@@ -1141,12 +1141,38 @@ body {
     border-bottom: none;
 }
 
-/* Auto-size columns based on content */
+/* Column width ratios for all tables */
 .simple-table th,
 .simple-table td {
-    width: auto;
     word-wrap: break-word;
     overflow-wrap: break-word;
+}
+
+/* Default 2-column tables: 25% / 75% */
+.simple-table th:first-child,
+.simple-table td:first-child {
+    width: 25%;
+}
+
+.simple-table th:nth-child(2),
+.simple-table td:nth-child(2) {
+    width: 75%;
+}
+
+/* ONBOARD table (3 columns): 20% / 40% / 40% */
+#\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:first-child,
+#\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:first-child {
+    width: 20%;
+}
+
+#\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(2),
+#\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(2) {
+    width: 40%;
+}
+
+#\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(3),
+#\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(3) {
+    width: 40%;
 }
 
 /* Interactive highlighted terms */
@@ -2122,7 +2148,7 @@ article.page.sans {
 
 /* 4. TABLE CONTENT WRAPPING - Force text wrapping in tables */
 table {
-    table-layout: auto !important;
+    table-layout: fixed !important;
     width: 100% !important;
 }
 
