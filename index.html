@@ -2395,7 +2395,9 @@ td code, td a {
         console.log('🔍 DEBUG: Cache has', window.masterDataCache.length, 'rows');
         console.log('🔍 DEBUG: Found', terms.length, 'interactive terms');
         console.log('🔍 DEBUG: First 3 term IDs:', Array.from(terms).slice(0,3).map(t => t.getAttribute('data-term-id')));
+        console.log('🔍 DEBUG: First cache row structure:', window.masterDataCache[0]);
         console.log('🔍 DEBUG: First 3 cache IDs:', window.masterDataCache.slice(0,3).map(r => r.id_the));
+        console.log('🔍 DEBUG: All keys in first row:', Object.keys(window.masterDataCache[0] || {}));
         
         terms.forEach((term, index) => {
             const termId = term.getAttribute('data-term-id');
