@@ -3285,15 +3285,15 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
     // CONTENT UPDATER - Enhanced with Auto-Creation
     // ============================================
     const ContentUpdater = {
-        // Map category to section ID
+        // Map category to section ID (actual Notion IDs from HTML)
         getSectionId(category) {
             const sectionMap = {
-                'ONBOARD': 'section-onboard',
-                'CẤU HÌNH': 'section-dang-don',
-                'ĐĂNG ĐƠN': 'section-dang-don-3',
-                'VẬN HÀNH': 'section-van-hanh',
-                'HUB': 'section-hub',
-                'KHO ĐÍCH': 'section-kho-dich'
+                'ONBOARD': 'faeda640-dac4-4844-9dad-9606804fd78c',
+                'CẤU HÌNH': '2ceec18e-70ae-8058-841a-e0265fc85386',
+                'ĐĂNG ĐƠN': '2ceec18e-70ae-8021-ba52-d0ba83f7adf6',
+                'VẬN HÀNH': '2ceec18e-70ae-804c-99de-f363da316462',
+                'HUB': '2ceec18e-70ae-8095-9925-c2ca73ab3c91',
+                'KHO ĐÍCH': '2ceec18e-70ae-80f6-8e4e-cc86f4a0e914'
             };
             return sectionMap[category] || null;
         },
