@@ -3574,23 +3574,13 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
                     }
                 }, 500);
                 
-                // Update content from master data (with auto-creation)
-                const updateStats = ContentUpdater.updateFromMasterData(masterData);
-                
-                // Get statistics by category
-                const categoryStats = ContentUpdater.getStats(masterData);
-                
+                // DISABLED: Auto-creation of elements (causes elements to be created outside tables)
+                // Only populate URLs for existing interactive terms
                 console.log(`✅ Content loaded successfully!`);
-                console.log(`📊 Updates: ${updateStats.updated} updated, ${updateStats.created} created, ${updateStats.errors} errors`);
-                console.log(`📋 Categories:`, categoryStats);
-                console.log(`📝 Total rows processed: ${updateStats.total}`);
+                console.log(`📝 Total rows in cache: ${masterData.length - 1}`);
+                console.log(`ℹ️ Auto-creation disabled - only updating URLs for existing terms`);
                 
-                // Show success notification with details
-                const message = updateStats.created > 0 
-                    ? `✅ Cập nhật ${updateStats.updated} | Tạo mới ${updateStats.created} elements`
-                    : `✅ Đã cập nhật ${updateStats.updated} elements từ database`;
-                
-                this.showNotification(message, 'success');
+                this.showNotification(`✅ Đã load ${masterData.length - 1} rows từ database`, 'success');
                 
             } catch (error) {
                 console.error('✗ Error loading content:', error);
