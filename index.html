@@ -2396,8 +2396,12 @@ td code, td a {
         console.log('🔍 DEBUG: Found', terms.length, 'interactive terms');
         console.log('🔍 DEBUG: First 3 term IDs:', Array.from(terms).slice(0,3).map(t => t.getAttribute('data-term-id')));
         console.log('🔍 DEBUG: First cache row structure:', window.masterDataCache[0]);
-        console.log('🔍 DEBUG: First 3 cache IDs:', window.masterDataCache.slice(0,3).map(r => r.id_the));
-        console.log('🔍 DEBUG: All keys in first row:', Object.keys(window.masterDataCache[0] || {}));
+        console.log('🔍 DEBUG: Second cache row (first data):', window.masterDataCache[1]);
+        console.log('🔍 DEBUG: Row keys format - using A,B,C,D or property names?');
+        
+        // Skip header row (index 0) and start from index 1
+        const dataRows = window.masterDataCache.slice(1);
+        console.log('🔍 DEBUG: Processing', dataRows.length, 'data rows (skipped header)');
         
         terms.forEach((term, index) => {
             const termId = term.getAttribute('data-term-id');
@@ -2406,19 +2410,20 @@ td code, td a {
                 return;
             }
             
-            // Find matching data in cache
-            const termData = window.masterDataCache.find(row => row && row.id_the === termId);
+            // Find matching data in cache (using column letters A, B, C, D)
+            const termData = dataRows.find(row => row && row.B === termId);
             if (termData) {
                 if (index < 3) console.log(`🔍 DEBUG: Found match for ${termId}:`, termData);
-                if (termData.url && termData.url.trim()) {
-                    term.setAttribute('data-image-url', termData.url.trim());
+                // URL is in column D
+                if (termData.D && termData.D.trim()) {
+                    term.setAttribute('data-image-url', termData.D.trim());
                     populated++;
-                    if (index < 3) console.log(`✅ Set image URL for ${termId}`);
+                    if (index < 3) console.log(`✅ Set image URL for ${termId}: ${termData.D}`);
                 } else {
-                    if (index < 3) console.log(`⚠️ ${termId} has no URL in database`);
+                    if (index < 3) console.log(`⚠️ ${termId} has no URL in database (column D is empty)`);
                 }
             } else {
-                if (index < 3) console.log(`❌ No match found for ${termId}`);
+                if (index < 3) console.log(`❌ No match found for ${termId} in column B`);
             }
         });
         
@@ -2453,8 +2458,9 @@ td code, td a {
                 let termData = null;
                 try {
                     const dbData = window.masterDataCache;
-                    if (dbData && Array.isArray(dbData)) {
-                        termData = dbData.find(row => row && row.id_the === termId);
+                    if (dbData && Array.isArray(dbData) && dbData.length > 1) {
+                        // Skip header row (index 0), search in data rows
+                        termData = dbData.slice(1).find(row => row && row.B === termId);
                     }
                 } catch (error) {
                     console.warn('Could not fetch term data:', error);
@@ -2550,10 +2556,11 @@ td code, td a {
                 // Use global cache (synchronous, safe)
                 const dbData = window.masterDataCache;
                 
-                if (dbData && Array.isArray(dbData) && dbData.length > 0) {
-                    const termData = dbData.find(row => row && row.id_the === termId);
-                    if (termData && termData.url) {
-                        finalUrl = termData.url;
+                if (dbData && Array.isArray(dbData) && dbData.length > 1) {
+                    // Skip header row (index 0), search in data rows
+                    const termData = dbData.slice(1).find(row => row && row.B === termId);
+                    if (termData && termData.D) {
+                        finalUrl = termData.D;
                     }
                 }
             } catch (error) {
@@ -2755,8 +2762,8 @@ td code, td a {
         const popup = document.createElement('div');
         popup.className = 'tooltip-popup';
         
-        const hangMuc = termData ? termData.hang_muc : 'N/A';
-        const url = termData ? termData.url : '';
+        const hangMuc = termData ? termData.A : 'N/A';
+        const url = termData ? termData.D : '';
         const hasImage = url && isImageUrl(url);
         
         popup.innerHTML = `
@@ -3234,12 +3241,12 @@ td code, td a {
             
             data.forEach(row => {
                 // Skip header row or empty rows
-                if (!row.id_the || row.id_the === 'id_the') return;
+                if (!row.B || row.B === 'id_the') return;
                 
-                const elementId = row.id_the;
-                const content = row.ten_the || '';
-                const url = row.url || '';
-                const category = row.hang_muc || '';
+                const elementId = row.B;
+                const content = row.C || '';
+                const url = row.D || '';
+                const category = row.A || '';
                 
                 stats.total++;
                 
@@ -3266,8 +3273,8 @@ td code, td a {
         getStats(data) {
             const stats = {};
             data.forEach(row => {
-                if (row.hang_muc && row.hang_muc !== 'hang_muc') {
-                    stats[row.hang_muc] = (stats[row.hang_muc] || 0) + 1;
+                if (row.A && row.A !== 'hang_muc') {
+                    stats[row.A] = (stats[row.A] || 0) + 1;
                 }
             });
             return stats;
