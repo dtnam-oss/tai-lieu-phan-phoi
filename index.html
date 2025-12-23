@@ -2583,8 +2583,35 @@ td code, td a {
                     body: new URLSearchParams(formData)
                 });
 
-                alert('✅ Cập nhật thành công!\n\nVui lòng reload trang để thấy thay đổi.');
-                setTimeout(() => window.location.reload(), 1000);
+                // Update immediately in DOM
+                const termElements = document.querySelectorAll(`[data-term-id="${termId}"]`);
+                termElements.forEach(el => {
+                    el.textContent = newName.trim();
+                    if (newUrl.trim()) {
+                        el.setAttribute('data-image-url', newUrl.trim());
+                    }
+                });
+
+                // Update cache
+                if (window.masterDataCache && Array.isArray(window.masterDataCache)) {
+                    const index = window.masterDataCache.findIndex(row => row && row.id_the === termId);
+                    if (index !== -1) {
+                        window.masterDataCache[index] = {
+                            ...window.masterDataCache[index],
+                            ten_the: newName.trim(),
+                            url: newUrl.trim()
+                        };
+                    }
+                }
+
+                alert('✅ Cập nhật thành công!');
+                
+                // Optional: Reload page after 2s to ensure full sync
+                setTimeout(() => {
+                    if (confirm('Reload trang để đồng bộ hoàn toàn?')) {
+                        window.location.reload();
+                    }
+                }, 500);
             } catch (error) {
                 console.error('Error updating term:', error);
                 alert('❌ Có lỗi xảy ra! Vui lòng thử lại.');
@@ -2615,8 +2642,30 @@ td code, td a {
                     })
                 });
 
-                alert('✅ Xóa thành công!\n\nVui lòng reload trang để thấy thay đổi.');
-                setTimeout(() => window.location.reload(), 1000);
+                // Remove from DOM immediately
+                const termElements = document.querySelectorAll(`[data-term-id="${termId}"]`);
+                termElements.forEach(el => {
+                    // Replace with plain text (remove interactive class)
+                    const text = el.textContent;
+                    const textNode = document.createTextNode(text);
+                    el.parentNode.replaceChild(textNode, el);
+                });
+
+                // Update cache
+                if (window.masterDataCache && Array.isArray(window.masterDataCache)) {
+                    window.masterDataCache = window.masterDataCache.filter(
+                        row => !(row && row.id_the === termId)
+                    );
+                }
+
+                alert('✅ Xóa thành công!');
+                
+                // Optional: Reload page after 2s to ensure full sync
+                setTimeout(() => {
+                    if (confirm('Reload trang để đồng bộ hoàn toàn?')) {
+                        window.location.reload();
+                    }
+                }, 500);
             } catch (error) {
                 console.error('Error deleting term:', error);
                 alert('❌ Có lỗi xảy ra! Vui lòng thử lại.');
