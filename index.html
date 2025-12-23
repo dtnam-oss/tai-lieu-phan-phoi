@@ -2381,6 +2381,34 @@ td code, td a {
     }
 
     /* ====== HIGHLIGHTED TERMS TOOLTIPS ====== */
+    // Populate image URLs from database cache
+    function populateImageUrls() {
+        if (!window.masterDataCache || !Array.isArray(window.masterDataCache)) {
+            console.log('⏳ Cache not ready yet, skipping image URL population');
+            return;
+        }
+
+        const terms = document.querySelectorAll('.interactive-term[data-term-id]');
+        let populated = 0;
+        
+        terms.forEach(term => {
+            const termId = term.getAttribute('data-term-id');
+            if (!termId) return;
+            
+            // Find matching data in cache
+            const termData = window.masterDataCache.find(row => row && row.id_the === termId);
+            if (termData && termData.url && termData.url.trim()) {
+                term.setAttribute('data-image-url', termData.url.trim());
+                populated++;
+            }
+        });
+        
+        console.log(`✅ Populated ${populated}/${terms.length} interactive terms with image URLs`);
+    }
+    
+    // Expose for external use
+    window.populateImageUrls = populateImageUrls;
+    
     function initHighlightedTerms() {
         const interactiveTerms = document.querySelectorAll('.interactive-term');
         let currentTooltip = null;
@@ -3254,6 +3282,13 @@ td code, td a {
                 // Store in global cache for hover preview
                 window.masterDataCache = masterData;
                 
+                // Populate image URLs for hover preview
+                setTimeout(() => {
+                    if (window.populateImageUrls) {
+                        window.populateImageUrls();
+                    }
+                }, 500);
+                
                 // Update content from master data (with auto-creation)
                 const updateStats = ContentUpdater.updateFromMasterData(masterData);
                 
@@ -3392,7 +3427,12 @@ td code, td a {
     window.SheetDB = {
         refresh: () => {
             CacheManager.clear();
-            return SheetLoader.init();
+            return SheetLoader.init().then(() => {
+                // Re-populate image URLs after refresh
+                if (window.populateImageUrls) {
+                    setTimeout(() => window.populateImageUrls(), 500);
+                }
+            });
         },
         clearCache: () => CacheManager.clear(),
         config: CONFIG,
