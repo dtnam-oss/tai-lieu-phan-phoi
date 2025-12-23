@@ -2501,29 +2501,27 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
             return;
         }
 
-        const terms = document.querySelectorAll('.interactive-term[data-term-id]');
+        const terms = document.querySelectorAll('.interactive-term');
         let populated = 0;
         
         // Debug: Show sample data
         console.log('='.repeat(80));
-        console.log('🔍 DEBUG: MAPPING ANALYSIS');
+        console.log('🔍 DEBUG: TEXT-BASED MATCHING');
         console.log('='.repeat(80));
         console.log('📦 Cache has', window.masterDataCache.length, 'rows');
         console.log('🎯 Found', terms.length, 'interactive terms in HTML');
         console.log('');
         
-        // Show first 3 terms from HTML
-        console.log('📄 SAMPLE HTML TERMS (first 3):');
+        // Show first 5 terms from HTML
+        console.log('📄 SAMPLE HTML TERMS (first 5):');
         Array.from(terms).slice(0, 5).forEach((term, i) => {
-            console.log(`  ${i+1}. ID="${term.getAttribute('data-term-id')}" Text="${term.textContent.trim()}"`);
+            console.log(`  ${i+1}. Text="${term.textContent.trim()}"`);
         });
         console.log('');
         
         // Show cache structure
         console.log('💾 CACHE STRUCTURE:');
-        console.log('  Header row:', window.masterDataCache[0]);
         console.log('  First data row:', window.masterDataCache[1]);
-        console.log('  Second data row:', window.masterDataCache[2]);
         console.log('');
         
         // Skip header row (index 0) and start from index 1
@@ -2531,93 +2529,72 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
         console.log(`📊 Processing ${dataRows.length} data rows (skipped header)`);
         console.log('');
         
-        // Show first 5 IDs from database
-        console.log('💿 SAMPLE DATABASE IDs (column B, first 5):');
+        // Show first 5 from database
+        console.log('💿 SAMPLE DATABASE (first 5):');
         dataRows.slice(0, 5).forEach((row, i) => {
-            console.log(`  ${i+1}. ID="${row.B}" Name="${row.C}" URL="${row.D || '(empty)'}"`);
+            console.log(`  ${i+1}. Text="${row.C}" ID="${row.B}" URL="${row.D || '(empty)'}"`);
         });
         console.log('');
-        console.log('🔄 STARTING MAPPING...');
+        console.log('🔄 STARTING TEXT-BASED MAPPING...');
         console.log('='.repeat(80));
         
+        let matched = 0;
+        let notFound = 0;
+        
         terms.forEach((term, index) => {
-            const termId = term.getAttribute('data-term-id');
             const termText = term.textContent.trim();
             
-            if (!termId) {
-                if (index < 3) console.log(`⚠️ Term ${index} "${termText}" has no data-term-id attribute`);
-                return;
-            }
+            if (!termText) return;
             
-            // Find matching data in cache (using column letters A, B, C, D)
-            const termData = dataRows.find(row => row && row.B === termId);
+            // MATCH BY TEXT (column C) instead of ID
+            const termData = dataRows.find(row => row && row.C && row.C.trim() === termText);
             
             if (termData) {
-                // URL is in column D
+                matched++;
+                // Set the correct ID from database (column B)
+                term.setAttribute('data-term-id', termData.B);
+                
+                // Set URL if available (column D)
                 if (termData.D && termData.D.trim()) {
                     term.setAttribute('data-image-url', termData.D.trim());
                     populated++;
                     if (index < 5) {
-                        console.log(`✅ [${index+1}] MATCHED: "${termId}" → URL: ${termData.D}`);
+                        console.log(`✅ [${index+1}] MATCHED: "${termText}" → ID: ${termData.B}, URL: ${termData.D}`);
                     }
                 } else {
                     if (index < 5) {
-                        console.log(`⚠️ [${index+1}] MATCHED but NO URL: "${termId}" (column D is empty)`);
+                        console.log(`⚠️ [${index+1}] MATCHED but NO URL: "${termText}" (ID: ${termData.B})`);
                     }
                 }
             } else {
+                notFound++;
                 if (index < 5) {
-                    console.log(`❌ [${index+1}] NOT FOUND: "${termId}" (text: "${termText}")`);
+                    console.log(`❌ [${index+1}] NOT FOUND: "${termText}"`);
                 }
             }
         });
         
         console.log('');
         console.log('='.repeat(80));
-        console.log(`✅ RESULT: Populated ${populated}/${terms.length} interactive terms with image URLs`);
+        console.log(`📊 RESULTS:`);
+        console.log(`   ✅ Matched: ${matched}/${terms.length}`);
+        console.log(`   🖼️ With URLs: ${populated}/${terms.length}`);
+        console.log(`   ❌ Not found: ${notFound}/${terms.length}`);
         console.log('='.repeat(80));
     }
     
     // Expose for external use
     window.populateImageUrls = populateImageUrls;
     
-    // Function to generate term ID from text content
-    function generateTermId(text, element) {
-        // Clean text: remove whitespace, lowercase
-        const clean = text.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        
-        // Determine prefix based on element type and classes
-        let prefix = 'term';
-        if (element.classList.contains('highlight-default') || element.closest('.highlight-default')) {
-            prefix = 'term-default';
-        } else if (element.classList.contains('highlight-blue') || element.closest('.highlight-blue')) {
-            prefix = 'term-blue';
-        } else if (element.classList.contains('highlight-yellow') || element.closest('.highlight-yellow')) {
-            prefix = 'term-yellow';
-        } else if (element.classList.contains('highlight-gray') || element.closest('.highlight-gray')) {
-            prefix = 'term-gray';
-        } else if (element.tagName === 'CODE') {
-            prefix = 'term-code';
-        }
-        
-        return `${prefix}-${clean}`;
-    }
-    
-    // Function to add data-term-id to all interactive terms in HTML
-    function assignTermIds() {
-        console.log('🔧 ASSIGNING TERM IDs...');
+    // Function to prepare interactive terms (add class only, NO ID yet)
+    function prepareInteractiveTerms() {
+        console.log('🔧 PREPARING INTERACTIVE TERMS...');
         
         // Find all code tags and mark tags (potential interactive terms)
         const allElements = document.querySelectorAll('code, mark');
-        let assigned = 0;
-        const idMap = new Map(); // Track duplicates
+        let prepared = 0;
         
         allElements.forEach(element => {
-            // Skip if already has data-term-id
-            if (element.hasAttribute('data-term-id')) {
-                return;
-            }
-            
             // Skip empty elements
             const text = element.textContent.trim();
             if (!text) return;
@@ -2630,36 +2607,17 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
             // Add interactive-term class if not already present
             if (!element.classList.contains('interactive-term')) {
                 element.classList.add('interactive-term');
-            }
-            
-            // Generate ID
-            let termId = generateTermId(text, element);
-            
-            // Handle duplicates by adding counter
-            if (idMap.has(termId)) {
-                const count = idMap.get(termId) + 1;
-                idMap.set(termId, count);
-                termId = `${termId}-${String(count).padStart(3, '0')}`;
-            } else {
-                idMap.set(termId, 1);
-                termId = `${termId}-001`;
-            }
-            
-            element.setAttribute('data-term-id', termId);
-            assigned++;
-            
-            if (assigned <= 5) {
-                console.log(`  ✅ Assigned: "${text}" → ${termId}`);
+                prepared++;
             }
         });
         
-        console.log(`✅ Assigned IDs to ${assigned} terms`);
-        return assigned;
+        console.log(`✅ Prepared ${prepared} interactive terms`);
+        return prepared;
     }
     
     function initHighlightedTerms() {
-        // STEP 1: Assign IDs to all terms first
-        assignTermIds();
+        // STEP 1: Add interactive-term class (NO IDs yet)
+        prepareInteractiveTerms();
         
         // STEP 2: Remove all interactive terms that are NOT inside table cells
         const allTerms = document.querySelectorAll('.interactive-term');
