@@ -2958,8 +2958,8 @@ td code, td a {
         // Tab name - CHỈ CÓ 1 TAB DUY NHẤT
         SHEET_NAME: 'MasterData',      // Tên tab chứa toàn bộ dữ liệu
         
-        // Cache timeout (5 phút)
-        CACHE_DURATION: 5 * 60 * 1000
+        // Cache timeout (1 phút - giảm xuống để reload nhanh hơn)
+        CACHE_DURATION: 1 * 60 * 1000
     };
     
     // ============================================
@@ -2987,7 +2987,9 @@ td code, td a {
         },
         
         clear() {
+            const itemCount = localStorage.length;
             localStorage.clear();
+            console.log(`🗑️ Cache cleared (${itemCount} items removed)`);
         }
     };
     
@@ -3459,6 +3461,19 @@ td code, td a {
     // AUTO-INITIALIZE
     // ============================================
     
+    // Check for reload parameter to force clear cache
+    function checkReloadParameter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reload') === 'true') {
+            console.log('🔄 Reload parameter detected - clearing cache...');
+            CacheManager.clear();
+            // Remove reload param from URL to avoid repeated reloads
+            urlParams.delete('reload');
+            const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+            window.history.replaceState({}, '', newUrl);
+        }
+    }
+    
     // Test Mode: Add ?test=true to URL to enable test image
     function enableTestMode() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -3481,11 +3496,13 @@ td code, td a {
     // Load content when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
+            checkReloadParameter();
             SheetLoader.init();
             // Removed: SheetLoader.addRefreshButton();
             enableTestMode();
         });
     } else {
+        checkReloadParameter();
         SheetLoader.init();
         // Removed: SheetLoader.addRefreshButton();
         enableTestMode();
