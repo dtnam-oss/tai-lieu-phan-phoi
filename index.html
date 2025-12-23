@@ -2217,65 +2217,121 @@ td code, td a {
 
 
 
-/* ===== STICKY NAVIGATION BAR ===== */
-/* Fixed Modern Navigation Bar */
+/* ===== FLOATING PILL-SHAPED NAVIGATION BAR ===== */
 .main-nav {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.95) 0%, rgba(69, 160, 73, 0.95) 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
-  padding: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 95%;
+  width: auto;
 }
 
 .nav-container {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0.8rem 1rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  border-radius: 50px;
+  padding: 12px 24px 12px 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  gap: 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
+/* Planet Icon Circle */
+.nav-icon {
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.nav-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* Navigation Links */
 .nav-link {
   color: white;
   text-decoration: none;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-radius: 25px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-link:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
 .nav-link.active {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
+  font-weight: 600;
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .nav-container {
-    justify-content: flex-start;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding: 0.6rem;
-  }
-  
+@media (max-width: 1200px) {
   .nav-link {
     font-size: 0.85rem;
-    padding: 0.5rem 0.8rem;
+    padding: 8px 14px;
+  }
+
+  .nav-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .nav-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-nav {
+    top: 10px;
+    max-width: 98%;
+  }
+
+  .nav-container {
+    padding: 8px 16px 8px 8px;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .nav-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+
+  .nav-icon {
+    width: 36px;
+    height: 36px;
+    margin-right: 4px;
+  }
+
+  .nav-icon svg {
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -2424,6 +2480,13 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
 
 <nav class="main-nav">
   <div class="nav-container">
+    <div class="nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="8" stroke="#000000" stroke-width="1.5" fill="none"/>
+        <ellipse cx="12" cy="12" rx="16" ry="4" stroke="#000000" stroke-width="1.5" fill="none"/>
+        <circle cx="12" cy="12" r="1.5" fill="#000000"/>
+      </svg>
+    </div>
     <a href="#faeda640-dac4-4844-9dad-9606804fd78c" class="nav-link">1. ONBOARD</a>
     <a href="#2ceec18e-70ae-8058-841a-e0265fc85386" class="nav-link">2. ĐĂNG ĐƠN</a>
     <a href="#2ceec18e-70ae-8021-ba52-d0ba83f7adf6" class="nav-link">3. ĐĂNG ĐƠN</a>
