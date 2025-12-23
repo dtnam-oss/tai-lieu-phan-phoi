@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Extract Local</title>
+</head>
+<body>
+    <h1>Testing Extract from Live Page</h1>
+    <button onclick="loadAndExtract()">Load Page & Extract Data</button>
+    <pre id="output" style="background: #f5f5f5; padding: 20px; margin-top: 20px;"></pre>
+    <pre id="stats" style="background: #e3f2fd; padding: 20px; margin-top: 20px;"></pre>
+
+    <script>
+        function loadAndExtract() {
+            const output = document.getElementById('output');
+            const stats = document.getElementById('stats');
+            
+            output.textContent = 'Loading index.html...';
+            
+            // Load the actual page
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Create a temporary DOM
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Execute the JavaScript to create terms
+                    // We need to load it in an iframe to execute JS properly
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+                    
+                    iframe.onload = function() {
+                        setTimeout(() => {
+                            try {
+                                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                                const terms = iframeDoc.querySelectorAll('.interactive-term');
+                                
+                                if (terms.length === 0) {
+                                    output.textContent = 'ERROR: No interactive terms found!\nTrying to extract from static HTML...';
+                                    
+                                    // Try extracting from original data structure
+                                    extractFromScript(html);
+                                    return;
+                                }
+                                
+                                const data = [];
+                                const bySection = {};
+                                
+                                terms.forEach(term => {
+                                    const id = term.dataset.id || '';
+                                    const name = term.textContent.trim();
+                                    const url = term.dataset.imageUrl || '';
+                                    
+                                    // Find section
+                                    let section = 'Chưa xác định';
+                                    let el = term.parentElement;
+                                    
+                                    while (el) {
+                                        const heading = el.querySelector('h1, h2, h3');
+                                        if (heading) {
+                                            section = heading.textContent.trim();
+                                            break;
+                                        }
+                                        
+                                        let prev = el.previousElementSibling;
+                                        while (prev && section === 'Chưa xác định') {
+                                            if (prev.tagName && ['H1', 'H2', 'H3'].includes(prev.tagName)) {
+                                                section = prev.textContent.trim();
+                                                break;
+                                            }
+                                            prev = prev.previousElementSibling;
+                                        }
+                                        
+                                        if (section !== 'Chưa xác định') break;
+                                        el = el.parentElement;
+                                    }
+                                    
+                                    data.push({ section, id, name, url });
+                                    
+                                    if (!bySection[section]) bySection[section] = [];
+                                    bySection[section].push({ id, name, url });
+                                });
+                                
+                                // Generate CSV
+                                let csv = 'hang_muc,id_the,ten_the,url\n';
+                                data.forEach(item => {
+                                    csv += `${item.section},${item.id},${item.name},${item.url}\n`;
+                                });
+                                
+                                output.textContent = csv;
+                                
+                                // Stats
+                                let statsText = `Total terms: ${terms.length}\n\n`;
+                                statsText += `By section:\n`;
+                                Object.keys(bySection).sort().forEach(section => {
+                                    statsText += `  ${section}: ${bySection[section].length} terms\n`;
+                                });
+                                
+                                const withId = data.filter(d => d.id).length;
+                                const withUrl = data.filter(d => d.url).length;
+                                
+                                statsText += `\nWith ID: ${withId} (${(withId/data.length*100).toFixed(1)}%)\n`;
+                                statsText += `With URL: ${withUrl} (${(withUrl/data.length*100).toFixed(1)}%)\n`;
+                                
+                                stats.textContent = statsText;
+                                
+                                // Download
+                                const blob = new Blob([csv], { type: 'text/csv' });
+                                const url2 = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url2;
+                                a.download = 'extracted_data_' + new Date().toISOString().slice(0,10) + '.csv';
+                                a.textContent = 'Download CSV';
+                                a.style.display = 'block';
+                                a.style.marginTop = '20px';
+                                document.body.appendChild(a);
+                                
+                            } catch (error) {
+                                output.textContent = 'Error: ' + error.message;
+                            }
+                        }, 3000); // Wait 3 seconds for JS to execute
+                    };
+                    
+                    iframe.src = 'index.html';
+                })
+                .catch(error => {
+                    output.textContent = 'Error loading page: ' + error;
+                });
+        }
+        
+        function extractFromScript(html) {
+            // Extract the termsData from JavaScript
+            const match = html.match(/const termsData = (\[[\s\S]*?\]);/);
+            if (!match) {
+                document.getElementById('output').textContent = 'ERROR: Could not find termsData in JavaScript!';
+                return;
+            }
+            
+            try {
+                const termsData = eval(match[1]);
+                
+                let csv = 'hang_muc,id_the,ten_the,url\n';
+                const bySection = {};
+                
+                termsData.forEach(term => {
+                    const section = term.section || 'Chưa xác định';
+                    const id = term.id || '';
+                    const name = term.name || '';
+                    const url = term.image || '';
+                    
+                    csv += `${section},${id},"${name}",${url}\n`;
+                    
+                    if (!bySection[section]) bySection[section] = 0;
+                    bySection[section]++;
+                });
+                
+                document.getElementById('output').textContent = csv;
+                
+                let statsText = `Extracted from termsData array\nTotal: ${termsData.length} terms\n\nBy section:\n`;
+                Object.keys(bySection).sort().forEach(section => {
+                    statsText += `  ${section}: ${bySection[section]} terms\n`;
+                });
+                
+                const withId = termsData.filter(t => t.id).length;
+                const withUrl = termsData.filter(t => t.image).length;
+                statsText += `\nWith ID: ${withId} (${(withId/termsData.length*100).toFixed(1)}%)\n`;
+                statsText += `With URL: ${withUrl} (${(withUrl/termsData.length*100).toFixed(1)}%)\n`;
+                
+                document.getElementById('stats').textContent = statsText;
+                
+            } catch (error) {
+                document.getElementById('output').textContent = 'Error parsing termsData: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

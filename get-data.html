@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Get Sheet Data</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .info {
+            color: blue;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>📊 Xuất Data từ Google Sheets</h2>
+    <p class="info">Click nút để lấy data, sau đó copy từ ô bên dưới và paste vào Google Sheets</p>
+    
+    <button onclick="fetchAndFormatData()">🔄 Lấy Data</button>
+    <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    
+    <div id="status"></div>
+    <div id="output"></div>
+
+    <script>
+        let formattedData = '';
+
+        async function fetchAndFormatData() {
+            const status = document.getElementById('status');
+            const output = document.getElementById('output');
+            
+            status.innerHTML = '<p class="info">⏳ Đang tải data từ Google Sheets...</p>';
+            output.textContent = '';
+            
+            try {
+                const SHEET_ID = '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4';
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MasterData`;
+                
+                const response = await fetch(url);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                
+                const rows = json.table.rows;
+                
+                // Skip header row and format data as tab-separated
+                let result = 'hang_muc\tid_the\tten_the\turl\n';
+                
+                rows.forEach((row, index) => {
+                    if (index === 0) return; // Skip header
+                    
+                    const hangMuc = row.c[0]?.v || '';
+                    const idThe = row.c[1]?.v || '';
+                    const tenThe = row.c[2]?.v || '';
+                    const url = row.c[3]?.v || '';
+                    
+                    result += `${hangMuc}\t${idThe}\t${tenThe}\t${url}\n`;
+                });
+                
+                formattedData = result;
+                output.textContent = result;
+                
+                status.innerHTML = `<p class="success">✅ Đã tải ${rows.length - 1} rows. Click "Copy to Clipboard" để copy hoặc select text bên dưới.</p>`;
+                
+            } catch (error) {
+                status.innerHTML = `<p style="color: red;">❌ Lỗi: ${error.message}</p>`;
+            }
+        }
+
+        async function copyToClipboard() {
+            if (!formattedData) {
+                alert('⚠️ Vui lòng lấy data trước!');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(formattedData);
+                alert('✅ Đã copy vào clipboard! Bây giờ bạn có thể paste vào Google Sheets.');
+            } catch (error) {
+                alert('❌ Không thể copy tự động. Vui lòng select text và Cmd+C');
+            }
+        }
+
+        // Auto load on page load
+        window.addEventListener('load', () => {
+            fetchAndFormatData();
+        });
+    </script>
+</body>
+</html>
