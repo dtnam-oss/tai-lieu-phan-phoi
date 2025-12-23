@@ -2582,6 +2582,12 @@ td code, td a {
                 return; // Don't show preview if no image URL
             }
 
+            // Convert to direct image URL if needed
+            const directUrl = getDirectImageUrl(finalUrl);
+            if (directUrl !== finalUrl) {
+                console.log('🔄 Converted to direct URL:', directUrl);
+            }
+
             console.log('✅ Creating image preview...');
             
             // Create preview tooltip
@@ -2604,12 +2610,12 @@ td code, td a {
                 }
             };
             img.onerror = function() {
-                console.error('❌ Failed to load image:', finalUrl);
+                console.error('❌ Failed to load image:', directUrl);
                 if (imagePreview) {
                     imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải hình ảnh</div>';
                 }
             };
-            img.src = finalUrl;
+            img.src = directUrl;
         }
 
         function hideImagePreview() {
@@ -2768,6 +2774,29 @@ td code, td a {
             const lowerUrl = url.toLowerCase();
             return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
                    imageHosts.some(host => lowerUrl.includes(host));
+        }
+        
+        // Convert postimg.cc page URL to direct image URL
+        function getDirectImageUrl(url) {
+            if (!url) return url;
+            
+            // Handle postimg.cc page URLs: https://postimg.cc/k621yTNS
+            const postimgPageMatch = url.match(/https?:\/\/postimg\.cc\/([a-zA-Z0-9]+)/);
+            if (postimgPageMatch) {
+                const imageId = postimgPageMatch[1];
+                // Try different extensions (postimg.cc usually converts to jpg)
+                return `https://i.postimg.cc/${imageId}/image.jpg`;
+            }
+            
+            // Handle imgur page URLs: https://imgur.com/abc123
+            const imgurPageMatch = url.match(/https?:\/\/imgur\.com\/([a-zA-Z0-9]+)/);
+            if (imgurPageMatch && !url.includes('i.imgur.com')) {
+                const imageId = imgurPageMatch[1];
+                return `https://i.imgur.com/${imageId}.jpg`;
+            }
+            
+            // Already a direct URL
+            return url;
         }
     }
 
