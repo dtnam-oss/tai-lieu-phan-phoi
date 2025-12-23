@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Hover Issue</title>
+</head>
+<body>
+    <h1>Debug Console Commands</h1>
+    <p>Open Console (F12) and run these commands on your site:</p>
+    
+    <h2>1. Check first few interactive terms:</h2>
+    <pre>
+// Get first 5 terms
+const terms = document.querySelectorAll('.interactive-term[data-term-id]');
+console.log('Total terms:', terms.length);
+console.log('First 5 term IDs:', Array.from(terms).slice(0,5).map(t => t.getAttribute('data-term-id')));
+    </pre>
+    
+    <h2>2. Check cache data:</h2>
+    <pre>
+// Check cache
+console.log('Cache exists:', !!window.masterDataCache);
+console.log('Cache length:', window.masterDataCache?.length);
+console.log('First 5 cache entries:', window.masterDataCache?.slice(0,5).map(row => ({
+    id_the: row.id_the,
+    ten_the: row.ten_the,
+    url: row.url
+})));
+    </pre>
+    
+    <h2>3. Find mismatch:</h2>
+    <pre>
+// Check if any term IDs match cache IDs
+const termIds = Array.from(document.querySelectorAll('.interactive-term[data-term-id]')).map(t => t.getAttribute('data-term-id'));
+const cacheIds = window.masterDataCache?.map(row => row.id_the) || [];
+console.log('Sample term IDs:', termIds.slice(0, 5));
+console.log('Sample cache IDs:', cacheIds.slice(0, 5));
+console.log('Any matches?', termIds.some(id => cacheIds.includes(id)));
+    </pre>
+</body>
+</html>

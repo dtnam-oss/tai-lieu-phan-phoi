@@ -2391,15 +2391,32 @@ td code, td a {
         const terms = document.querySelectorAll('.interactive-term[data-term-id]');
         let populated = 0;
         
-        terms.forEach(term => {
+        // Debug: Show sample data
+        console.log('🔍 DEBUG: Cache has', window.masterDataCache.length, 'rows');
+        console.log('🔍 DEBUG: Found', terms.length, 'interactive terms');
+        console.log('🔍 DEBUG: First 3 term IDs:', Array.from(terms).slice(0,3).map(t => t.getAttribute('data-term-id')));
+        console.log('🔍 DEBUG: First 3 cache IDs:', window.masterDataCache.slice(0,3).map(r => r.id_the));
+        
+        terms.forEach((term, index) => {
             const termId = term.getAttribute('data-term-id');
-            if (!termId) return;
+            if (!termId) {
+                if (index < 3) console.log(`🔍 DEBUG: Term ${index} has no ID`);
+                return;
+            }
             
             // Find matching data in cache
             const termData = window.masterDataCache.find(row => row && row.id_the === termId);
-            if (termData && termData.url && termData.url.trim()) {
-                term.setAttribute('data-image-url', termData.url.trim());
-                populated++;
+            if (termData) {
+                if (index < 3) console.log(`🔍 DEBUG: Found match for ${termId}:`, termData);
+                if (termData.url && termData.url.trim()) {
+                    term.setAttribute('data-image-url', termData.url.trim());
+                    populated++;
+                    if (index < 3) console.log(`✅ Set image URL for ${termId}`);
+                } else {
+                    if (index < 3) console.log(`⚠️ ${termId} has no URL in database`);
+                }
+            } else {
+                if (index < 3) console.log(`❌ No match found for ${termId}`);
             }
         });
         
