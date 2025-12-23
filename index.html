@@ -2545,11 +2545,21 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
     
     function initHighlightedTerms() {
         const interactiveTerms = document.querySelectorAll('.interactive-term');
+        console.log(`🔍 DEBUG: Found ${interactiveTerms.length} interactive terms to attach events`);
+        
         let currentTooltip = null;
         let imagePreview = null;
         let hoverTimer = null;
 
-        interactiveTerms.forEach(term => {
+        interactiveTerms.forEach((term, index) => {
+            if (index < 3) {
+                console.log(`🔍 DEBUG: Attaching events to term ${index}:`, {
+                    id: term.getAttribute('data-term-id'),
+                    text: term.textContent.trim(),
+                    hasUrl: !!term.getAttribute('data-image-url'),
+                    url: term.getAttribute('data-image-url')
+                });
+            }
             // Click event - Show Edit/Delete popup
             term.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -2613,6 +2623,8 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
 
             // Hover event - show image preview
             term.addEventListener('mouseenter', function(e) {
+                console.log('🐭 MOUSEENTER EVENT FIRED!');
+                
                 // Clear any existing timer and preview first
                 clearTimeout(hoverTimer);
                 hideImagePreview();
@@ -2620,7 +2632,7 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
                 const termId = this.getAttribute('data-term-id');
                 const imageUrl = this.getAttribute('data-image-url');
                 
-                console.log('🐭 Mouse entered term:', { termId, imageUrl, hasUrl: !!imageUrl });
+                console.log('🐭 Mouse entered term:', { termId, imageUrl, hasUrl: !!imageUrl, element: this });
                 
                 // Delay before showing preview
                 hoverTimer = setTimeout(() => {
