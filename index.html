@@ -2544,8 +2544,31 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
     window.populateImageUrls = populateImageUrls;
     
     function initHighlightedTerms() {
+        // First, remove all interactive terms that are NOT inside table cells
+        const allTerms = document.querySelectorAll('.interactive-term');
+        console.log(`🔍 DEBUG: Found ${allTerms.length} total interactive terms before filtering`);
+        
+        let removed = 0;
+        allTerms.forEach(term => {
+            // Check if term is inside a table cell (td or th)
+            const isInsideTable = term.closest('td, th') !== null;
+            
+            if (!isInsideTable) {
+                console.log(`🗑️ Removing term outside table:`, {
+                    id: term.getAttribute('data-term-id'),
+                    text: term.textContent.trim(),
+                    parent: term.parentElement?.tagName
+                });
+                term.remove();
+                removed++;
+            }
+        });
+        
+        console.log(`✅ Removed ${removed} terms outside tables`);
+        
+        // Now get the remaining valid terms
         const interactiveTerms = document.querySelectorAll('.interactive-term');
-        console.log(`🔍 DEBUG: Found ${interactiveTerms.length} interactive terms to attach events`);
+        console.log(`🔍 DEBUG: Found ${interactiveTerms.length} interactive terms INSIDE tables to attach events`);
         
         let currentTooltip = null;
         let imagePreview = null;
