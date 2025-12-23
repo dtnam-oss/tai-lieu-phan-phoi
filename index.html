@@ -2582,18 +2582,25 @@ td code, td a {
                 // Continue with imageUrl from HTML attribute
             }
 
-            console.log('🔍 Final URL:', finalUrl, '| isImageUrl:', isImageUrl(finalUrl));
-
-            // Check if URL is valid image
-            if (!finalUrl || !isImageUrl(finalUrl)) {
-                console.log('⚠️ No valid image URL, skipping preview');
-                return; // Don't show preview if no image URL
+            // Early exit if no URL at all
+            if (!finalUrl) {
+                console.log('⚠️ No URL provided, skipping preview');
+                return;
             }
 
-            // Convert to direct image URL if needed
+            console.log('🔍 Original URL:', finalUrl);
+
+            // Convert to direct/embed URL first (important!)
             const directUrl = getDirectImageUrl(finalUrl);
             if (directUrl !== finalUrl) {
-                console.log('🔄 Converted to direct URL:', directUrl);
+                console.log('🔄 Converted to:', directUrl);
+            }
+
+            // Now check if the converted URL is valid
+            console.log('🔍 Checking if valid media URL:', isImageUrl(directUrl));
+            if (!isImageUrl(directUrl)) {
+                console.log('⚠️ Not a valid media URL, skipping preview');
+                return;
             }
 
             console.log('✅ Creating preview...');
