@@ -2369,6 +2369,9 @@ table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
 <!-- Extract Data Button -->
 <button id="extract-data-btn" onclick="openExtractModal()">📊 Extract Data</button>
 
+<!-- Debug Button -->
+<button id="debug-btn" onclick="debugHover()" style="position: fixed; top: 120px; right: 20px; z-index: 10000; background: #ff6b6b; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(255,107,107,0.3);">🐛 Debug Hover</button>
+
 <!-- Extract Data Modal -->
 <div id="extract-data-modal">
 	<div id="extract-data-content">
@@ -4518,6 +4521,91 @@ function downloadExtractedCSV() {
 	a.click();
 	URL.revokeObjectURL(url);
 	alert('✅ Đã download CSV file!');
+}
+
+// Debug function to check hover setup
+function debugHover() {
+	console.clear();
+	console.log('🐛 DEBUG HOVER - Starting diagnostic...');
+	console.log('='.repeat(80));
+	
+	// 1. Check cache
+	console.log('\n📦 STEP 1: Check Cache');
+	const cacheData = localStorage.getItem('masterData');
+	if (cacheData) {
+		const cache = JSON.parse(cacheData);
+		console.log('✅ Cache exists:', {
+			rows: cache.data?.length || 0,
+			timestamp: new Date(cache.timestamp),
+			age: Math.round((Date.now() - cache.timestamp) / 1000) + 's ago'
+		});
+		if (cache.data && cache.data.length > 0) {
+			console.log('Sample row:', cache.data[1]); // Skip header
+		}
+	} else {
+		console.log('❌ No cache found');
+	}
+	
+	// 2. Check interactive terms
+	console.log('\n🎯 STEP 2: Check Interactive Terms');
+	const terms = document.querySelectorAll('.interactive-term[data-term-id]');
+	console.log(`Found ${terms.length} terms with data-term-id`);
+	
+	if (terms.length > 0) {
+		console.log('\nFirst 5 terms:');
+		Array.from(terms).slice(0, 5).forEach((term, i) => {
+			console.log(`${i+1}. ID="${term.getAttribute('data-term-id')}"`, {
+				text: term.textContent.trim(),
+				hasUrl: term.hasAttribute('data-image-url'),
+				url: term.getAttribute('data-image-url') || '(none)',
+				classes: term.className
+			});
+		});
+		
+		// Count terms with URLs
+		const termsWithUrl = Array.from(terms).filter(t => t.getAttribute('data-image-url'));
+		console.log(`\n📊 Stats: ${termsWithUrl.length}/${terms.length} terms have URLs`);
+	} else {
+		console.log('❌ No terms found! Check assignTermIds() function.');
+	}
+	
+	// 3. Check event listeners
+	console.log('\n👂 STEP 3: Test Event Listener');
+	if (terms.length > 0) {
+		const firstTerm = terms[0];
+		console.log('Testing first term:', firstTerm.textContent.trim());
+		console.log('Simulating mouseenter...');
+		
+		// Trigger mouseenter
+		const event = new MouseEvent('mouseenter', { bubbles: true });
+		firstTerm.dispatchEvent(event);
+		
+		setTimeout(() => {
+			console.log('Check if preview appeared above ☝️');
+		}, 600);
+	}
+	
+	// 4. Force refresh cache
+	console.log('\n🔄 STEP 4: Force Refresh Cache');
+	localStorage.removeItem('masterData');
+	console.log('✅ Cache cleared');
+	console.log('Reloading data from Google Sheets...');
+	
+	if (window.SheetDB && window.SheetDB.refresh) {
+		window.SheetDB.refresh().then(() => {
+			console.log('✅ Data refreshed!');
+			console.log('Re-running populateImageUrls()...');
+			if (window.populateImageUrls) {
+				window.populateImageUrls();
+			}
+		});
+	} else {
+		console.log('⚠️ SheetDB.refresh not available. Reload page manually.');
+	}
+	
+	console.log('='.repeat(80));
+	console.log('🐛 DEBUG COMPLETE');
+	console.log('💡 TIP: Nếu vẫn không work, reload page: Cmd+Shift+R (Mac) hoặc Ctrl+Shift+R (Windows)');
 }
 
 </script>
