@@ -2818,12 +2818,17 @@ td code, td a {
         function getDirectImageUrl(url) {
             if (!url) return url;
             
+            console.log('🔍 getDirectImageUrl input:', url);
+            
             // Handle Google Drive URLs: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
             const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
             if (driveMatch) {
                 const fileId = driveMatch[1];
+                console.log('✅ Google Drive detected! File ID:', fileId);
                 // Use preview endpoint which works for both images and videos
-                return `https://drive.google.com/file/d/${fileId}/preview`;
+                const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+                console.log('🔄 Converted to:', previewUrl);
+                return previewUrl;
             }
             
             // Handle postimg.cc page URLs: https://postimg.cc/k621yTNS
