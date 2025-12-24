@@ -1,7 +1,12 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Tài liệu tổng quan luồng phân phối</title><link rel="icon" type="image/svg+xml" href="favicon.svg"/><style>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Tài liệu tổng quan luồng phân phối</title><link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<!-- Premium Typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
 
 /* ========================================
-   MODERN PAPER DOCUMENT UI - PRIORITY STYLES
+   PREMIUM DOCUMENTATION UI - PRIORITY STYLES
    ======================================== */
 
 /* Background for entire page */
@@ -12,6 +17,9 @@ html, body {
     width: 100% !important;
     max-width: 100vw !important;
     overflow-x: hidden !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    color: #334155 !important; /* Slate color for better readability */
+    line-height: 1.6 !important;
 }
 
 /* Document Paper Container - The "Page" Effect */
@@ -63,9 +71,52 @@ html, body {
     white-space: normal !important;
     hyphens: auto !important;
     vertical-align: top !important;
-    padding: 0.75rem 0.5rem !important;
-    line-height: 1.5 !important;
+    padding: 16px !important; /* Increased for premium spacing */
+    line-height: 1.6 !important;
     box-sizing: border-box !important;
+}
+
+/* PREMIUM TABLE HEADERS - GHTK Green Gradient with Sticky */
+.document-paper table th,
+.document-paper .simple-table th,
+.document-paper .simple-table-header th {
+    background: linear-gradient(135deg, #00b14f 0%, #028a3d 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Rounded corners for header */
+.document-paper table thead tr:first-child th:first-child,
+.document-paper .simple-table thead tr:first-child th:first-child {
+    border-top-left-radius: 8px !important;
+}
+
+.document-paper table thead tr:first-child th:last-child,
+.document-paper .simple-table thead tr:first-child th:last-child {
+    border-top-right-radius: 8px !important;
+}
+
+/* PREMIUM ROW HOVER - Mint Green Highlight */
+.document-paper table tbody tr:hover,
+.document-paper .simple-table tbody tr:hover {
+    background-color: #f0fdf4 !important; /* Mint ultra light */
+    border-left: 4px solid #00b14f !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+/* BADGE STYLING - First Column (Bộ phận thực hiện) */
+.document-paper table tbody tr td:first-child,
+.document-paper .simple-table tbody tr td:first-child {
+    background-color: #f0fdfa !important; /* Teal ultra light */
+    font-weight: 600 !important;
+    color: #0f766e !important; /* Teal dark */
+    border-right: 2px solid #ccfbf1 !important;
 }
 
 /* CRITICAL: Force consistent 30-70% column ratio for ALL tables */
@@ -200,6 +251,153 @@ body {
     max-width: 100% !important;
     margin: 0 auto !important;
     padding: 2rem clamp(1rem, 5vw, 3rem) !important;
+}
+
+/* ========================================
+   PREMIUM PROCESS/STEP HIGHLIGHTING
+   ======================================== */
+
+/* Highlight steps (Bước 1, Bước 2, etc.) */
+.document-paper strong:is(
+    [style*="border-bottom"],
+    span[style*="border-bottom"]
+) {
+    color: #00b14f !important;
+    background: linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%) !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+}
+
+/* Highlight any strong tag containing "Bước" */
+.document-paper td strong,
+.document-paper td b {
+    color: #059669 !important; /* Green 600 */
+    font-weight: 600 !important;
+}
+
+/* Special highlight for "Lưu ý" */
+.document-paper em strong span,
+.document-paper em strong {
+    color: #f59e0b !important; /* Amber 500 */
+    font-weight: 600 !important;
+}
+
+/* ========================================
+   PREMIUM CALLOUT/NOTE BOXES
+   ======================================== */
+
+/* Style for paragraphs/sections containing "Lưu ý" */
+.document-paper td:has(em:has(strong:has(span[style*="border-bottom"]))),
+.document-paper td em {
+    background: #fffbeb !important; /* Amber 50 */
+    border-left: 4px solid #f59e0b !important; /* Amber 500 */
+    padding: 12px 15px !important;
+    border-radius: 6px !important;
+    margin: 8px 0 !important;
+    display: block !important;
+    font-style: normal !important;
+}
+
+/* Icon-like styling for note markers */
+.document-paper td em strong::before {
+    content: "⚠️ ";
+    margin-right: 4px;
+}
+
+/* ========================================
+   CODE BLOCK & INLINE CODE PREMIUM STYLING
+   ======================================== */
+
+.document-paper code {
+    background: #f1f5f9 !important; /* Slate 100 */
+    color: #0f766e !important; /* Teal 700 */
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace !important;
+    font-size: 0.9em !important;
+    font-weight: 500 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* ========================================
+   LINKS PREMIUM STYLING
+   ======================================== */
+
+.document-paper a {
+    color: #00b14f !important;
+    text-decoration: none !important;
+    border-bottom: 1px solid transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+.document-paper a:hover {
+    color: #028a3d !important;
+    border-bottom: 1px solid #00b14f !important;
+}
+
+/* ========================================
+   HEADINGS PREMIUM STYLING
+   ======================================== */
+
+.document-paper h1,
+.document-paper h2,
+.document-paper h3 {
+    color: #1e293b !important; /* Slate 800 */
+    font-weight: 700 !important;
+    margin-top: 2em !important;
+    margin-bottom: 0.5em !important;
+}
+
+.document-paper h3 {
+    color: #00b14f !important; /* GHTK Green */
+    font-size: 1.5rem !important;
+    border-bottom: 2px solid #d4fc79 !important;
+    padding-bottom: 8px !important;
+    margin-top: 2.5em !important;
+}
+
+.document-paper .page-title {
+    color: #1e293b !important;
+    font-size: 2.75rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 1rem !important;
+    background: linear-gradient(135deg, #00b14f 0%, #028a3d 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* ========================================
+   HR DIVIDER PREMIUM STYLING
+   ======================================== */
+
+.document-paper hr {
+    border: none !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, transparent 0%, #e2e8f0 20%, #e2e8f0 80%, transparent 100%) !important;
+    margin: 2.5rem 0 !important;
+}
+
+/* ========================================
+   PARAGRAPH & LIST PREMIUM STYLING
+   ======================================== */
+
+.document-paper p {
+    margin: 1em 0 !important;
+    line-height: 1.7 !important;
+}
+
+.document-paper ul,
+.document-paper ol {
+    padding-left: 1.5em !important;
+    margin: 1em 0 !important;
+}
+
+.document-paper li {
+    margin: 0.5em 0 !important;
+    line-height: 1.6 !important;
 }
 
 
