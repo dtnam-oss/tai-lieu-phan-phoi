@@ -1165,6 +1165,28 @@ body {
     width: 40% !important; /* SO */
 }
 
+/* HARD-FIX: Bảng mục 3.3 - Phân phối xe tải lấy hàng */
+/* ID bảng 3.3: #2ceec18e-70ae-8043-a7f1-f27b4830da83 */
+/* Reset hoàn toàn margin và width để khắc phục lỗi tràn trái */
+#\32 ceec18e-70ae-8043-a7f1-f27b4830da83 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Đồng bộ cột 30% - 70% cho bảng 3.3 */
+#\32 ceec18e-70ae-8043-a7f1-f27b4830da83 th:first-child,
+#\32 ceec18e-70ae-8043-a7f1-f27b4830da83 td:first-child {
+    width: 30% !important;
+}
+
+#\32 ceec18e-70ae-8043-a7f1-f27b4830da83 th:nth-child(2),
+#\32 ceec18e-70ae-8043-a7f1-f27b4830da83 td:nth-child(2) {
+    width: 70% !important;
+}
+
 /* Interactive highlighted terms */
 .interactive-term {
     cursor: pointer;
