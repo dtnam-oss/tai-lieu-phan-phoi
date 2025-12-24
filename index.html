@@ -6908,8 +6908,14 @@ Hãy trả lời câu hỏi trên dựa vào tài liệu được cung cấp. Nh
         };
 
         try {
+            // Build full API URL with detailed logging
+            const apiUrl = `${GHTK_AI_CONFIG.GEMINI_API_URL}?key=${GHTK_AI_CONFIG.GEMINI_API_KEY}`;
+
+            console.log('🔗 Calling URL:', apiUrl.replace(GHTK_AI_CONFIG.GEMINI_API_KEY, 'API_KEY_HIDDEN'));
+            console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
+
             // Call Gemini API directly
-            const response = await fetch(`${GHTK_AI_CONFIG.GEMINI_API_URL}?key=${GHTK_AI_CONFIG.GEMINI_API_KEY}`, {
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -6918,16 +6924,28 @@ Hãy trả lời câu hỏi trên dựa vào tài liệu được cung cấp. Nh
             });
 
             console.log('📡 Response status:', response.status);
+            console.log('📡 Response ok:', response.ok);
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('❌ API Error:', errorText);
+                console.error('❌ API Error Response:', errorText);
+
+                // Try fallback to gemini-pro if gemini-1.5-flash fails
+                if (response.status === 404) {
+                    console.warn('⚠️ Gemini 1.5 Flash not available, trying fallback to Gemini Pro...');
+                    return await this.callGeminiProFallback(question, context, payload);
+                }
+
                 throw new Error(`Gemini API error (${response.status}): ${errorText}`);
             }
 
             // Parse response
             const data = await response.json();
-            console.log('✅ Response received');
+            console.log('✅ Response received successfully');
+            console.log('📊 Response structure:', {
+                hasCandidates: !!data.candidates,
+                candidatesCount: data.candidates?.length || 0
+            });
 
             // Extract answer from Gemini response
             if (data.candidates && data.candidates.length > 0) {
@@ -6939,11 +6957,61 @@ Hãy trả lời câu hỏi trên dựa vào tài liệu được cung cấp. Nh
                 }
             }
 
-            throw new Error('Unexpected API response format');
+            throw new Error('Unexpected API response format - no candidates or content found');
 
         } catch (error) {
             console.error('❌ Error calling Gemini API:', error);
+            console.error('❌ Error stack:', error.stack);
             return `Xin lỗi, đã có lỗi xảy ra khi kết nối với AI.\n\nChi tiết lỗi: ${error.message}\n\nVui lòng thử lại sau.`;
+        }
+    }
+
+    /**
+     * Fallback to Gemini Pro (stable 1.0 model)
+     * Called when gemini-1.5-flash returns 404
+     */
+    async callGeminiProFallback(question, context, originalPayload) {
+        try {
+            console.log('🔄 Attempting fallback to Gemini Pro (stable model)...');
+
+            const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GHTK_AI_CONFIG.GEMINI_API_KEY}`;
+
+            console.log('🔗 Fallback URL:', fallbackUrl.replace(GHTK_AI_CONFIG.GEMINI_API_KEY, 'API_KEY_HIDDEN'));
+
+            const response = await fetch(fallbackUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(originalPayload)
+            });
+
+            console.log('📡 Fallback Response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ Fallback also failed:', errorText);
+                throw new Error(`Fallback API error (${response.status}): ${errorText}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ Fallback successful!');
+
+            // Extract answer
+            if (data.candidates && data.candidates.length > 0) {
+                const candidate = data.candidates[0];
+                if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+                    const answer = candidate.content.parts[0].text;
+                    console.log('✅ Fallback answer extracted, length:', answer.length);
+                    return answer;
+                }
+            }
+
+            throw new Error('Fallback: Unexpected response format');
+
+        } catch (error) {
+            console.error('❌ Fallback failed:', error);
+            throw error; // Re-throw to be caught by main error handler
         }
     }
 
