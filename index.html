@@ -385,11 +385,14 @@ body {
    ======================================== */
 
 .browser-mockup {
+    position: relative;
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     max-width: 750px;
+    max-height: 450px;
+    aspect-ratio: 16 / 9;
     margin: 30px auto;
     border: 1px solid #e2e8f0;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -445,15 +448,41 @@ body {
 }
 
 .browser-content {
-    position: relative;
+    position: absolute;
+    top: 36px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
+    height: calc(100% - 36px);
     background: #ffffff;
+    overflow: hidden;
+}
+
+/* Override inline styles on iframe wrapper */
+.browser-content > div {
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding-bottom: 0 !important;
+}
+
+/* Ensure iframe fills container */
+.browser-content iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .browser-mockup {
         max-width: 100%;
+        max-height: none;
+        aspect-ratio: 16 / 9;
         margin: 20px 0;
         border-radius: 8px;
     }
@@ -469,6 +498,11 @@ body {
     
     .browser-header {
         height: 32px;
+    }
+    
+    .browser-content {
+        top: 32px;
+        height: calc(100% - 32px);
     }
     
     .traffic-lights span {
