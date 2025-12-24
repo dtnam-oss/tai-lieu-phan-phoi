@@ -4196,8 +4196,9 @@ article.page {
         // => SHEET_ID = '1ABC123xyz'
         SHEET_ID: '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4',
         
-        // Tab name - CHỈ CÓ 1 TAB DUY NHẤT
-        SHEET_NAME: 'MasterData',      // Tên tab chứa toàn bộ dữ liệu
+        // Tab names
+        SHEET_NAME: 'MasterData',      // Tên tab chứa dữ liệu hover preview
+        CONTENT_DATA_SHEET: 'ContentData',  // Tên tab chứa nội dung table cells
         
         // Cache timeout (1 phút - giảm xuống để reload nhanh hơn)
         CACHE_DURATION: 1 * 60 * 1000
@@ -4552,6 +4553,126 @@ article.page {
     };
     
     // ============================================
+    // TABLE CONTENT UPDATER - Update table cells from ContentData
+    // ============================================
+    const TableContentUpdater = {
+        // Update table cells from ContentData sheet
+        updateTableContent(contentData) {
+            if (!contentData || contentData.length === 0) {
+                console.warn('⚠️ No ContentData to update');
+                return { total: 0, updated: 0, errors: 0 };
+            }
+            
+            let stats = { total: 0, updated: 0, errors: 0, skipped: 0 };
+            
+            // Skip header row
+            const dataRows = contentData.slice(1);
+            
+            console.log(`🔄 Processing ${dataRows.length} ContentData rows...`);
+            
+            dataRows.forEach((row, index) => {
+                // Expected columns: table_id | section_name | row_number | column_name | content_text | content_html
+                const tableId = row.A;
+                const sectionName = row.B;
+                const rowNumber = parseInt(row.C);
+                const columnName = row.D;
+                const contentText = row.E || '';
+                const contentHtml = row.F || contentText;
+                
+                // Skip if missing essential data
+                if (!tableId || !columnName || isNaN(rowNumber)) {
+                    stats.skipped++;
+                    return;
+                }
+                
+                stats.total++;
+                
+                try {
+                    const updated = this.updateCell(tableId, rowNumber, columnName, contentHtml);
+                    if (updated) {
+                        stats.updated++;
+                    }
+                } catch (error) {
+                    stats.errors++;
+                    console.error(`✗ Error updating ${tableId} row ${rowNumber} col ${columnName}:`, error);
+                }
+            });
+            
+            return stats;
+        },
+        
+        // Update a specific table cell
+        updateCell(tableId, rowNumber, columnName, content) {
+            // Find table by ID
+            const table = document.getElementById(tableId);
+            if (!table) {
+                console.warn(`⚠️ Table not found: ${tableId}`);
+                return false;
+            }
+            
+            // Find the column index by matching header text
+            const headers = table.querySelectorAll('thead th');
+            let columnIndex = -1;
+            
+            headers.forEach((th, index) => {
+                const headerText = th.textContent.trim();
+                if (headerText === columnName || th.querySelector('strong')?.textContent.trim() === columnName) {
+                    columnIndex = index;
+                }
+            });
+            
+            if (columnIndex === -1) {
+                console.warn(`⚠️ Column not found: "${columnName}" in table ${tableId}`);
+                return false;
+            }
+            
+            // Find the row in tbody (rowNumber is 1-based, but we use 0-based index)
+            const rows = table.querySelectorAll('tbody tr');
+            const targetRow = rows[rowNumber - 1];
+            
+            if (!targetRow) {
+                console.warn(`⚠️ Row ${rowNumber} not found in table ${tableId}`);
+                return false;
+            }
+            
+            // Get the cell
+            const cells = targetRow.querySelectorAll('td');
+            const targetCell = cells[columnIndex];
+            
+            if (!targetCell) {
+                console.warn(`⚠️ Cell not found at row ${rowNumber}, column ${columnIndex} in table ${tableId}`);
+                return false;
+            }
+            
+            // Update cell content
+            targetCell.innerHTML = content;
+            
+            return true;
+        },
+        
+        // Get statistics about tables
+        getTableStats() {
+            const tables = document.querySelectorAll('table[id]');
+            const stats = {
+                totalTables: tables.length,
+                tableIds: []
+            };
+            
+            tables.forEach(table => {
+                const rows = table.querySelectorAll('tbody tr').length;
+                const cols = table.querySelectorAll('thead th').length;
+                stats.tableIds.push({
+                    id: table.id,
+                    rows: rows,
+                    cols: cols
+                });
+            });
+            
+            return stats;
+        }
+    };
+    
+    // ============================================
     // MAIN LOADER - Simplified for Master Table
     // ============================================
     const SheetLoader = {
@@ -4565,10 +4686,10 @@ article.page {
                 return;
             }
             
-            console.log('🔄 Loading content from Google Sheets Master Table...');
+            console.log('🔄 Loading content from Google Sheets...');
             
             try {
-                // Load master data (only 1 sheet)
+                // Load master data for hover preview
                 const masterData = await GoogleSheetsAPI.fetchSheet(CONFIG.SHEET_NAME);
                 
                 if (!masterData || masterData.length === 0) {
@@ -4578,6 +4699,24 @@ article.page {
                 // Store in global cache for hover preview
                 window.masterDataCache = masterData;
                 
+                // Load ContentData for table cells
+                console.log('📊 Loading ContentData for table cells...');
+                const contentData = await GoogleSheetsAPI.fetchSheet(CONFIG.CONTENT_DATA_SHEET);
+                
+                if (contentData && contentData.length > 1) {
+                    // Update table cells
+                    const contentStats = TableContentUpdater.updateTableContent(contentData);
+                    console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated`);
+                    if (contentStats.errors > 0) {
+                        console.warn(`⚠️ ${contentStats.errors} errors occurred`);
+                    }
+                    if (contentStats.skipped > 0) {
+                        console.log(`ℹ️ ${contentStats.skipped} rows skipped (missing data)`);
+                    }
+                } else {
+                    console.log('ℹ️ No ContentData found - table cells remain static');
+                }
+                
                 // Populate image URLs for hover preview
                 setTimeout(() => {
                     if (window.populateImageUrls) {
@@ -4585,13 +4724,11 @@ article.page {
                     }
                 }, 500);
                 
-                // DISABLED: Auto-creation of elements (causes elements to be created outside tables)
-                // Only populate URLs for existing interactive terms
                 console.log(`✅ Content loaded successfully!`);
-                console.log(`📝 Total rows in cache: ${masterData.length - 1}`);
-                console.log(`ℹ️ Auto-creation disabled - only updating URLs for existing terms`);
+                console.log(`📝 MasterData: ${masterData.length - 1} rows`);
+                console.log(`ℹ️ Auto-creation disabled - only updating existing elements`);
                 
-                this.showNotification(`✅ Đã load ${masterData.length - 1} rows từ database`, 'success');
+                this.showNotification(`✅ Đã load nội dung từ Google Sheets`, 'success');
                 
             } catch (error) {
                 console.error('✗ Error loading content:', error);
