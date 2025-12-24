@@ -5263,7 +5263,7 @@ function debugHover() {
  */
 const VideoDatabase = {
     // ⚠️ IMPORTANT: Thay bằng URL Google Apps Script của bạn
-    API_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE',
+    API_URL: 'https://script.google.com/macros/s/AKfycbxtZR53gl69WcSPmMszdidycjU7b4gLzS9S4GT6uxb2iE5XszhxMVmTV5Ub1Gt8jntHhA/exec',
     CACHE_KEY: 'video_data_cache',
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
 
@@ -5491,7 +5491,7 @@ async function initVideoSystem() {
     console.log('🎬 Initializing Video System (Google Sheets)...');
     
     // Check if API URL is configured
-    if (VideoDatabase.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+    if (VideoDatabase.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE' || !VideoDatabase.API_URL) {
         console.error('❌ Google Apps Script URL not configured!');
         console.log('👉 Please update VideoDatabase.API_URL in the code');
         return;
