@@ -6809,6 +6809,7 @@ class GHTKChatManager {
 
     /**
      * Call Google Apps Script Backend API
+     * CRITICAL FIX: Using text/plain to bypass CORS preflight
      */
     async callBackendAPI(question, context) {
         // Check if backend URL is configured
@@ -6816,12 +6817,13 @@ class GHTKChatManager {
             return '⚠️ **Chưa cấu hình Backend API**\n\nVui lòng cập nhật `GHTK_AI_CONFIG.BACKEND_URL` với Google Apps Script Web App URL của bạn.\n\nXem hướng dẫn trong console (F12).';
         }
 
-        // Send request with question and context
-        // Backend will detect chatbot request by presence of these fields
+        // CORS FIX: Use text/plain instead of application/json to bypass preflight
+        // Google Apps Script doesn't support OPTIONS method for CORS preflight
         const response = await fetch(GHTK_AI_CONFIG.BACKEND_URL, {
             method: 'POST',
+            redirect: 'follow', // Important: Google Apps Script uses 302 redirect
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain;charset=utf-8', // CRITICAL: Bypass CORS preflight
             },
             body: JSON.stringify({
                 question: question,

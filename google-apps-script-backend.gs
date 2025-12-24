@@ -89,6 +89,9 @@ Lưu ý: Chuẩn bị đầy đủ giấy tờ để quá trình xác minh nhanh
 
 /**
  * Handle POST requests from frontend
+ *
+ * CORS FIX: Frontend gửi Content-Type: text/plain để bypass preflight
+ * Data nằm trong e.postData.contents dưới dạng JSON string
  */
 function doPost(e) {
   try {
@@ -97,9 +100,12 @@ function doPost(e) {
     output.setMimeType(ContentService.MimeType.JSON);
 
     // Parse request body
+    // CRITICAL: Data sent as text/plain to bypass CORS preflight
     const requestData = JSON.parse(e.postData.contents);
     const question = requestData.question;
     const context = requestData.context;
+
+    Logger.log('Received request - Question: ' + (question ? question.substring(0, 100) : 'N/A'));
 
     // Validate inputs
     if (!question || !context) {

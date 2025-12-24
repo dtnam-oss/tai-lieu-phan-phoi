@@ -69,6 +69,9 @@ function doGet(e) {
 /**
  * Handle POST requests
  * Phân biệt request từ Video Database hay Chatbot bằng 'action' field
+ *
+ * CORS FIX: Frontend gửi text/plain để bypass preflight
+ * Data luôn ở dạng JSON string trong e.postData.contents
  */
 function doPost(e) {
   try {
@@ -76,20 +79,25 @@ function doPost(e) {
     output.setMimeType(ContentService.MimeType.JSON);
 
     // Parse request body
-    const contentType = e.postData.type;
+    // CRITICAL: Frontend gửi Content-Type: text/plain (bypass CORS)
+    // Nên data luôn nằm trong e.postData.contents dưới dạng JSON string
     let requestData;
 
-    // Handle different content types
-    if (contentType === 'application/json') {
+    try {
+      // Try parsing as JSON first (from Chatbot with text/plain)
       requestData = JSON.parse(e.postData.contents);
-    } else if (contentType === 'application/x-www-form-urlencoded') {
-      // For Video Database requests (form-urlencoded)
-      requestData = e.parameter;
-    } else {
-      requestData = JSON.parse(e.postData.contents || '{}');
+      Logger.log('Parsed as JSON from text/plain: ' + JSON.stringify(requestData));
+    } catch (parseError) {
+      // Fallback: Check if it's form-urlencoded (Video Database)
+      if (e.parameter && Object.keys(e.parameter).length > 0) {
+        requestData = e.parameter;
+        Logger.log('Using form-urlencoded data: ' + JSON.stringify(requestData));
+      } else {
+        throw new Error('Cannot parse request data');
+      }
     }
 
-    Logger.log('Request data: ' + JSON.stringify(requestData));
+    Logger.log('Final request data: ' + JSON.stringify(requestData));
 
     // ========================================
     // ROUTE 1: AI CHATBOT
