@@ -14,6 +14,7 @@ Enterprise-grade distribution documentation system with Google Sheets integratio
 
 - ✅ **Context-Aware**: Reads and understands entire page content
 - ✅ **AI-Powered**: Google Gemini 1.5 Flash integration
+- ✅ **Direct API**: No backend proxy needed! (No more CORS issues)
 - ✅ **Beautiful UI**: Glassmorphism design with GHTK green theme
 - ✅ **Chat History**: localStorage persistence (survives page refresh)
 - ✅ **Quick Actions**: Pre-defined question chips for common queries
@@ -23,10 +24,15 @@ Enterprise-grade distribution documentation system with Google Sheets integratio
 
 | File | Purpose |
 |------|---------|
+| [DIRECT-API-SETUP-GUIDE.md](DIRECT-API-SETUP-GUIDE.md) | ⚡ **NEW!** Direct API setup (5 mins, no backend!) |
 | [QUICK-START.md](QUICK-START.md) | ⚡ 2-step setup guide (5 mins) |
-| [HUONG-DAN-UPDATE-GOOGLE-APPS-SCRIPT.md](HUONG-DAN-UPDATE-GOOGLE-APPS-SCRIPT.md) | 📖 Detailed update guide |
-| [google-apps-script-MERGED.gs](google-apps-script-MERGED.gs) | 🔧 Backend code (merged with Video DB) |
 | [GHTK-AI-ASSISTANT-SETUP-GUIDE.md](GHTK-AI-ASSISTANT-SETUP-GUIDE.md) | 📚 Complete setup guide |
+
+**Legacy Documentation (Apps Script - Not Recommended):**
+| File | Purpose |
+|------|---------|
+| [HUONG-DAN-UPDATE-GOOGLE-APPS-SCRIPT.md](HUONG-DAN-UPDATE-GOOGLE-APPS-SCRIPT.md) | 📖 Apps Script update guide (old method) |
+| [google-apps-script-MERGED.gs](google-apps-script-MERGED.gs) | 🔧 Backend code (not needed for Direct API) |
 
 ---
 

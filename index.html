@@ -6568,12 +6568,18 @@ if (document.readyState === 'loading') {
 
 /**
  * GHTK AI Assistant Configuration
- * Replace with your Google Apps Script Web App URL
+ * Direct API integration - No backend proxy needed!
  */
 const GHTK_AI_CONFIG = {
-    // Using the same Web App URL as other features
-    // The backend will route requests based on payload content
-    BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec',
+    // ⚠️ REPLACE WITH YOUR GEMINI API KEY
+    // Get your key at: https://aistudio.google.com/app/apikey
+    // IMPORTANT: Restrict this key to your domain in Google AI Studio settings
+    GEMINI_API_KEY: 'YOUR_GEMINI_API_KEY_HERE',
+
+    // Gemini API Endpoint (Direct)
+    GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+
+    // Storage settings
     STORAGE_KEY: 'ghtk_chat_history',
     MAX_CONTEXT_LENGTH: 15000, // Limit context to avoid API overload
     MAX_MESSAGES: 50 // Maximum messages to store in localStorage
@@ -6808,75 +6814,137 @@ class GHTKChatManager {
     }
 
     /**
-     * Call Google Apps Script Backend API
-     * CRITICAL FIX: Using text/plain to bypass CORS preflight
-     * SAFE MODE: Backend always returns JSON, never crashes
+     * Call Google Gemini API Directly (No Backend Proxy!)
+     * This eliminates all CORS and network issues from Google Apps Script
      */
     async callBackendAPI(question, context) {
-        // Check if backend URL is configured
-        if (!GHTK_AI_CONFIG.BACKEND_URL || GHTK_AI_CONFIG.BACKEND_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-            return '⚠️ **Chưa cấu hình Backend API**\n\nVui lòng cập nhật `GHTK_AI_CONFIG.BACKEND_URL` với Google Apps Script Web App URL của bạn.\n\nXem hướng dẫn trong console (F12).';
+        // Check if API key is configured
+        if (!GHTK_AI_CONFIG.GEMINI_API_KEY || GHTK_AI_CONFIG.GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+            return '⚠️ **Chưa cấu hình Gemini API Key**\n\n' +
+                   'Vui lòng:\n' +
+                   '1. Truy cập: https://aistudio.google.com/app/apikey\n' +
+                   '2. Tạo API Key mới\n' +
+                   '3. Cập nhật `GHTK_AI_CONFIG.GEMINI_API_KEY` trong code\n' +
+                   '4. Giới hạn key theo domain để bảo mật';
         }
 
-        console.log('🔌 Calling backend API...');
+        console.log('🤖 Calling Gemini API directly...');
         console.log('📝 Question length:', question.length);
         console.log('📄 Context length:', context.length);
 
-        // CORS FIX: Use text/plain instead of application/json to bypass preflight
-        // Google Apps Script doesn't support OPTIONS method for CORS preflight
-        const response = await fetch(GHTK_AI_CONFIG.BACKEND_URL, {
-            method: 'POST',
-            mode: 'cors', // Explicitly enable CORS
-            redirect: 'follow', // Important: Google Apps Script uses 302 redirect
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // CRITICAL: Bypass CORS preflight
+        // Build system prompt
+        const systemPrompt = `Bạn là trợ lý AI chuyên nghiệp của GHTK (Giao Hàng Tiết Kiệm).
+
+**Vai trò của bạn:**
+- Hỗ trợ người dùng tìm hiểu về quy trình phân phối của GHTK
+- Trả lời câu hỏi dựa trên tài liệu được cung cấp
+- Cung cấp thông tin chính xác, súc tích và dễ hiểu
+
+**Nguyên tắc trả lời:**
+1. **Chính xác**: Chỉ trả lời dựa trên thông tin trong tài liệu được cung cấp
+2. **Súc tích**: Trả lời ngắn gọn, đi thẳng vào vấn đề (2-5 câu)
+3. **Dễ đọc**: Sử dụng gạch đầu dòng (-) khi liệt kê nhiều điểm
+4. **In đậm điểm quan trọng**: Sử dụng **text** để làm nổi bật
+5. **Thành thật**: Nếu không tìm thấy thông tin trong tài liệu, nói rõ "Thông tin này không có trong tài liệu hiện tại"
+
+**Định dạng câu trả lời:**
+- Bắt đầu với câu tóm tắt ngắn gọn
+- Sử dụng gạch đầu dòng (-) cho danh sách
+- Sử dụng **in đậm** cho thuật ngữ quan trọng
+- Kết thúc bằng lời khuyên hoặc lưu ý (nếu cần)`;
+
+        // Build full prompt with context
+        const fullPrompt = `${systemPrompt}
+
+========================================
+TÀI LIỆU QUY TRÌNH PHÂN PHỐI GHTK:
+========================================
+
+${context}
+
+========================================
+CÂU HỎI TỪ NGƯỜI DÙNG:
+========================================
+
+${question}
+
+========================================
+YÊU CẦU:
+========================================
+
+Hãy trả lời câu hỏi trên dựa vào tài liệu được cung cấp. Nhớ tuân thủ các nguyên tắc đã nêu.`;
+
+        // Prepare API request payload
+        const payload = {
+            contents: [{
+                parts: [{
+                    text: fullPrompt
+                }]
+            }],
+            generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 2048,
             },
-            body: JSON.stringify({
-                question: question,
-                context: context
-            })
-        });
+            safetySettings: [
+                {
+                    category: 'HARM_CATEGORY_HARASSMENT',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+                },
+                {
+                    category: 'HARM_CATEGORY_HATE_SPEECH',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+                },
+                {
+                    category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+                },
+                {
+                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+                }
+            ]
+        };
 
-        console.log('📡 Response status:', response.status);
-        console.log('📡 Response ok:', response.ok);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('❌ Response not OK:', errorText.substring(0, 500));
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Parse JSON response
-        let data;
         try {
-            data = await response.json();
-            console.log('✅ JSON parsed successfully');
-            console.log('📦 Response data:', data);
-        } catch (parseError) {
-            console.error('❌ Failed to parse JSON:', parseError);
-            const rawText = await response.text();
-            console.error('❌ Raw response:', rawText.substring(0, 500));
-            throw new Error('Backend trả về dữ liệu không hợp lệ (không phải JSON)');
+            // Call Gemini API directly
+            const response = await fetch(`${GHTK_AI_CONFIG.GEMINI_API_URL}?key=${GHTK_AI_CONFIG.GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            console.log('📡 Response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ API Error:', errorText);
+                throw new Error(`Gemini API error (${response.status}): ${errorText}`);
+            }
+
+            // Parse response
+            const data = await response.json();
+            console.log('✅ Response received');
+
+            // Extract answer from Gemini response
+            if (data.candidates && data.candidates.length > 0) {
+                const candidate = data.candidates[0];
+                if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+                    const answer = candidate.content.parts[0].text;
+                    console.log('✅ Answer extracted, length:', answer.length);
+                    return answer;
+                }
+            }
+
+            throw new Error('Unexpected API response format');
+
+        } catch (error) {
+            console.error('❌ Error calling Gemini API:', error);
+            return `Xin lỗi, đã có lỗi xảy ra khi kết nối với AI.\n\nChi tiết lỗi: ${error.message}\n\nVui lòng thử lại sau.`;
         }
-
-        // Check for errors in response
-        if (data.error) {
-            console.warn('⚠️ Backend returned error:', data.error);
-            // Still return the answer if available (might be error message)
-            return data.answer || data.error;
-        }
-
-        // Check success field (new in Safe Mode backend)
-        if (data.success === false) {
-            console.warn('⚠️ Request failed:', data.answer || data.error);
-            return data.answer || 'Có lỗi xảy ra, vui lòng thử lại.';
-        }
-
-        // Return answer
-        const answer = data.answer || 'Không nhận được phản hồi từ AI.';
-        console.log('✅ Got answer, length:', answer.length);
-
-        return answer;
     }
 
     /**
