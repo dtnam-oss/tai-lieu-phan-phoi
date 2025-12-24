@@ -53,11 +53,15 @@ html, body {
     width: 100% !important;
     max-width: 100% !important;
     table-layout: fixed !important;
-    border-collapse: collapse !important;
+    border-collapse: separate !important; /* Changed from collapse for border-radius */
+    border-spacing: 0 !important;
     margin: 1.5rem 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     box-sizing: border-box !important;
+    border-radius: 12px !important; /* Premium rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04) !important; /* Soft elevation */
+    overflow: hidden !important; /* Ensure content respects border-radius */
 }
 
 /* Force word wrapping in all cells */
@@ -90,15 +94,26 @@ html, body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Rounded corners for header */
+/* Rounded corners for header - matching table border-radius */
 .document-paper table thead tr:first-child th:first-child,
 .document-paper .simple-table thead tr:first-child th:first-child {
-    border-top-left-radius: 8px !important;
+    border-top-left-radius: 12px !important;
 }
 
 .document-paper table thead tr:first-child th:last-child,
 .document-paper .simple-table thead tr:first-child th:last-child {
-    border-top-right-radius: 8px !important;
+    border-top-right-radius: 12px !important;
+}
+
+/* Rounded corners for last row */
+.document-paper table tbody tr:last-child td:first-child,
+.document-paper .simple-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px !important;
+}
+
+.document-paper table tbody tr:last-child td:last-child,
+.document-paper .simple-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px !important;
 }
 
 /* PREMIUM ROW HOVER - Mint Green Highlight */
