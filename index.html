@@ -1139,41 +1139,44 @@ body {
     width: auto !important;
 }
 
-/* UNIFIED: All 2-column tables use 30% / 70% */
+/* STANDARDIZED COLUMN WIDTHS - Áp dụng cho tất cả bảng 2 cột (3.2, 3.3, 4.x, 5.x, 6.x) */
+/* Tỷ lệ chuẩn: 30% (Bộ phận) - 70% (Nội dung) */
+
+/* Cột 1: Bộ phận thực hiện */
 .simple-table th:first-child,
 .simple-table td:first-child {
     width: 30% !important;
-    min-width: 30% !important;
-    max-width: 30% !important;
+    min-width: 180px !important;
 }
 
+/* Cột 2: Nội dung */
 .simple-table th:nth-child(2),
 .simple-table td:nth-child(2) {
     width: 70% !important;
-    min-width: 70% !important;
-    max-width: 70% !important;
 }
 
-/* ONBOARD table (3 columns): 20% / 40% / 40% */
+/* Xử lý trường hợp cột 2 bị tràn hoặc nội dung quá dài */
+.simple-table td:nth-child(2) ul,
+.simple-table td:nth-child(2) ol {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+/* NGOẠI LỆ: BẢNG 3 CỘT (Mục 1. ONBOARD) */
+/* ID bảng Onboard: #70fe4b0d-c3af-486e-8387-de3a7ced6ce4 */
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:first-child,
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:first-child {
-    width: 20% !important;
-    min-width: 20% !important;
-    max-width: 20% !important;
+    width: 20% !important; /* Nhóm tiêu chí */
 }
 
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(2),
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(2) {
-    width: 40% !important;
-    min-width: 40% !important;
-    max-width: 40% !important;
+    width: 40% !important; /* PO */
 }
 
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(3),
 #\37 0fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(3) {
-    width: 40% !important;
-    min-width: 40% !important;
-    max-width: 40% !important;
+    width: 40% !important; /* SO */
 }
 
 /* Interactive highlighted terms */
@@ -2178,26 +2181,45 @@ td code, td a {
     body {
         padding-top: auto !important;
     }
-    
+
     #main-navigation ul {
         flex-direction: column;
         gap: 0.5rem;
         padding: 0.75rem;
     }
-    
+
     #main-navigation a {
         width: 90%;
         text-align: center;
         padding: 0.6rem 1rem;
         font-size: 0.85rem;
     }
-    
+
     .layout-container {
         padding: 0 1rem !important;
     }
-    
+
     .toc-sidebar {
         top: auto !important;
+    }
+
+    /* Responsive table cho mobile */
+    .simple-table th,
+    .simple-table td {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.85rem;
+    }
+
+    /* Trên mobile cho phép cột 1 nhỏ hơn chút để dành chỗ cho nội dung */
+    .simple-table th:first-child,
+    .simple-table td:first-child {
+        width: 35% !important;
+        min-width: unset !important;
+    }
+
+    .simple-table th:nth-child(2),
+    .simple-table td:nth-child(2) {
+        width: 65% !important;
     }
 }
 
