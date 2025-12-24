@@ -479,23 +479,23 @@ body {
 
 /* ========================================
    VIDEO PLACEHOLDER & LAZY LOADING
-   Dot-Grid Minimalist Design
+   Layers Architecture (Dot-Grid Minimalist)
    ======================================== */
 
+/* Layer 0: Base Container */
 .video-placeholder {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    min-height: 300px;
+    position: absolute;
+    top: 36px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 36px);
     /* Dot-Grid Background */
     background-color: #f8fafc;
     background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
     background-size: 20px 20px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    overflow: hidden;
 }
 
 .video-placeholder:hover {
@@ -506,12 +506,47 @@ body {
     cursor: wait;
 }
 
+/* Layer 1: Thumbnail Background (Below UI) */
+.video-placeholder .thumbnail-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.15;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Layer 2: UI Overlay (Above Thumbnail) */
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    /* Optional: Semi-transparent overlay for better contrast */
+    background: rgba(248, 250, 252, 0.3);
+    backdrop-filter: blur(0px);
+    
+    /* Perfect Centering with Flexbox */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
 /* Play Button Container with Pulse Ring */
 .play-button-wrapper {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    z-index: 11;
 }
 
 /* Pulse Ring Animation - Breathing Effect */
@@ -603,6 +638,7 @@ body {
     user-select: none;
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    z-index: 11;
 }
 
 .video-placeholder:hover .play-helper-text {
@@ -5502,11 +5538,13 @@ const VideoDatabase = {
                     </div>
                 </div>
                 <div class="browser-content video-placeholder" data-video-url="${video.video_url}" data-platform="${video.platform}">
-                    ${video.thumbnail ? `<img src="${video.thumbnail}" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0.15;">` : ''}
-                    <div class="play-button-wrapper">
-                        <div class="play-button"></div>
+                    ${video.thumbnail ? `<img src="${video.thumbnail}" class="thumbnail-bg" alt="Video thumbnail">` : ''}
+                    <div class="video-overlay">
+                        <div class="play-button-wrapper">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="play-helper-text">Bấm để xem video hướng dẫn</div>
                     </div>
-                    <div class="play-helper-text">Bấm để xem video hướng dẫn</div>
                 </div>
             `;
 
