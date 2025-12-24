@@ -2168,9 +2168,16 @@ td code, td a {
 /* Ensure table cells never overflow container */
 .simple-table td,
 .simple-table th {
-    max-width: 0; /* Force table-layout: fixed to respect percentage widths */
     overflow-wrap: break-word !important;
     word-break: break-word !important;
+}
+
+/* Ensure URLs and links wrap within cells */
+.simple-table td a,
+.simple-table td code {
+    max-width: 100% !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
 }
 
 /* RESPONSIVE - Mobile optimizations */
