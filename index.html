@@ -648,6 +648,82 @@ body {
     transform: translateY(-2px);
 }
 
+/* ========================================
+   REFRESH BUTTON (DEV TOOL)
+   ======================================== */
+
+.refresh-button {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #00b14f, #009944);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 177, 79, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9999;
+    opacity: 0.7;
+}
+
+.refresh-button:hover {
+    opacity: 1;
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 20px rgba(0, 177, 79, 0.4);
+}
+
+.refresh-button:active {
+    transform: scale(0.95) rotate(180deg);
+}
+
+.refresh-button.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Refresh icon (SVG) */
+.refresh-button svg {
+    width: 24px;
+    height: 24px;
+    fill: #ffffff;
+}
+
+.refresh-button .tooltip {
+    position: absolute;
+    bottom: 60px;
+    right: 0;
+    background: #1e293b;
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.refresh-button:hover .tooltip {
+    opacity: 1;
+}
+
+.refresh-button .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 12px;
+    border: 6px solid transparent;
+    border-top-color: #1e293b;
+}
+
 /* Skeleton Loading Animation */
 @keyframes shimmer {
     0% {
@@ -5375,6 +5451,81 @@ const VideoDatabase = {
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
 
     /**
+     * Check if URL has ?reload=true parameter
+     */
+    shouldForceReload() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('reload') === 'true';
+    },
+
+    /**
+     * Force refresh - Clear cache and reload data
+     */
+    async forceRefresh() {
+        console.log('🚀 Force Refresh initiated...');
+        
+        // Clear cache
+        localStorage.removeItem(this.CACHE_KEY);
+        console.log('✅ Cache cleared');
+        
+        // Fetch fresh data
+        try {
+            const data = await this.fetchAndUpdateCache();
+            console.log('🚀 Đã xóa cache và tải dữ liệu mới từ Sheet!');
+            console.log(`📊 Loaded ${data.length} videos`);
+            
+            // Re-render
+            this.renderVideos(data);
+            
+            // Remove ?reload=true from URL (clean URL)
+            if (this.shouldForceReload()) {
+                const url = new URL(window.location);
+                url.searchParams.delete('reload');
+                window.history.replaceState({}, '', url);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('❌ Force refresh failed:', error);
+            alert(`❌ Lỗi khi tải dữ liệu mới:\n${error.message}`);
+            throw error;
+        }
+    },
+
+    /**
+     * Debug Tool - Check data status
+     */
+    checkDataStatus() {
+        console.log('\n' + '='.repeat(80));
+        console.log('🔍 VIDEO DATA STATUS CHECK');
+        console.log('='.repeat(80));
+        
+        // Check cache
+        const cache = this.getCache();
+        if (cache) {
+            const age = Date.now() - cache.timestamp;
+            const ageMinutes = Math.floor(age / 60000);
+            console.log('📦 Data Source: CACHE (localStorage)');
+            console.log(`⏰ Cache Age: ${ageMinutes} minutes ago`);
+            console.log(`📊 Videos in Cache: ${cache.data.length}`);
+            console.log(`🔄 Cache Status: ${age < this.CACHE_DURATION ? '✅ Fresh' : '⚠️ Stale (will revalidate)'}`);
+            
+            // List videos
+            console.log('\n📹 Videos loaded:');
+            cache.data.forEach((video, i) => {
+                console.log(`  ${i + 1}. ${video.element_id} - ${video.category || 'Untitled'} (${video.platform})`);
+            });
+        } else {
+            console.log('📦 Data Source: LIVE API (no cache)');
+            console.log('⚠️ Cache is empty - will fetch from Google Sheets');
+        }
+        
+        console.log('\n🔗 API Endpoint:', this.API_URL);
+        console.log('💡 Force Refresh: Add ?reload=true to URL or click refresh button');
+        console.log('='.repeat(80) + '\n');
+    }
+
+    /**
      * Get video data with cache strategy
      * 1. Check localStorage cache
      * 2. If exists: Return immediately (instant load)
@@ -5382,6 +5533,12 @@ const VideoDatabase = {
      * 4. If no cache: Show skeleton, then fetch
      */
     async getData() {
+        // Check for force reload parameter
+        if (this.shouldForceReload()) {
+            console.log('🔄 Force reload detected (?reload=true)');
+            return await this.forceRefresh();
+        }
+
         const cache = this.getCache();
 
         // Strategy 1: Cache exists - Return immediately
@@ -5564,9 +5721,10 @@ const VideoDatabase = {
 
     /**
      * Load video iframe (Facade Pattern)
+     * Supports multiple platforms: Cloudinary, Streamable, YouTube, etc.
      */
     loadVideo(placeholder, videoUrl, platform, category) {
-        console.log(`🎥 Loading video: ${category || 'Untitled'}`);
+        console.log(`🎥 Loading video: ${category || 'Untitled'} [Platform: ${platform || 'default'}]`);
 
         // Add loading state
         placeholder.classList.add('loading');
@@ -5580,8 +5738,32 @@ const VideoDatabase = {
         iframe.style.cssText = 'border: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;';
 
         // Platform-specific settings
-        if (platform === 'cloudinary') {
-            iframe.setAttribute('autoplay', 'true');
+        switch(platform?.toLowerCase()) {
+            case 'cloudinary':
+                iframe.setAttribute('autoplay', 'true');
+                iframe.allow += '; accelerometer; gyroscope';
+                console.log('📹 Cloudinary video - autoplay enabled');
+                break;
+            
+            case 'streamable':
+                // Streamable works well with default settings
+                // URL format: https://streamable.com/e/[VIDEO_ID]
+                console.log('📹 Streamable video - using embed format');
+                break;
+            
+            case 'youtube':
+                // YouTube embed format: https://www.youtube.com/embed/[VIDEO_ID]
+                iframe.allow += '; accelerometer; gyroscope; picture-in-picture';
+                console.log('📹 YouTube video');
+                break;
+            
+            case 'vimeo':
+                // Vimeo embed format: https://player.vimeo.com/video/[VIDEO_ID]
+                console.log('📹 Vimeo video');
+                break;
+            
+            default:
+                console.log('📹 Generic video platform');
         }
 
         // Replace placeholder with iframe
@@ -5590,7 +5772,7 @@ const VideoDatabase = {
             placeholder.appendChild(iframe);
             placeholder.classList.remove('loading', 'video-placeholder');
             placeholder.style.background = 'transparent';
-            console.log(`✅ Video loaded: ${category || 'Untitled'}`);
+            console.log(`✅ Video loaded: ${category || 'Untitled'} (${platform || 'default'})`);
         }, 300);
     }
 };
@@ -5608,11 +5790,19 @@ async function initVideoSystem() {
         return;
     }
 
+    // Debug: Check data status before loading
+    VideoDatabase.checkDataStatus();
+
     try {
         const videoData = await VideoDatabase.getData();
         VideoDatabase.renderVideos(videoData);
+        
+        // Debug: Check data status after loading
+        console.log('\n✅ Video system initialized successfully!');
+        VideoDatabase.checkDataStatus();
     } catch (error) {
         console.error('❌ Video system initialization failed:', error);
+        alert(`❌ Lỗi khởi tạo hệ thống video:\n\n${error.message}\n\nVui lòng kiểm tra:\n1. Google Apps Script API URL\n2. Kết nối internet\n3. Console (F12) để xem chi tiết`);
     }
 }
 
@@ -5626,6 +5816,51 @@ if (document.readyState === 'loading') {
 // Expose for debugging
 window.VideoDatabase = VideoDatabase;
 
+// Quick debug commands
+window.checkVideoStatus = () => VideoDatabase.checkDataStatus();
+window.forceRefreshVideos = () => VideoDatabase.forceRefresh();
+
+console.log('\n💡 DEBUG COMMANDS:');
+console.log('  - checkVideoStatus()     → Check data source & video count');
+console.log('  - forceRefreshVideos()   → Clear cache & reload from Sheets');
+console.log('  - Or add ?reload=true to URL to force refresh\n');
+
 
 </script>
+
+<!-- Refresh Button (Dev Tool) -->
+<div class="refresh-button" id="refreshButton" title="Force Refresh Videos">
+    <div class="tooltip">Force Refresh Videos</div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+    </svg>
+</div>
+
+<script>
+// Refresh Button Event Listener
+document.getElementById('refreshButton').addEventListener('click', async function() {
+    const button = this;
+    button.classList.add('spinning');
+    
+    try {
+        await VideoDatabase.forceRefresh();
+        
+        // Success feedback
+        setTimeout(() => {
+            button.classList.remove('spinning');
+            button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            setTimeout(() => {
+                button.style.background = 'linear-gradient(135deg, #00b14f, #009944)';
+            }, 1000);
+        }, 800);
+    } catch (error) {
+        button.classList.remove('spinning');
+        button.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        setTimeout(() => {
+            button.style.background = 'linear-gradient(135deg, #00b14f, #009944)';
+        }, 2000);
+    }
+});
+</script>
+
 </body></html>
