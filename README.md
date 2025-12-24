@@ -8,7 +8,29 @@ Enterprise-grade distribution documentation system with Google Sheets integratio
 
 **Repository:** https://github.com/dtnam-oss/tai-lieu-phan-phoi
 
-## 🎥 NEW: Video Dynamic System
+## 🤖 NEW: GHTK AI Assistant (Context-Aware Chatbot)
+
+**Intelligent chatbot that understands your documentation!**
+
+- ✅ **Context-Aware**: Reads and understands entire page content
+- ✅ **AI-Powered**: Google Gemini 1.5 Flash integration
+- ✅ **Beautiful UI**: Glassmorphism design with GHTK green theme
+- ✅ **Chat History**: localStorage persistence (survives page refresh)
+- ✅ **Quick Actions**: Pre-defined question chips for common queries
+- ✅ **Mobile-Friendly**: Responsive design for all devices
+
+### 🚀 AI Assistant Documentation
+
+| File | Purpose |
+|------|---------|
+| [QUICK-START.md](QUICK-START.md) | ⚡ 2-step setup guide (5 mins) |
+| [HUONG-DAN-UPDATE-GOOGLE-APPS-SCRIPT.md](HUONG-DAN-UPDATE-GOOGLE-APPS-SCRIPT.md) | 📖 Detailed update guide |
+| [google-apps-script-MERGED.gs](google-apps-script-MERGED.gs) | 🔧 Backend code (merged with Video DB) |
+| [GHTK-AI-ASSISTANT-SETUP-GUIDE.md](GHTK-AI-ASSISTANT-SETUP-GUIDE.md) | 📚 Complete setup guide |
+
+---
+
+## 🎥 Video Dynamic System
 
 **Revolutionary video management powered by Google Sheets!**
 
@@ -86,6 +108,23 @@ All content updates are managed via backend (Google Sheets):
 - TOC Sections: 6
 - Lines of Enhanced Code: ~1,500
 
+## 🔐 Security Notes
+
+**⚠️ IMPORTANT: Protect your API keys!**
+
+The Google Apps Script files (`google-apps-script-backend.gs` and `google-apps-script-MERGED.gs`) contain placeholder for API keys:
+
+```javascript
+const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';  // ← Replace with real key
+```
+
+**DO NOT commit real API keys to public repositories!**
+
+If you've already added your real API key:
+1. Remove it before committing
+2. Use environment variables or Google Apps Script Properties instead
+3. Add the file to `.gitignore` if needed
+
 ---
 
-**Version**: 1.0.0-enhanced | **Updated**: 2025-12-22
+**Version**: 2.0.0 | **Updated**: 2025-12-24 | **New Feature**: AI Chatbot Assistant

@@ -1,0 +1,62 @@
+# ========================================
+# GHTK Project - Git Ignore File
+# ========================================
+
+# Sensitive Configuration Files
+# (Nếu bạn tạo file config riêng chứa API keys)
+config.local.js
+.env
+.env.local
+*.key
+api-keys.txt
+
+# Google Apps Script Files with API Keys
+# (Uncomment nếu bạn đã điền API key thực vào file)
+# google-apps-script-backend.gs
+# google-apps-script-MERGED.gs
+
+# macOS Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Thumbnails
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup Files
+*.backup
+*.bak
+*.tmp
+*-backup.*
+
+# Node modules (nếu có dùng npm)
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+*.min.js
+*.min.css
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+*.cache
+
+# Test coverage
+coverage/
+.nyc_output/
