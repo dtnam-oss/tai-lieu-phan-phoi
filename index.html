@@ -421,20 +421,7 @@ ol > li {
 	margin-bottom: 2em;
 }
 
-.simple-table {
-	margin-top: 1em;
-	font-size: 0.875rem;
-	empty-cells: show;
-}
-.simple-table td {
-	height: 29px;
-	min-width: 120px;
-}
-
-.simple-table th {
-	height: 29px;
-	min-width: 120px;
-}
+/* Notion default styles removed - using custom table styles below */
 
 .simple-table-header-color {
 	background: rgb(247, 246, 243);
@@ -1909,7 +1896,7 @@ body {
     .simple-table th,
     .simple-table td {
         padding: 0.5rem !important;
-        min-width: 100px;
+        /* min-width removed - conflicts with percentage-based widths */
     }
 }
 
@@ -2357,38 +2344,7 @@ article.page {
   padding-top: 1rem;
 }
 
-/* ===== ONBOARD TABLE - EQUAL 50/50 SPLIT ===== */
-/* ONBOARD Table - Equal 50/50 split for PO and SO columns */
-#faeda640-dac4-4844-9dad-9606804fd78c + hr + table.simple-table,
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 {
-  width: 100% !important;
-  table-layout: auto;
-  max-width: 100%;
-}
-
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(1),
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(1) {
-  width: 18% !important;
-  min-width: 150px;
-}
-
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(2),
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(2) {
-  width: 41% !important;
-  min-width: 300px;
-}
-
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 th:nth-child(3),
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td:nth-child(3) {
-  width: 41% !important;
-  min-width: 300px;
-}
-
-/* Improve table readability */
-table#70fe4b0d-c3af-486e-8387-de3a7ced6ce4 td {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
+/* ONBOARD table rules consolidated at lines 1165-1180 - duplicate removed */
 
 /* Extract Data Button & Modal */
 #extract-data-btn {
