@@ -6810,6 +6810,7 @@ class GHTKChatManager {
     /**
      * Call Google Apps Script Backend API
      * CRITICAL FIX: Using text/plain to bypass CORS preflight
+     * SAFE MODE: Backend always returns JSON, never crashes
      */
     async callBackendAPI(question, context) {
         // Check if backend URL is configured
@@ -6817,10 +6818,15 @@ class GHTKChatManager {
             return '⚠️ **Chưa cấu hình Backend API**\n\nVui lòng cập nhật `GHTK_AI_CONFIG.BACKEND_URL` với Google Apps Script Web App URL của bạn.\n\nXem hướng dẫn trong console (F12).';
         }
 
+        console.log('🔌 Calling backend API...');
+        console.log('📝 Question length:', question.length);
+        console.log('📄 Context length:', context.length);
+
         // CORS FIX: Use text/plain instead of application/json to bypass preflight
         // Google Apps Script doesn't support OPTIONS method for CORS preflight
         const response = await fetch(GHTK_AI_CONFIG.BACKEND_URL, {
             method: 'POST',
+            mode: 'cors', // Explicitly enable CORS
             redirect: 'follow', // Important: Google Apps Script uses 302 redirect
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8', // CRITICAL: Bypass CORS preflight
@@ -6831,17 +6837,46 @@ class GHTKChatManager {
             })
         });
 
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Response not OK:', errorText.substring(0, 500));
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
-
-        if (data.error) {
-            throw new Error(data.error);
+        // Parse JSON response
+        let data;
+        try {
+            data = await response.json();
+            console.log('✅ JSON parsed successfully');
+            console.log('📦 Response data:', data);
+        } catch (parseError) {
+            console.error('❌ Failed to parse JSON:', parseError);
+            const rawText = await response.text();
+            console.error('❌ Raw response:', rawText.substring(0, 500));
+            throw new Error('Backend trả về dữ liệu không hợp lệ (không phải JSON)');
         }
 
-        return data.answer || 'Không nhận được phản hồi từ AI.';
+        // Check for errors in response
+        if (data.error) {
+            console.warn('⚠️ Backend returned error:', data.error);
+            // Still return the answer if available (might be error message)
+            return data.answer || data.error;
+        }
+
+        // Check success field (new in Safe Mode backend)
+        if (data.success === false) {
+            console.warn('⚠️ Request failed:', data.answer || data.error);
+            return data.answer || 'Có lỗi xảy ra, vui lòng thử lại.';
+        }
+
+        // Return answer
+        const answer = data.answer || 'Không nhận được phản hồi từ AI.';
+        console.log('✅ Got answer, length:', answer.length);
+
+        return answer;
     }
 
     /**

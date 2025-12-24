@@ -67,105 +67,314 @@ function doGet(e) {
 }
 
 /**
- * Handle POST requests
+ * Handle POST requests - SAFE MODE with Debug Logging
  * Phân biệt request từ Video Database hay Chatbot bằng 'action' field
  *
- * CORS FIX: Frontend gửi text/plain để bypass preflight
- * Data luôn ở dạng JSON string trong e.postData.contents
+ * CRITICAL FEATURES:
+ * 1. LockService để tránh race conditions
+ * 2. Debug logging vào Google Sheet
+ * 3. Try-catch bao toàn bộ để KHÔNG BAO GIỜ crash
+ * 4. CORS-friendly error responses
  */
 function doPost(e) {
-  try {
-    const output = ContentService.createTextOutput();
-    output.setMimeType(ContentService.MimeType.JSON);
+  // CRITICAL: Wrap EVERYTHING in try-catch to prevent crashes
+  const output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
 
-    // Parse request body
-    // CRITICAL: Frontend gửi Content-Type: text/plain (bypass CORS)
-    // Nên data luôn nằm trong e.postData.contents dưới dạng JSON string
+  let lock;
+
+  try {
+    // ========================================
+    // STEP 1: ACQUIRE LOCK (Prevent concurrent access issues)
+    // ========================================
+    lock = LockService.getScriptLock();
+
+    // Try to acquire lock, wait max 30 seconds
+    const lockAcquired = lock.tryLock(30000);
+
+    if (!lockAcquired) {
+      return output.setContent(JSON.stringify({
+        success: false,
+        answer: 'Server đang bận xử lý request khác. Vui lòng thử lại sau 5 giây.',
+        error: 'Lock timeout'
+      }));
+    }
+
+    // ========================================
+    // STEP 2: PARSE REQUEST DATA
+    // ========================================
     let requestData;
+    let rawContents = '';
 
     try {
+      rawContents = e.postData ? e.postData.contents : '';
+
       // Try parsing as JSON first (from Chatbot with text/plain)
-      requestData = JSON.parse(e.postData.contents);
-      Logger.log('Parsed as JSON from text/plain: ' + JSON.stringify(requestData));
-    } catch (parseError) {
-      // Fallback: Check if it's form-urlencoded (Video Database)
-      if (e.parameter && Object.keys(e.parameter).length > 0) {
+      if (rawContents) {
+        requestData = JSON.parse(rawContents);
+      } else if (e.parameter && Object.keys(e.parameter).length > 0) {
+        // Fallback: form-urlencoded (Video Database)
         requestData = e.parameter;
-        Logger.log('Using form-urlencoded data: ' + JSON.stringify(requestData));
       } else {
-        throw new Error('Cannot parse request data');
+        throw new Error('No data received');
       }
+    } catch (parseError) {
+      // Log parse error
+      logDebug('PARSE_ERROR', {
+        error: parseError.toString(),
+        rawContents: rawContents.substring(0, 500),
+        hasParameter: !!(e.parameter),
+        parameterKeys: e.parameter ? Object.keys(e.parameter).join(',') : 'none'
+      });
+
+      return output.setContent(JSON.stringify({
+        success: false,
+        answer: 'Không thể parse request data. Vui lòng kiểm tra format.',
+        error: 'Parse error: ' + parseError.toString()
+      }));
     }
 
-    Logger.log('Final request data: ' + JSON.stringify(requestData));
+    // ========================================
+    // STEP 3: LOG REQUEST (For debugging)
+    // ========================================
+    logDebug('REQUEST_RECEIVED', {
+      hasQuestion: !!(requestData.question),
+      hasContext: !!(requestData.context),
+      hasAction: !!(requestData.action),
+      questionPreview: requestData.question ? requestData.question.substring(0, 100) : 'N/A',
+      action: requestData.action || 'N/A'
+    });
 
     // ========================================
+    // STEP 4: ROUTE REQUEST
+    // ========================================
+
     // ROUTE 1: AI CHATBOT
-    // Detect by presence of 'question' and 'context' fields
-    // ========================================
     if (requestData.question && requestData.context) {
-      return handleChatbotRequest(requestData, output);
+      const result = handleChatbotRequest(requestData, output);
+
+      // Release lock before returning
+      if (lock) lock.releaseLock();
+
+      return result;
     }
 
-    // ========================================
     // ROUTE 2: VIDEO DATABASE
-    // Detect by presence of 'action' field
-    // ========================================
     if (requestData.action) {
-      return handleVideoDatabaseRequest(requestData, output);
+      const result = handleVideoDatabaseRequest(requestData, output);
+
+      // Release lock before returning
+      if (lock) lock.releaseLock();
+
+      return result;
     }
 
-    // ========================================
     // ROUTE 3: UNKNOWN REQUEST
-    // ========================================
+    logDebug('UNKNOWN_REQUEST', requestData);
+
+    if (lock) lock.releaseLock();
+
     return output.setContent(JSON.stringify({
+      success: false,
+      answer: 'Request không hợp lệ. Thiếu trường bắt buộc.',
       error: 'Invalid request. Missing required fields.',
       hint: 'For Chatbot: send {question, context}. For Video DB: send {action, ...}'
     }));
 
   } catch (error) {
-    Logger.log('Error in doPost: ' + error.toString());
-    const output = ContentService.createTextOutput();
-    output.setMimeType(ContentService.MimeType.JSON);
+    // ========================================
+    // CRITICAL ERROR HANDLER - NEVER LET SCRIPT CRASH!
+    // ========================================
+
+    // Log critical error
+    try {
+      logDebug('CRITICAL_ERROR', {
+        error: error.toString(),
+        stack: error.stack || 'No stack trace',
+        message: error.message || 'No message'
+      });
+    } catch (logError) {
+      // Even logging failed - just continue
+      Logger.log('Failed to log error: ' + logError.toString());
+    }
+
+    // Release lock if held
+    if (lock) {
+      try {
+        lock.releaseLock();
+      } catch (unlockError) {
+        // Ignore unlock errors
+      }
+    }
+
+    // ALWAYS return valid JSON to prevent CORS errors
     return output.setContent(JSON.stringify({
-      error: 'Server error: ' + error.toString()
+      success: false,
+      answer: 'Xin lỗi, đã có lỗi nghiêm trọng xảy ra trên server. Vui lòng thử lại sau.\n\n' +
+              'Chi tiết lỗi: ' + error.toString(),
+      error: 'Server exception: ' + error.toString(),
+      timestamp: new Date().toISOString()
     }));
   }
 }
 
+/**
+ * Log debug information to Google Sheet
+ * Tự động tạo sheet "Debug_Log" nếu chưa có
+ *
+ * NOTE: Logging sẽ FAIL khi chạy từ Web App (no spreadsheet binding)
+ * Nhưng vẫn log vào Logger để xem trong Executions
+ */
+function logDebug(eventType, data) {
+  // Always log to Logger (visible in Apps Script Executions)
+  Logger.log('[' + eventType + '] ' + JSON.stringify(data));
+
+  try {
+    // Try to get spreadsheet (chỉ work khi test trong editor hoặc có binding)
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (!ss) {
+      // No spreadsheet available (Web App mode)
+      return;
+    }
+
+    let sheet = ss.getSheetByName('Debug_Log');
+
+    if (!sheet) {
+      // Create sheet if doesn't exist
+      sheet = ss.insertSheet('Debug_Log');
+
+      // Add headers
+      sheet.appendRow([
+        'Timestamp',
+        'Event Type',
+        'Data',
+        'User Agent',
+        'IP (if available)'
+      ]);
+
+      // Format headers
+      const headerRange = sheet.getRange(1, 1, 1, 5);
+      headerRange.setFontWeight('bold');
+      headerRange.setBackground('#00b14f');
+      headerRange.setFontColor('#ffffff');
+    }
+
+    // Append log entry
+    sheet.appendRow([
+      new Date().toISOString(),
+      eventType,
+      JSON.stringify(data),
+      '', // User agent (not available in Apps Script)
+      ''  // IP (not available in Apps Script)
+    ]);
+
+    // Keep only last 1000 rows to prevent bloat
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1000) {
+      sheet.deleteRows(2, lastRow - 1000); // Keep header + last 1000
+    }
+
+  } catch (logError) {
+    // Don't let logging errors crash the main function
+    // This is expected when running as Web App without spreadsheet binding
+    Logger.log('Sheet logging not available (expected in Web App mode): ' + logError.toString());
+  }
+}
+
 // ========================================
-// CHATBOT HANDLER
+// CHATBOT HANDLER - WITH ERROR HANDLING
 // ========================================
 
 function handleChatbotRequest(requestData, output) {
-  const question = requestData.question;
-  const context = requestData.context;
+  try {
+    const question = requestData.question;
+    const context = requestData.context;
 
-  Logger.log('Chatbot Request - Question: ' + question.substring(0, 100));
+    logDebug('CHATBOT_REQUEST', {
+      questionLength: question ? question.length : 0,
+      contextLength: context ? context.length : 0,
+      questionPreview: question ? question.substring(0, 100) : 'N/A'
+    });
 
-  // Validate inputs
-  if (!question || !context) {
+    // Validate inputs
+    if (!question || !context) {
+      logDebug('CHATBOT_VALIDATION_ERROR', {
+        hasQuestion: !!question,
+        hasContext: !!context
+      });
+
+      return output.setContent(JSON.stringify({
+        success: false,
+        answer: 'Thiếu câu hỏi hoặc nội dung trang web. Vui lòng thử lại.',
+        error: 'Missing required fields: question or context'
+      }));
+    }
+
+    // Check API key
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+      logDebug('API_KEY_ERROR', {
+        keyConfigured: false
+      });
+
+      return output.setContent(JSON.stringify({
+        success: false,
+        answer: '⚠️ **Lỗi cấu hình Backend**\n\nGemini API Key chưa được thiết lập.\n\nVui lòng liên hệ admin để cấu hình.',
+        error: 'Gemini API Key not configured'
+      }));
+    }
+
+    // Call Gemini API
+    logDebug('CALLING_GEMINI_API', {
+      questionLength: question.length,
+      contextLength: context.length
+    });
+
+    const answer = callGeminiAPI(question, context);
+
+    // Check if answer is error message
+    if (answer.startsWith('Xin lỗi')) {
+      logDebug('GEMINI_API_ERROR', {
+        answerPreview: answer.substring(0, 200)
+      });
+
+      return output.setContent(JSON.stringify({
+        success: false,
+        answer: answer,
+        timestamp: new Date().toISOString(),
+        service: 'chatbot'
+      }));
+    }
+
+    // Success
+    logDebug('CHATBOT_SUCCESS', {
+      answerLength: answer.length,
+      answerPreview: answer.substring(0, 100)
+    });
+
     return output.setContent(JSON.stringify({
-      error: 'Missing required fields: question or context'
+      success: true,
+      answer: answer,
+      timestamp: new Date().toISOString(),
+      service: 'chatbot'
+    }));
+
+  } catch (error) {
+    // Log error
+    logDebug('CHATBOT_EXCEPTION', {
+      error: error.toString(),
+      stack: error.stack || 'No stack'
+    });
+
+    // Return error response
+    return output.setContent(JSON.stringify({
+      success: false,
+      answer: 'Xin lỗi, đã có lỗi xảy ra khi xử lý câu hỏi của bạn.\n\n' +
+              'Chi tiết: ' + error.toString(),
+      error: 'Chatbot handler exception: ' + error.toString(),
+      timestamp: new Date().toISOString()
     }));
   }
-
-  // Check API key
-  if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
-    return output.setContent(JSON.stringify({
-      error: 'Gemini API Key chưa được cấu hình. Vui lòng cập nhật GEMINI_API_KEY trong Google Apps Script.'
-    }));
-  }
-
-  // Call Gemini API
-  const answer = callGeminiAPI(question, context);
-
-  // Return response
-  return output.setContent(JSON.stringify({
-    answer: answer,
-    timestamp: new Date().toISOString(),
-    service: 'chatbot'
-  }));
 }
 
 // ========================================
