@@ -6156,6 +6156,37 @@ window.ResourceManager = {
     // TABLE CONTENT UPDATER - Update table cells from ContentData
     // ============================================
     const TableContentUpdater = {
+        // ============================================
+        // NOTION DATA PARSER - Extract plain text from Notion JSON
+        // ============================================
+        parseNotionColumn(columnData) {
+            // Handle different formats:
+            // 1. Simple string: "Column Name"
+            // 2. Notion JSON: {plain_text=..., annotations={...}, ...}
+            
+            if (!columnData) return '';
+            
+            // If already a simple string
+            if (typeof columnData === 'string' && !columnData.includes('{')) {
+                return columnData.trim();
+            }
+            
+            // Try to extract plain_text from Notion format
+            const plainTextMatch = String(columnData).match(/plain_text=([^,}]+)/);
+            if (plainTextMatch) {
+                return plainTextMatch[1].trim();
+            }
+            
+            // Fallback: Try to extract from text.content
+            const textContentMatch = String(columnData).match(/content=([^,}]+)/);
+            if (textContentMatch) {
+                return textContentMatch[1].trim();
+            }
+            
+            // Last resort: return as-is
+            return String(columnData).trim();
+        },
+        
         // Update table cells from ContentData sheet
         updateTableContent(contentData) {
             if (!contentData || contentData.length === 0) {
@@ -6165,23 +6196,32 @@ window.ResourceManager = {
             
             let stats = { total: 0, updated: 0, errors: 0, skipped: 0 };
             
-            // Skip header row
-            const dataRows = contentData.slice(1);
+            // Skip header row if exists
+            const dataRows = contentData[0]?.table_id === 'table_id' 
+                ? contentData.slice(1) 
+                : contentData;
             
             console.log(`🔄 Processing ${dataRows.length} ContentData rows...`);
             
             dataRows.forEach((row, index) => {
-                // Expected columns: table_id | section_name | row_num | column_name | content_text | content_html
+                // Expected columns: table_id | section_name | row_number | column_name | content_text
+                // Note: Notion export uses "row_number" not "row_num"
                 const tableId = row.table_id || row.A;
                 const sectionName = row.section_name || row.B;
-                const rowNumber = parseInt(row.row_num || row.C);
-                const columnName = row.column_name || row.D;
+                const rowNumber = parseInt(row.row_number || row.row_num || row.C);
+                const columnNameRaw = row.column_name || row.D;
                 const contentText = row.content_text || row.E || '';
                 const contentHtml = row.content_html || row.F || contentText;
+                
+                // Parse Notion JSON format for column name
+                const columnName = this.parseNotionColumn(columnNameRaw);
                 
                 // Skip if missing essential data
                 if (!tableId || !columnName || isNaN(rowNumber)) {
                     stats.skipped++;
+                    if (index < 3) { // Log first few for debugging
+                        console.log(`⚠️ Skipped row ${index + 1}: tableId=${tableId}, column="${columnName}", row=${rowNumber}`);
+                    }
                     return;
                 }
                 
@@ -6198,6 +6238,7 @@ window.ResourceManager = {
                 }
             });
             
+            console.log(`📊 ContentData Stats:`, stats);
             return stats;
         },
         

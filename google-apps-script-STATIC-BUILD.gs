@@ -96,17 +96,21 @@ function fetchContentData() {
   
   // Skip header row
   for (let i = 1; i < data.length; i++) {
-    const [table_id, section_name, row_num, column_name, content_text, content_html] = data[i];
+    // Support both formats:
+    // Old: table_id, section_name, row_num, column_name, content_text, content_html
+    // New (Notion): table_id, section_name, row_number, column_name (JSON), content_text
+    const [table_id, section_name, row_number_or_num, column_name, content_text, content_html] = data[i];
     
     if (!table_id) continue; // Skip empty rows
     
     result.push({
       table_id: table_id,
       section_name: section_name || '',
-      row_num: row_num,
-      column_name: column_name || '',
+      row_number: row_number_or_num, // Support both row_number and row_num
+      row_num: row_number_or_num,     // Keep compatibility
+      column_name: String(column_name || ''), // Keep as-is, will be parsed in frontend
       content_text: content_text || '',
-      content_html: content_html || ''
+      content_html: content_html || content_text || ''
     });
   }
   
