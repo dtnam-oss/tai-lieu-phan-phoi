@@ -5990,16 +5990,17 @@ body.edit-mode [data-editable]::after {
     // CONFIGURATION - Cập nhật Google Sheet ID của bạn
     // ============================================
     const CONFIG = {
-        // Thay YOUR_SHEET_ID bằng ID của Google Sheet
-        // Ví dụ: https://docs.google.com/spreadsheets/d/1ABC123xyz/edit
-        // => SHEET_ID = '1ABC123xyz'
+        // Backend API URL
+        API_URL: 'https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec',
+        
+        // Google Sheet ID (legacy support)
         SHEET_ID: '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4',
         
-        // Tab names
-        SHEET_NAME: 'MasterData',      // Tên tab chứa dữ liệu hover preview
-        CONTENT_DATA_SHEET: 'ContentData',  // Tên tab chứa nội dung table cells
+        // Tab names (legacy support)
+        SHEET_NAME: 'MasterData',
+        CONTENT_DATA_SHEET: 'ContentData',
         
-        // Cache timeout (10 giây - reload nhanh khi edit data)
+        // Cache timeout (10 giây)
         CACHE_DURATION: 10 * 1000
     };
     
@@ -6472,72 +6473,158 @@ body.edit-mode [data-editable]::after {
     };
     
     // ============================================
-    // MAIN LOADER - Simplified for Master Table
+    // VIDEO LOADER - Load and render videos
+    // ============================================
+    const VideoLoader = {
+        async loadVideos() {
+            if (!CONFIG.API_URL) {
+                console.warn('⚠️ API_URL not configured');
+                return [];
+            }
+            
+            console.log('🎥 Loading videos from backend...');
+            
+            try {
+                const response = await fetch(CONFIG.API_URL);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    console.log(`✅ Received ${result.data.length} videos from API`);
+                    return result.data;
+                } else {
+                    console.warn('⚠️ No video data received');
+                    return [];
+                }
+            } catch (error) {
+                console.error('✗ Error loading videos:', error);
+                return [];
+            }
+        },
+        
+        renderVideos(videos) {
+            let rendered = 0;
+            
+            videos.forEach(video => {
+                const elementId = video.Element_ID;
+                if (!elementId) return;
+                
+                const slot = document.getElementById(elementId);
+                if (!slot) return;
+                
+                const videoUrl = video.Video_URL || '';
+                const hangMuc = video.Hang_Muc || '';
+                const platform = video.platform || 'unknown';
+                
+                let embedHTML = '';
+                
+                if (platform === 'streamable') {
+                    const videoId = video.video_id;
+                    embedHTML = `
+                        <div class="video-container">
+                            <iframe src="https://streamable.com/e/${videoId}" 
+                                    frameborder="0" 
+                                    width="100%" 
+                                    height="100%" 
+                                    allowfullscreen 
+                                    allow="autoplay">
+                            </iframe>
+                        </div>
+                    `;
+                } else if (platform === 'cloudinary') {
+                    embedHTML = `
+                        <div class="video-container">
+                            <video controls width="100%">
+                                <source src="${videoUrl}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    `;
+                } else if (platform === 'youtube') {
+                    const videoId = video.video_id;
+                    embedHTML = `
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/${videoId}" 
+                                    frameborder="0" 
+                                    width="100%" 
+                                    height="100%" 
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                    `;
+                }
+                
+                if (embedHTML) {
+                    slot.innerHTML = embedHTML;
+                    rendered++;
+                }
+            });
+            
+            console.log(`✅ Rendered ${rendered}/${videos.length} videos`);
+            return rendered;
+        }
+    };
+    
+    // ============================================
+    // MAIN LOADER - Load all data sources
     // ============================================
     const SheetLoader = {
         async init() {
-            // Check if Sheet ID is configured
-            if (!CONFIG.SHEET_ID || CONFIG.SHEET_ID === 'YOUR_SHEET_ID_HERE') {
-                console.warn('⚠️ Google Sheet ID not configured. Using static content.');
-                console.info('💡 To enable dynamic content: Update CONFIG.SHEET_ID in the code');
-                // Initialize empty master data for safety
+            if (!CONFIG.API_URL) {
+                console.warn('⚠️ API_URL not configured. Using static content.');
                 window.masterDataCache = [];
                 return;
             }
             
-            console.log('🔄 Loading content from Google Sheets...');
+            console.log('🔄 Loading content from backend...');
             
             try {
-                // Load master data for hover preview
-                const masterData = await GoogleSheetsAPI.fetchSheet(CONFIG.SHEET_NAME);
+                // 1. Load MasterData for hover preview
+                console.log('📚 Loading MasterData...');
+                const masterResponse = await fetch(`${CONFIG.API_URL}?action=get_master_data`);
+                const masterResult = await masterResponse.json();
                 
-                if (!masterData || masterData.length === 0) {
-                    throw new Error('No data found in master table');
-                }
-                
-                // Store in global cache for hover preview
-                window.masterDataCache = masterData;
-                
-                // Load ContentData for table cells
-                console.log('📊 Loading ContentData for table cells...');
-                const contentData = await GoogleSheetsAPI.fetchSheet(CONFIG.CONTENT_DATA_SHEET);
-                
-                if (contentData && contentData.length > 1) {
-                    // Update table cells
-                    const contentStats = TableContentUpdater.updateTableContent(contentData);
-                    console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated`);
-                    if (contentStats.errors > 0) {
-                        console.warn(`⚠️ ${contentStats.errors} errors occurred`);
-                    }
-                    if (contentStats.skipped > 0) {
-                        console.log(`ℹ️ ${contentStats.skipped} rows skipped (missing data)`);
-                    }
+                if (masterResult.success && masterResult.data) {
+                    window.masterDataCache = masterResult.data;
+                    console.log(`✅ MasterData: ${masterResult.data.length} items loaded`);
+                    
+                    // Re-initialize hover tooltips
+                    setTimeout(() => {
+                        if (window.populateImageUrls) {
+                            window.populateImageUrls();
+                        }
+                    }, 500);
                 } else {
-                    console.log('ℹ️ No ContentData found - table cells remain static');
+                    console.warn('⚠️ No MasterData found');
+                    window.masterDataCache = [];
                 }
                 
-                // Populate image URLs for hover preview
-                setTimeout(() => {
-                    if (window.populateImageUrls) {
-                        window.populateImageUrls();
-                    }
-                }, 500);
+                // 2. Load ContentData for table cells
+                console.log('📊 Loading ContentData...');
+                const contentResponse = await fetch(`${CONFIG.API_URL}?action=get_content_data`);
+                const contentResult = await contentResponse.json();
                 
-                console.log(`✅ Content loaded successfully!`);
-                console.log(`📝 MasterData: ${masterData.length - 1} rows`);
-                console.log(`ℹ️ Auto-creation disabled - only updating existing elements`);
+                if (contentResult.success && contentResult.data) {
+                    const contentStats = TableContentUpdater.updateTableContent(contentResult.data);
+                    console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated`);
+                } else {
+                    console.log('ℹ️ No ContentData found');
+                }
                 
-                this.showNotification(`✅ Đã load nội dung từ Google Sheets`, 'success');
+                // 3. Load VideoData and render videos
+                console.log('🎥 Loading VideoData...');
+                const videos = await VideoLoader.loadVideos();
+                if (videos && videos.length > 0) {
+                    const rendered = VideoLoader.renderVideos(videos);
+                    console.log(`✅ Videos: ${rendered} rendered`);
+                } else {
+                    console.log('ℹ️ No videos found');
+                }
+                
+                this.showNotification('✅ Đã load tất cả nội dung', 'success');
                 
             } catch (error) {
                 console.error('✗ Error loading content:', error);
-                
-                // User-friendly error notification
-                if (error.message && error.message.includes('No data found')) {
-                    this.showNotification('⚠️ Sheet chưa có dữ liệu hoặc chưa được publish', 'error');
-                } else {
-                    this.showNotification('⚠️ Không thể tải nội dung - Kiểm tra Console để biết chi tiết', 'error');
-                }
+                this.showNotification('⚠️ Lỗi khi load nội dung - Xem Console', 'error');
             }
         },
         

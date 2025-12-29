@@ -32,6 +32,8 @@ const CONFIG = {
   // Google Sheets
   SHEET_ID: '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4',
   VIDEO_SHEET: 'VideoData',
+  MASTER_DATA_SHEET: 'MasterData',
+  CONTENT_DATA_SHEET: 'ContentData',
   USER_SHEET: 'UserSetting',
   
   // CMS Admins
@@ -93,13 +95,39 @@ function doGet(e) {
       return output.setContent(JSON.stringify({
         status: 'ok',
         message: 'GHTK Final Backend is running!',
-        features: ['Video Database', 'AI Chatbot', 'CMS', 'User Auth'],
+        features: ['Video Database', 'AI Chatbot', 'CMS', 'User Auth', 'MasterData', 'ContentData'],
         version: '3.0.0',
         timestamp: new Date().toISOString()
       }));
     }
 
-    // ROUTE 3: Video Database (DEFAULT)
+    // ROUTE 3: MasterData (for hover preview / interactive terms)
+    if (action === 'get_master_data') {
+      Logger.log('GET request - Returning MasterData');
+      const masterData = getMasterDataFromSheet();
+      
+      return output.setContent(JSON.stringify({
+        success: true,
+        data: masterData,
+        timestamp: new Date().toISOString(),
+        source: 'google-apps-script'
+      }));
+    }
+
+    // ROUTE 4: ContentData (for table cells)
+    if (action === 'get_content_data') {
+      Logger.log('GET request - Returning ContentData');
+      const contentData = getContentDataFromSheet();
+      
+      return output.setContent(JSON.stringify({
+        success: true,
+        data: contentData,
+        timestamp: new Date().toISOString(),
+        source: 'google-apps-script'
+      }));
+    }
+
+    // ROUTE 5: Video Database (DEFAULT for backward compatibility)
     Logger.log('GET request - Returning video data');
     const videos = getVideosFromSheet();
     
@@ -318,6 +346,106 @@ function extractVideoId(url, platform) {
     }
   } catch (error) {
     return '';
+  }
+}
+
+// ============================================
+// MASTER DATA FUNCTIONS (Interactive Terms / Hover Preview)
+// ============================================
+
+function getMasterDataFromSheet() {
+  try {
+    Logger.log('Fetching MasterData from sheet: ' + CONFIG.MASTER_DATA_SHEET);
+    
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.MASTER_DATA_SHEET);
+    
+    if (!sheet) {
+      Logger.log('Sheet not found: ' + CONFIG.MASTER_DATA_SHEET);
+      return [];
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    
+    if (data.length <= 1) {
+      Logger.log('No data found in MasterData');
+      return [];
+    }
+    
+    const headers = data[0];
+    const masterData = [];
+    
+    // Convert rows to objects
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      
+      // Skip empty rows
+      if (!row[0] || row[0].toString().trim() === '') continue;
+      
+      const item = {};
+      headers.forEach((header, index) => {
+        item[header] = row[index];
+      });
+      
+      masterData.push(item);
+    }
+    
+    Logger.log('Found ' + masterData.length + ' MasterData items');
+    return masterData;
+    
+  } catch (error) {
+    Logger.log('Error in getMasterDataFromSheet: ' + error.toString());
+    return [];
+  }
+}
+
+// ============================================
+// CONTENT DATA FUNCTIONS (Table Cells)
+// ============================================
+
+function getContentDataFromSheet() {
+  try {
+    Logger.log('Fetching ContentData from sheet: ' + CONFIG.CONTENT_DATA_SHEET);
+    
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.CONTENT_DATA_SHEET);
+    
+    if (!sheet) {
+      Logger.log('Sheet not found: ' + CONFIG.CONTENT_DATA_SHEET);
+      return [];
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    
+    if (data.length <= 1) {
+      Logger.log('No data found in ContentData');
+      return [];
+    }
+    
+    const headers = data[0];
+    const contentData = [];
+    
+    // Convert rows to objects
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      
+      // Skip empty rows
+      if (!row[0] || row[0].toString().trim() === '') continue;
+      
+      const item = {};
+      headers.forEach((header, index) => {
+        item[header] = row[index];
+      });
+      
+      contentData.push(item);
+    }
+    
+    Logger.log('Found ' + contentData.length + ' ContentData items');
+    return contentData;
+    
+  } catch (error) {
+    Logger.log('Error in getContentDataFromSheet: ' + error.toString());
+    return [];
   }
 }
 
@@ -699,6 +827,24 @@ function testVideoAPI() {
   }
 }
 
+function testMasterData() {
+  Logger.log('=== Testing MasterData API ===');
+  const masterData = getMasterDataFromSheet();
+  Logger.log('Found ' + masterData.length + ' MasterData items');
+  if (masterData.length > 0) {
+    Logger.log('Sample: ' + JSON.stringify(masterData[0]));
+  }
+}
+
+function testContentData() {
+  Logger.log('=== Testing ContentData API ===');
+  const contentData = getContentDataFromSheet();
+  Logger.log('Found ' + contentData.length + ' ContentData items');
+  if (contentData.length > 0) {
+    Logger.log('Sample: ' + JSON.stringify(contentData[0]));
+  }
+}
+
 function testChatbot() {
   Logger.log('=== Testing Chatbot ===');
   const result = handleChatbot({
@@ -712,4 +858,26 @@ function testAuth() {
   Logger.log('=== Testing Auth ===');
   const result = checkUserPermission('test@example.com');
   Logger.log('Result: ' + JSON.stringify(result));
+}
+
+function testAllAPIs() {
+  Logger.log('======================================');
+  Logger.log('TESTING ALL APIS');
+  Logger.log('======================================\n');
+  
+  testVideoAPI();
+  Logger.log('\n');
+  
+  testMasterData();
+  Logger.log('\n');
+  
+  testContentData();
+  Logger.log('\n');
+  
+  testAuth();
+  Logger.log('\n');
+  
+  Logger.log('======================================');
+  Logger.log('ALL TESTS COMPLETED');
+  Logger.log('======================================');
 }
