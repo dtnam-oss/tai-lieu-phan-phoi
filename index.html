@@ -3730,47 +3730,342 @@ article.page {
 }
 
 /* ========================================
-   AUTHENTICATION MODAL - LOGIN OVERLAY
+   AUTHENTICATION MODAL - PREMIUM REDESIGN
+   Modern UI with Success Sequence Animation
    ======================================== */
 
-/* Full-screen overlay that blocks all content */
+/* CSS Variables for GHTK Branding */
+:root {
+	--ghtk-primary: #069255;
+	--ghtk-primary-dark: #028a3d;
+	--ghtk-primary-light: #00b14f;
+	--ghtk-success: #10b981;
+	--ghtk-gradient: linear-gradient(135deg, var(--ghtk-primary-light) 0%, var(--ghtk-primary-dark) 100%);
+	--text-dark: #1e293b;
+	--text-medium: #475569;
+	--text-light: #94a3b8;
+	--border-color: #e2e8f0;
+	--shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+	--shadow-xl: 0 32px 64px rgba(0, 0, 0, 0.16), 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Full-screen overlay with backdrop blur */
 #auth-overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: linear-gradient(135deg, #00b14f 0%, #028a3d 100%);
-	z-index: 99999; /* Highest z-index to ensure it's always on top */
+	background: rgba(6, 146, 85, 0.95); /* GHTK green with transparency */
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	z-index: 99999;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	opacity: 1;
-	transition: opacity 0.3s ease;
+	transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.6s ease;
+	animation: overlayFadeIn 0.5s ease-out;
 }
 
-/* Hide overlay when authenticated */
+@keyframes overlayFadeIn {
+	from {
+		opacity: 0;
+		backdrop-filter: blur(0px);
+	}
+	to {
+		opacity: 1;
+		backdrop-filter: blur(8px);
+	}
+}
+
+/* Hide overlay when authenticated - smooth fade out */
 #auth-overlay.auth-success {
 	opacity: 0;
 	pointer-events: none;
+	backdrop-filter: blur(0px);
 }
 
-/* Login modal container */
+/* Login modal container - Premium card design */
 #login-modal {
 	background: #ffffff;
-	border-radius: 16px;
-	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-	padding: 48px 40px;
-	max-width: 440px;
-	width: 90%;
+	border-radius: 24px;
+	box-shadow: var(--shadow-xl);
+	padding: 56px 48px;
+	max-width: 480px;
+	width: 92%;
 	text-align: center;
-	animation: slideIn 0.4s ease-out;
+	position: relative;
+	overflow: hidden;
+	animation: modalSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-@keyframes slideIn {
+#login-modal::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 6px;
+	background: var(--ghtk-gradient);
+}
+
+@keyframes modalSlideIn {
 	from {
 		opacity: 0;
-		transform: translateY(-30px);
+		transform: translateY(-40px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* Logo in modal - Enhanced */
+#login-modal .login-logo {
+	margin-bottom: 32px;
+	animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+	0%, 100% { transform: translateY(0px); }
+	50% { transform: translateY(-8px); }
+}
+
+#login-modal .login-logo img {
+	width: 160px;
+	height: auto;
+	filter: drop-shadow(0 4px 12px rgba(6, 146, 85, 0.2));
+}
+
+/* Modal title - Modern typography */
+#login-modal h2 {
+	margin: 0 0 16px 0;
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--text-dark);
+	letter-spacing: -0.5px;
+	line-height: 1.2;
+}
+
+/* Modal description - Softer text */
+#login-modal p {
+	margin: 0 0 40px 0;
+	font-size: 15px;
+	color: var(--text-medium);
+	line-height: 1.6;
+	font-weight: 400;
+}
+
+/* Form container - smooth transitions */
+#form-container {
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Login form */
+#login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hide form when showing success state */
+#login-form.hidden {
+	opacity: 0;
+	transform: scale(0.95);
+	pointer-events: none;
+}
+
+/* Input wrapper with icon */
+.input-wrapper {
+	position: relative;
+	width: 100%;
+}
+
+.input-icon {
+	position: absolute;
+	left: 18px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 20px;
+	height: 20px;
+	color: var(--text-light);
+	transition: color 0.3s ease;
+	pointer-events: none;
+}
+
+.input-wrapper:focus-within .input-icon {
+	color: var(--ghtk-primary);
+}
+
+/* Email input - Premium design */
+#user-email-input {
+	width: 100%;
+	padding: 16px 18px 16px 52px;
+	font-size: 15px;
+	font-weight: 500;
+	border: 2px solid var(--border-color);
+	border-radius: 12px;
+	outline: none;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-sizing: border-box;
+	font-family: 'Inter', sans-serif;
+	background: #f8fafc;
+	color: var(--text-dark);
+}
+
+#user-email-input:hover {
+	border-color: #cbd5e1;
+	background: #ffffff;
+}
+
+#user-email-input:focus {
+	border-color: var(--ghtk-primary);
+	background: #ffffff;
+	box-shadow: 0 0 0 4px rgba(6, 146, 85, 0.1);
+	transform: translateY(-2px);
+}
+
+#user-email-input::placeholder {
+	color: var(--text-light);
+	font-weight: 400;
+}
+
+/* Login button - Premium gradient with hover lift */
+#login-submit-btn {
+	width: 100%;
+	padding: 16px 24px;
+	font-size: 16px;
+	font-weight: 600;
+	color: #ffffff;
+	background: var(--ghtk-gradient);
+	border: none;
+	border-radius: 12px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 16px rgba(6, 146, 85, 0.3);
+	position: relative;
+	overflow: hidden;
+}
+
+#login-submit-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+#login-submit-btn:hover::before {
+	opacity: 1;
+}
+
+#login-submit-btn:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 8px 24px rgba(6, 146, 85, 0.4);
+}
+
+#login-submit-btn:active {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(6, 146, 85, 0.3);
+}
+
+#login-submit-btn:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: 0 4px 16px rgba(6, 146, 85, 0.2);
+}
+
+/* ========================================
+   SUCCESS STATE - The Magic Happens Here
+   ======================================== */
+
+#success-container {
+	display: none;
+	opacity: 0;
+	transform: scale(0.9);
+	transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#success-container.show {
+	display: block;
+	opacity: 1;
+	transform: scale(1);
+}
+
+/* Animated checkmark circle */
+.success-checkmark {
+	width: 80px;
+	height: 80px;
+	margin: 0 auto 32px;
+	position: relative;
+}
+
+.checkmark-circle {
+	stroke-dasharray: 251;
+	stroke-dashoffset: 251;
+	stroke: var(--ghtk-success);
+	stroke-width: 3;
+	fill: none;
+	animation: checkmarkCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes checkmarkCircle {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+.checkmark-check {
+	stroke-dasharray: 48;
+	stroke-dashoffset: 48;
+	stroke: var(--ghtk-success);
+	stroke-width: 3;
+	fill: none;
+	stroke-linecap: round;
+	animation: checkmarkCheck 0.3s 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes checkmarkCheck {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+/* Success text */
+.success-title {
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--text-dark);
+	margin: 0 0 12px 0;
+	animation: fadeInUp 0.5s 0.8s ease both;
+}
+
+.success-subtitle {
+	font-size: 16px;
+	color: var(--text-medium);
+	margin: 0 0 8px 0;
+	animation: fadeInUp 0.5s 0.9s ease both;
+}
+
+.success-redirect {
+	font-size: 14px;
+	color: var(--text-light);
+	margin: 0;
+	animation: fadeInUp 0.5s 1s ease both;
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
 	}
 	to {
 		opacity: 1;
@@ -3778,103 +4073,25 @@ article.page {
 	}
 }
 
-/* Logo in modal */
-#login-modal .login-logo {
-	margin-bottom: 24px;
-}
-
-#login-modal .login-logo img {
-	width: 180px;
-	height: auto;
-}
-
-/* Modal title */
-#login-modal h2 {
-	margin: 0 0 12px 0;
-	font-size: 24px;
-	font-weight: 700;
-	color: #1e293b;
-}
-
-/* Modal description */
-#login-modal p {
-	margin: 0 0 32px 0;
-	font-size: 15px;
-	color: #64748b;
-	line-height: 1.5;
-}
-
-/* Login form */
-#login-form {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-}
-
-/* Email input */
-#user-email-input {
-	width: 100%;
-	padding: 14px 16px;
-	font-size: 15px;
-	border: 2px solid #e2e8f0;
-	border-radius: 8px;
-	outline: none;
-	transition: all 0.2s;
-	box-sizing: border-box;
-	font-family: 'Inter', sans-serif;
-}
-
-#user-email-input:focus {
-	border-color: #00b14f;
-	box-shadow: 0 0 0 3px rgba(0, 177, 79, 0.1);
-}
-
-#user-email-input::placeholder {
-	color: #94a3b8;
-}
-
-/* Login button */
-#login-submit-btn {
-	width: 100%;
-	padding: 14px 16px;
-	font-size: 15px;
-	font-weight: 600;
-	color: #ffffff;
-	background: linear-gradient(135deg, #00b14f 0%, #028a3d 100%);
-	border: none;
-	border-radius: 8px;
-	cursor: pointer;
-	transition: all 0.2s;
-	box-shadow: 0 4px 12px rgba(0, 177, 79, 0.3);
-}
-
-#login-submit-btn:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 6px 16px rgba(0, 177, 79, 0.4);
-}
-
-#login-submit-btn:active {
-	transform: translateY(0);
-}
-
-#login-submit-btn:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-	transform: none;
-}
-
 /* Error message */
 #auth-error-message {
-	margin-top: 16px;
-	padding: 12px 16px;
+	margin-top: 20px;
+	padding: 14px 18px;
 	background: #fef2f2;
-	border: 1px solid #fecaca;
+	border-left: 4px solid #ef4444;
 	border-radius: 8px;
 	color: #dc2626;
 	font-size: 14px;
 	display: none;
 	text-align: left;
-	line-height: 1.5;
+	line-height: 1.6;
+	animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-10px); }
+	75% { transform: translateX(10px); }
 }
 
 #auth-error-message.show {
@@ -3884,13 +4101,13 @@ article.page {
 /* Loading state */
 .loading-spinner {
 	display: inline-block;
-	width: 16px;
-	height: 16px;
-	border: 2px solid #ffffff;
-	border-top-color: transparent;
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #ffffff;
 	border-radius: 50%;
-	animation: spin 0.6s linear infinite;
-	margin-right: 8px;
+	animation: spin 0.7s linear infinite;
+	margin-right: 10px;
 	vertical-align: middle;
 }
 
@@ -3898,55 +4115,113 @@ article.page {
 	to { transform: rotate(360deg); }
 }
 
-/* Mobile responsive */
+/* Mobile responsive - Premium mobile experience */
 @media (max-width: 768px) {
 	#login-modal {
-		padding: 32px 24px;
-		max-width: 90%;
+		padding: 40px 28px;
+		max-width: 94%;
+		border-radius: 20px;
 	}
 
 	#login-modal h2 {
-		font-size: 20px;
+		font-size: 24px;
 	}
 
 	#login-modal p {
 		font-size: 14px;
-		margin-bottom: 24px;
+		margin-bottom: 32px;
 	}
 
 	#login-modal .login-logo img {
 		width: 140px;
+	}
+
+	#user-email-input {
+		padding: 14px 16px 14px 48px;
+		font-size: 14px;
+	}
+
+	.input-icon {
+		left: 16px;
+		width: 18px;
+		height: 18px;
+	}
+
+	#login-submit-btn {
+		padding: 14px 20px;
+		font-size: 15px;
+	}
+
+	.success-checkmark {
+		width: 70px;
+		height: 70px;
+	}
+
+	.success-title {
+		font-size: 22px;
+	}
+
+	.success-subtitle {
+		font-size: 15px;
 	}
 }
 
 </style></head><body>
 
 <!-- ========================================
-     AUTHENTICATION MODAL - LOGIN OVERLAY
-     Must be first element in body for proper z-index
+     AUTHENTICATION MODAL - PREMIUM REDESIGN
+     Modern UI with Success Sequence
      ======================================== -->
 <div id="auth-overlay">
 	<div id="login-modal">
+		<!-- Logo -->
 		<div class="login-logo">
 			<img src="https://i.postimg.cc/sDPS4wnk/GHTK-Logo-RGB.webp" alt="GHTK Logo">
 		</div>
-		<h2>Xác thực người dùng</h2>
-		<p>Vui lòng nhập email để truy cập hệ thống tài liệu phân phối GHTK</p>
 
-		<form id="login-form">
-			<input
-				type="email"
-				id="user-email-input"
-				placeholder="Email của bạn (vd: user@ghtk.vn)"
-				required
-				autocomplete="email"
-			>
-			<button type="submit" id="login-submit-btn">
-				Đăng nhập
-			</button>
-		</form>
+		<!-- Login Form State -->
+		<div id="form-container">
+			<h2>Xác thực người dùng</h2>
+			<p>Vui lòng nhập email để truy cập hệ thống tài liệu phân phối GHTK</p>
 
-		<div id="auth-error-message"></div>
+			<form id="login-form">
+				<!-- Email Input with Icon -->
+				<div class="input-wrapper">
+					<svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+					</svg>
+					<input
+						type="email"
+						id="user-email-input"
+						placeholder="Email của bạn (vd: user@ghtk.vn)"
+						required
+						autocomplete="email"
+					>
+				</div>
+
+				<!-- Submit Button -->
+				<button type="submit" id="login-submit-btn">
+					Truy cập
+				</button>
+			</form>
+
+			<!-- Error Message -->
+			<div id="auth-error-message"></div>
+		</div>
+
+		<!-- Success State (Hidden by default) -->
+		<div id="success-container">
+			<!-- Animated Checkmark -->
+			<svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+				<circle class="checkmark-circle" cx="26" cy="26" r="25" />
+				<path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+			</svg>
+
+			<!-- Success Messages -->
+			<h3 class="success-title">Đăng nhập thành công!</h3>
+			<p class="success-subtitle">Xin chào, <span id="success-user-name">User</span></p>
+			<p class="success-redirect">Đang chuyển đến tài liệu...</p>
+		</div>
 	</div>
 </div>
 
@@ -4072,7 +4347,8 @@ article.page {
     const AUTH_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
     // DOM elements
-    let authOverlay, loginForm, emailInput, submitBtn, errorMessage;
+    let authOverlay, loginForm, formContainer, emailInput, submitBtn, errorMessage;
+    let successContainer, successUserName;
 
     // Initialize authentication on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -4086,9 +4362,12 @@ article.page {
     function initAuthElements() {
         authOverlay = document.getElementById('auth-overlay');
         loginForm = document.getElementById('login-form');
+        formContainer = document.getElementById('form-container');
         emailInput = document.getElementById('user-email-input');
         submitBtn = document.getElementById('login-submit-btn');
         errorMessage = document.getElementById('auth-error-message');
+        successContainer = document.getElementById('success-container');
+        successUserName = document.getElementById('success-user-name');
 
         // Attach form submit handler
         if (loginForm) {
@@ -4214,11 +4493,14 @@ article.page {
 
                 console.log('✅ Login successful:', userData.userName);
 
-                // Show success and grant access
-                showSuccess(userData);
-                setTimeout(() => {
-                    grantAccess(userData);
-                }, 1000);
+                // THE SUCCESS SEQUENCE - Multi-stage animation
+                // Stage 1: Hide form (300ms)
+                // Stage 2: Show success container with checkmark animation (1200ms)
+                // Stage 3: Hold success state for user to see (1800ms)
+                // Stage 4: Fade out overlay and reveal content (600ms)
+                // Total: ~4 seconds of smooth, delightful UX
+
+                showSuccessSequence(userData);
 
             } else {
                 // Failed - Email not authorized
@@ -4267,9 +4549,9 @@ article.page {
         submitBtn.disabled = isLoading;
 
         if (isLoading) {
-            submitBtn.innerHTML = '<span class="loading-spinner"></span>Đang xác thực...';
+            submitBtn.innerHTML = '<span class="loading-spinner"></span>Đang kiểm tra...';
         } else {
-            submitBtn.innerHTML = 'Đăng nhập';
+            submitBtn.innerHTML = 'Truy cập';
         }
     }
 
@@ -4293,13 +4575,50 @@ article.page {
     }
 
     /**
-     * Show success message
+     * THE SUCCESS SEQUENCE ✨
+     * Multi-stage animation for delightful UX
      */
-    function showSuccess(userData) {
-        if (submitBtn) {
-            submitBtn.innerHTML = '✅ Đăng nhập thành công!';
-            submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-        }
+    function showSuccessSequence(userData) {
+        console.log('🎬 Starting Success Sequence...');
+
+        // STAGE 1: Hide Form Container (300ms)
+        setTimeout(() => {
+            if (formContainer) {
+                formContainer.style.opacity = '0';
+                formContainer.style.transform = 'scale(0.95)';
+                console.log('  → Stage 1: Form hidden');
+            }
+        }, 100);
+
+        // STAGE 2: Show Success Container (after 400ms)
+        setTimeout(() => {
+            // Hide form completely
+            if (formContainer) {
+                formContainer.style.display = 'none';
+            }
+
+            // Show success container with user name
+            if (successUserName) {
+                successUserName.textContent = userData.userName;
+            }
+
+            if (successContainer) {
+                successContainer.classList.add('show');
+                console.log('  → Stage 2: Success animation playing');
+            }
+        }, 400);
+
+        // STAGE 3: Hold Success State (1800ms for user to enjoy the animation)
+        // Checkmark animation takes ~900ms, we hold for another 900ms
+        setTimeout(() => {
+            console.log('  → Stage 3: Holding success state...');
+        }, 1200);
+
+        // STAGE 4: Fade Out Overlay and Grant Access (after 2000ms total)
+        setTimeout(() => {
+            console.log('  → Stage 4: Granting access...');
+            grantAccess(userData);
+        }, 2000);
     }
 
     /**
