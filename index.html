@@ -5418,6 +5418,30 @@ article.page {
             } else {
                 // Load as regular image
                 console.log('🖼️ Loading as image...');
+                
+                // ⚡ INSTANT PREVIEW: Check if image is already cached
+                const isCached = ResourceManager.isCached(directUrl);
+                console.log(`📦 Cache status: ${isCached ? 'HIT ✅' : 'MISS ❌'}`);
+                
+                if (isCached) {
+                    // Image already preloaded - show instantly!
+                    console.log('⚡ INSTANT DISPLAY from cache');
+                    const img = document.createElement('img');
+                    img.src = directUrl;
+                    img.alt = 'Preview';
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '100%';
+                    img.style.objectFit = 'contain';
+                    
+                    if (imagePreview) {
+                        imagePreview.innerHTML = '';
+                        imagePreview.appendChild(img);
+                        imagePreview.classList.add('show'); // Show immediately
+                    }
+                    return; // Done!
+                }
+                
+                // Not cached yet - load normally with loading state
                 const img = new Image();
                 img.onload = function() {
                     console.log('✅ Image loaded successfully');
@@ -5618,6 +5642,141 @@ article.page {
         
         // Cache timeout (10 giây)
         CACHE_DURATION: 10 * 1000
+    };
+    
+    // ============================================
+    // RESOURCE MANAGER - Hybrid Preload System
+    // ============================================
+    const ResourceManager = {
+        cache: new Set(), // Track successfully loaded URLs
+        queue: [], // Queue of URLs to preload
+        isProcessing: false,
+        loadingMap: new Map(), // Track loading promises for deduplication
+        
+        /**
+         * Add URL to preload queue
+         * @param {string} url - URL to preload
+         * @param {string} priority - 'high' or 'low' (default)
+         */
+        preload(url, priority = 'low') {
+            if (!url || this.cache.has(url) || this.loadingMap.has(url)) {
+                return; // Already cached or loading
+            }
+            
+            // Add to queue based on priority
+            if (priority === 'high') {
+                this.queue.unshift(url); // Add to front
+                console.log(`📌 [HIGH] Added to preload queue: ${url.substring(0, 60)}...`);
+            } else {
+                this.queue.push(url); // Add to back
+                console.log(`📋 [LOW] Added to preload queue: ${url.substring(0, 60)}...`);
+            }
+            
+            this.processQueue();
+        },
+        
+        /**
+         * Process preload queue (sequential to avoid network congestion)
+         */
+        processQueue() {
+            if (this.isProcessing || this.queue.length === 0) {
+                return;
+            }
+            
+            this.isProcessing = true;
+            const url = this.queue.shift();
+            
+            console.log(`⏳ Preloading (${this.cache.size} cached, ${this.queue.length} queued): ${url.substring(0, 60)}...`);
+            
+            const img = new Image();
+            img.crossOrigin = 'anonymous'; // Enable CORS for cached images
+            
+            img.onload = () => {
+                this.cache.add(url);
+                this.loadingMap.delete(url);
+                console.log(`✅ Cached: ${url.substring(0, 60)}...`);
+                this.isProcessing = false;
+                this.processQueue(); // Continue with next
+            };
+            
+            img.onerror = () => {
+                console.warn(`❌ Failed to cache: ${url.substring(0, 60)}...`);
+                this.loadingMap.delete(url);
+                this.isProcessing = false;
+                this.processQueue(); // Continue with next
+            };
+            
+            // Start loading
+            this.loadingMap.set(url, img);
+            img.src = url;
+        },
+        
+        /**
+         * Check if URL is cached
+         * @param {string} url
+         * @returns {boolean}
+         */
+        isCached(url) {
+            return this.cache.has(url);
+        },
+        
+        /**
+         * Get preload statistics
+         * @returns {object}
+         */
+        getStats() {
+            return {
+                cached: this.cache.size,
+                queued: this.queue.length,
+                loading: this.loadingMap.size,
+                isProcessing: this.isProcessing
+            };
+        },
+        
+        /**
+         * Preload all images from MasterData
+         * @param {Array} masterData
+         */
+        preloadMasterDataImages(masterData) {
+            if (!masterData || !Array.isArray(masterData)) return;
+            
+            console.log('🖼️ Preloading images from MasterData...');
+            let count = 0;
+            
+            masterData.forEach(row => {
+                const url = row.url || row.D; // Support both formats
+                if (url && this.isImageUrl(url)) {
+                    this.preload(url, 'low'); // Low priority for hover images
+                    count++;
+                }
+            });
+            
+            console.log(`📊 Queued ${count} images for preload`);
+        },
+        
+        /**
+         * Check if URL is an image
+         * @param {string} url
+         * @returns {boolean}
+         */
+        isImageUrl(url) {
+            if (!url) return false;
+            
+            // Check common image hosting platforms
+            const imageHosts = [
+                'i.postimg.cc',
+                'i.imgur.com',
+                'drive.google.com',
+                'res.cloudinary.com',
+                'image.jpg',
+                'image.png',
+                'image.gif',
+                'image.webp'
+            ];
+            
+            return imageHosts.some(host => url.includes(host)) || 
+                   /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(url);
+        }
     };
     
     // ============================================
@@ -6174,8 +6333,14 @@ article.page {
                     url: videoUrl.substring(0, 60) + '...'
                 });
                 
+                // 🚀 PRELOAD: Get thumbnail and preload with HIGH priority
+                const finalThumbnail = thumbnail || this.getDefaultThumbnail(videoUrl, platform);
+                if (finalThumbnail && !finalThumbnail.startsWith('data:')) {
+                    ResourceManager.preload(finalThumbnail, 'high');
+                }
+                
                 // CREATE CLICK-TO-LOAD CARD
-                const cardHTML = this.createVideoCard(videoUrl, platform, thumbnail, hangMuc);
+                const cardHTML = this.createVideoCard(videoUrl, platform, finalThumbnail, hangMuc);
                 
                 if (cardHTML) {
                     slot.innerHTML = cardHTML;
@@ -6403,6 +6568,9 @@ article.page {
                     window.masterDataCache = masterResult.data;
                     console.log(`✅ MasterData: ${masterResult.data.length} items loaded`);
                     
+                    // 🚀 PRELOAD: Start loading all images in background
+                    ResourceManager.preloadMasterDataImages(masterResult.data);
+                    
                     // Re-initialize hover tooltips
                     setTimeout(() => {
                         if (window.populateImageUrls) {
@@ -6435,6 +6603,15 @@ article.page {
                 } else {
                     console.log('ℹ️ No videos found');
                 }
+                
+                // 4. Log ResourceManager statistics
+                const stats = ResourceManager.getStats();
+                console.log('');
+                console.log('📊 RESOURCE MANAGER STATISTICS:');
+                console.log(`   ✅ Cached: ${stats.cached} images`);
+                console.log(`   ⏳ Queued: ${stats.queued} remaining`);
+                console.log(`   🔄 Loading: ${stats.loading} in progress`);
+                console.log(`   📈 Status: ${stats.isProcessing ? 'Processing' : 'Idle'}`);
                 
                 this.showNotification('✅ Đã load tất cả nội dung', 'success');
                 
