@@ -6337,6 +6337,26 @@ const VideoDatabase = {
                 fullResult: result
             };
             console.error('❌ API returned success=false:', errorDetails);
+
+            // SPECIAL CASE: Health check response (not an error!)
+            // If message contains "running" or "Web App", this is likely a health check endpoint
+            const isHealthCheck = result.message && (
+                result.message.includes('running') ||
+                result.message.includes('Web App') ||
+                result.status === 'ok'
+            );
+
+            if (isHealthCheck) {
+                console.warn('⚠️ Detected health check response instead of video data');
+                console.warn('💡 This means the API endpoint might be misconfigured');
+                console.warn('💡 Expected: Video data endpoint');
+                console.warn('💡 Got: Health check endpoint');
+
+                // Return empty array with warning instead of crashing
+                console.log('📊 Returning empty video array to prevent crash');
+                return [];
+            }
+
             throw new Error(result.error || result.message || `API Error: ${JSON.stringify(result)}`);
         }
 

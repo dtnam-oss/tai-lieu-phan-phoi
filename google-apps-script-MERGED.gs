@@ -50,20 +50,52 @@ const SYSTEM_PROMPT = `Bạn là trợ lý AI chuyên nghiệp của GHTK (Giao 
 
 /**
  * Handle GET requests
- * Có thể dùng cho cả Video Database và test Chatbot
+ * Routes between Video Database and Health Check based on params
  */
 function doGet(e) {
   const output = ContentService.createTextOutput();
   output.setMimeType(ContentService.MimeType.JSON);
 
-  // Test endpoint
-  return output.setContent(JSON.stringify({
-    status: 'ok',
-    message: 'GHTK Web App is running!',
-    services: ['Video Database', 'AI Chatbot'],
-    version: '2.0.0',
-    timestamp: new Date().toISOString()
-  }));
+  try {
+    // Check if this is a request for video data (default behavior)
+    // OR has explicit action parameter
+    const params = e.parameter || {};
+    const action = params.action;
+
+    // ROUTE 1: Health Check (only if explicitly requested)
+    if (action === 'health' || action === 'status') {
+      return output.setContent(JSON.stringify({
+        status: 'ok',
+        message: 'GHTK Web App is running!',
+        services: ['Video Database', 'AI Chatbot'],
+        version: '2.0.0',
+        timestamp: new Date().toISOString()
+      }));
+    }
+
+    // ROUTE 2: Video Database (DEFAULT for GET requests)
+    // This ensures VideoDatabase.getData() works correctly
+    Logger.log('GET request - Returning video data');
+
+    const videos = getVideosFromSheet();
+
+    return output.setContent(JSON.stringify({
+      success: true,
+      data: videos,
+      timestamp: new Date().toISOString(),
+      source: 'google-apps-script'
+    }));
+
+  } catch (error) {
+    Logger.log('Error in doGet: ' + error.toString());
+
+    return output.setContent(JSON.stringify({
+      success: false,
+      error: error.toString(),
+      message: 'Failed to fetch video data',
+      timestamp: new Date().toISOString()
+    }));
+  }
 }
 
 /**
@@ -529,18 +561,92 @@ Hãy trả lời câu hỏi trên dựa vào tài liệu được cung cấp. Nh
 }
 
 // ========================================
-// VIDEO DATABASE FUNCTIONS (PLACEHOLDER)
-// Thay thế bằng logic thực tế của bạn
+// VIDEO DATABASE FUNCTIONS
 // ========================================
 
+/**
+ * Get video data from Google Sheets
+ * Replace SHEET_ID and SHEET_NAME with your actual values
+ */
 function getVideosFromSheet() {
-  // TODO: Implement your actual logic here
-  // Example:
-  // const sheet = SpreadsheetApp.openById('YOUR_SHEET_ID').getSheetByName('Videos');
-  // return sheet.getDataRange().getValues();
+  try {
+    // TODO: Replace with your actual Google Sheet ID
+    // Get it from Sheet URL: https://docs.google.com/spreadsheets/d/SHEET_ID_HERE/edit
+    const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE';
+    const SHEET_NAME = 'Videos'; // Or your sheet tab name
 
-  Logger.log('getVideosFromSheet() called - implement your logic here');
-  return [];
+    Logger.log('Fetching videos from Google Sheets...');
+
+    // Option 1: If you have a specific Sheet ID
+    // Uncomment and configure this if you have video data in Sheets
+    /*
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const videos = rows.map(row => {
+      const video = {};
+      headers.forEach((header, index) => {
+        video[header] = row[index];
+      });
+      return video;
+    });
+
+    Logger.log('Fetched ' + videos.length + ' videos from Sheet');
+    return videos;
+    */
+
+    // Option 2: Return sample data for testing (CURRENT)
+    // Remove this after you configure Option 1
+    Logger.log('⚠️ Using sample data - Configure SHEET_ID to use real data');
+
+    return getSampleVideoData();
+
+  } catch (error) {
+    Logger.log('Error in getVideosFromSheet: ' + error.toString());
+    // Return empty array instead of throwing to prevent crash
+    return [];
+  }
+}
+
+/**
+ * Sample video data for testing
+ * Replace this with real Sheet data
+ */
+function getSampleVideoData() {
+  return [
+    {
+      element_id: 'vid_1',
+      category: 'Giới thiệu hệ thống GHTK',
+      platform: 'youtube',
+      video_id: 'dQw4w9WgXcQ',
+      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+      title: 'Video hướng dẫn GHTK',
+      description: 'Hệ thống phân phối của GHTK',
+      duration: '5:30'
+    },
+    {
+      element_id: 'vid_2_1',
+      category: 'Quy trình ONBOARD',
+      platform: 'youtube',
+      video_id: 'dQw4w9WgXcQ',
+      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+      title: 'Hướng dẫn ONBOARD',
+      description: 'Quy trình đăng ký và xác minh',
+      duration: '8:15'
+    },
+    {
+      element_id: 'vid_3_1',
+      category: 'Quy trình giao hàng',
+      platform: 'youtube',
+      video_id: 'dQw4w9WgXcQ',
+      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+      title: 'Hướng dẫn giao hàng',
+      description: 'Quy trình giao hàng từ A-Z',
+      duration: '12:00'
+    }
+  ];
 }
 
 function addVideoToSheet(data) {
