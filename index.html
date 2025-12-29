@@ -5689,8 +5689,8 @@ article.page {
         SHEET_NAME: 'MasterData',      // Tên tab chứa dữ liệu hover preview
         CONTENT_DATA_SHEET: 'ContentData',  // Tên tab chứa nội dung table cells
         
-        // Cache timeout (1 phút - giảm xuống để reload nhanh hơn)
-        CACHE_DURATION: 1 * 60 * 1000
+        // Cache timeout (10 giây - reload nhanh khi edit data)
+        CACHE_DURATION: 10 * 1000
     };
     
     // ============================================
@@ -5809,8 +5809,8 @@ article.page {
                 const rows = json.table.rows;
                 const cols = json.table.cols;
                 
-                // Get headers from first row
-                const headers = cols.map(col => col.label || col.id || '');
+                // Get headers - Dùng col.id (tên cột thật) trước col.label (A,B,C...)
+                const headers = cols.map(col => col.id || col.label || '');
                 
                 // Convert to array of objects
                 return rows.map(row => {
