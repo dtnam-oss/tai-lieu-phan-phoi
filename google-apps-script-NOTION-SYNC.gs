@@ -709,18 +709,31 @@ function updateContentDataSheet(contentData) {
       throw new Error(`Sheet không tồn tại: ${SHEETS_CONFIG.CONTENT_DATA_SHEET}`);
     }
     
+    // Define headers
+    const headers = ['table_id', 'section_name', 'row_num', 'column_name', 'content_text', 'content_html'];
+    
+    // Check if sheet has header row
     const lastRow = sheet.getLastRow();
-    if (lastRow > 1) {
+    if (lastRow === 0) {
+      // Sheet completely empty - create header row
+      sheet.appendRow(headers);
+      sheet.getRange('1:1').setFontWeight('bold');
+      Logger.log('Created header row for ContentData sheet');
+    } else if (lastRow > 1) {
+      // Has data rows - delete them but keep header
       sheet.deleteRows(2, lastRow - 1);
     }
     
     // Convert objects sang 2D array
-    const headers = ['table_id', 'section_name', 'row_num', 'column_name', 'content_text', 'content_html'];
     const values = contentData.map(row => headers.map(h => row[h] || ''));
     
     // Write to sheet
     if (values.length > 0) {
+      Logger.log(`Writing ${values.length} rows to ContentData sheet...`);
       sheet.getRange(2, 1, values.length, headers.length).setValues(values);
+      Logger.log(`✅ Write completed. Sheet now has ${sheet.getLastRow()} rows total.`);
+    } else {
+      Logger.log('⚠️ No data to write (values.length = 0)');
     }
     
     // Verify
@@ -798,18 +811,31 @@ function updateMasterDataSheet(masterData) {
       throw new Error(`Sheet không tồn tại: ${SHEETS_CONFIG.MASTER_DATA_SHEET}`);
     }
     
+    // Define headers
+    const headers = ['hang_muc', 'id_the', 'ten_the', 'url'];
+    
+    // Check if sheet has header row
     const lastRow = sheet.getLastRow();
-    if (lastRow > 1) {
+    if (lastRow === 0) {
+      // Sheet completely empty - create header row
+      sheet.appendRow(headers);
+      sheet.getRange('1:1').setFontWeight('bold');
+      Logger.log('Created header row for MasterData sheet');
+    } else if (lastRow > 1) {
+      // Has data rows - delete them but keep header
       sheet.deleteRows(2, lastRow - 1);
     }
     
     // Convert objects sang 2D array
-    const headers = ['hang_muc', 'id_the', 'ten_the', 'url'];
     const values = masterData.map(row => headers.map(h => row[h] || ''));
     
     // Write to sheet
     if (values.length > 0) {
+      Logger.log(`Writing ${values.length} rows to MasterData sheet...`);
       sheet.getRange(2, 1, values.length, headers.length).setValues(values);
+      Logger.log(`✅ Write completed. Sheet now has ${sheet.getLastRow()} rows total.`);
+    } else {
+      Logger.log('⚠️ No data to write (values.length = 0)');
     }
     
     // Verify
