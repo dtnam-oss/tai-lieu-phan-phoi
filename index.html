@@ -4200,6 +4200,124 @@ article.page {
 }
 
 /* ============================================
+   VIDEO PLAYER CARDS - Modern Click-to-Load UI
+   ============================================ */
+
+.video-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.video-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.video-card.loading {
+    cursor: wait;
+}
+
+.video-card.loaded {
+    cursor: default;
+}
+
+/* Thumbnail */
+.video-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Play Button Overlay */
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+.video-card:hover .play-button {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: rgba(6, 146, 85, 0.95);
+}
+
+.video-card:hover .play-button svg {
+    fill: white;
+}
+
+.play-button svg {
+    width: 32px;
+    height: 32px;
+    fill: #069255;
+    transition: fill 0.3s ease;
+    margin-left: 4px; /* Slight offset for visual balance */
+}
+
+/* Loading state */
+.video-card.loading .play-button {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Loaded state - hide thumbnail and play button */
+.video-card.loaded .video-thumb,
+.video-card.loaded .play-button {
+    display: none;
+}
+
+/* Video iframe/video tag styles */
+.video-card iframe,
+.video-card video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .play-button {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .play-button svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+
+/* ============================================
    ADMIN TOOLBAR & EDIT MODE
    ============================================ */
 
@@ -6539,6 +6657,7 @@ body.edit-mode [data-editable]::after {
                 
                 let videoUrl = (video.Video_URL || '').trim();
                 const hangMuc = video.Hang_Muc || '';
+                const thumbnail = video.Thumbnail || '';
                 
                 // AUTO-DETECT PLATFORM if missing or unknown
                 let platform = (video.platform || '').trim().toLowerCase();
@@ -6565,149 +6684,26 @@ body.edit-mode [data-editable]::after {
                     elementId,
                     hangMuc,
                     platform,
+                    thumbnail: thumbnail ? 'Yes' : 'No',
                     url: videoUrl.substring(0, 60) + '...'
                 });
                 
-                let embedHTML = '';
+                // CREATE CLICK-TO-LOAD CARD
+                const cardHTML = this.createVideoCard(videoUrl, platform, thumbnail, hangMuc);
                 
-                // RENDER BASED ON PLATFORM
-                switch (platform) {
-                    case 'streamable':
-                        const streamableId = video.video_id || this.extractStreamableId(videoUrl);
-                        if (!streamableId) {
-                            console.warn(`⚠️ Video ${index}: No video_id for Streamable`);
-                            skipped++;
-                            return;
-                        }
-                        embedHTML = `
-                            <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
-                                <iframe src="https://streamable.com/e/${streamableId}" 
-                                        frameborder="0" 
-                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                                        allowfullscreen 
-                                        allow="autoplay">
-                                </iframe>
-                            </div>
-                        `;
-                        console.log(`   ✅ Rendering Streamable: ${streamableId}`);
-                        break;
-                    
-                    case 'cloudinary':
-                        // Cloudinary has 2 formats:
-                        // 1. Direct video URL: https://res.cloudinary.com/.../video.mp4
-                        // 2. Player embed URL: https://player.cloudinary.com/embed/...
-                        
-                        if (videoUrl.includes('player.cloudinary.com')) {
-                            // EMBED PLAYER - Use iframe
-                            embedHTML = `
-                                <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
-                                    <iframe src="${videoUrl}" 
-                                            frameborder="0" 
-                                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-                                            allowfullscreen 
-                                            allow="autoplay; fullscreen; encrypted-media; picture-in-picture">
-                                    </iframe>
-                                </div>
-                            `;
-                            console.log(`   ✅ Rendering Cloudinary Player (iframe): ${videoUrl.substring(0, 50)}...`);
-                        } else {
-                            // DIRECT VIDEO URL - Use <video> tag
-                            embedHTML = `
-                                <div class="video-container" style="width: 100%; max-width: 800px; margin: 0 auto;">
-                                    <video controls playsinline width="100%" style="display: block;">
-                                        <source src="${videoUrl}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                </div>
-                            `;
-                            console.log(`   ✅ Rendering Cloudinary Direct Video: ${videoUrl.substring(0, 50)}...`);
-                        }
-                        break;
-                    
-                    case 'youtube':
-                        const youtubeId = video.video_id || this.extractYouTubeId(videoUrl);
-                        if (!youtubeId) {
-                            console.warn(`⚠️ Video ${index}: No video_id for YouTube`);
-                            skipped++;
-                            return;
-                        }
-                        embedHTML = `
-                            <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
-                                <iframe src="https://www.youtube.com/embed/${youtubeId}" 
-                                        frameborder="0" 
-                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                                        allowfullscreen
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-                                </iframe>
-                            </div>
-                        `;
-                        console.log(`   ✅ Rendering YouTube: ${youtubeId}`);
-                        break;
-                    
-                    case 'vimeo':
-                        const vimeoId = video.video_id || this.extractVimeoId(videoUrl);
-                        if (!vimeoId) {
-                            console.warn(`⚠️ Video ${index}: No video_id for Vimeo`);
-                            skipped++;
-                            return;
-                        }
-                        embedHTML = `
-                            <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
-                                <iframe src="https://player.vimeo.com/video/${vimeoId}" 
-                                        frameborder="0" 
-                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                                        allowfullscreen
-                                        allow="autoplay; fullscreen; picture-in-picture">
-                                </iframe>
-                            </div>
-                        `;
-                        console.log(`   ✅ Rendering Vimeo: ${vimeoId}`);
-                        break;
-                    
-                    case 'native':
-                        // Native HTML5 video for .mp4, .webm, etc.
-                        if (!videoUrl) {
-                            console.warn(`⚠️ Video ${index}: No URL for native video`);
-                            skipped++;
-                            return;
-                        }
-                        embedHTML = `
-                            <div class="video-container" style="width: 100%; max-width: 800px; margin: 0 auto;">
-                                <video controls playsinline width="100%" style="display: block;">
-                                    <source src="${videoUrl}" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div>
-                        `;
-                        console.log(`   ✅ Rendering Native Video: ${videoUrl.substring(0, 50)}...`);
-                        break;
-                    
-                    case 'iframe':
-                    default:
-                        // Generic iframe fallback for any other embed URLs
-                        if (!videoUrl) {
-                            console.warn(`⚠️ Video ${index}: No URL provided`);
-                            skipped++;
-                            return;
-                        }
-                        embedHTML = `
-                            <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
-                                <iframe src="${videoUrl}" 
-                                        frameborder="0" 
-                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-                                        allowfullscreen
-                                        allow="autoplay; fullscreen; encrypted-media; picture-in-picture">
-                                </iframe>
-                            </div>
-                        `;
-                        console.log(`   ✅ Rendering Generic Iframe: ${videoUrl.substring(0, 50)}...`);
-                        break;
-                }
-                
-                if (embedHTML) {
-                    slot.innerHTML = embedHTML;
+                if (cardHTML) {
+                    slot.innerHTML = cardHTML;
                     rendered++;
-                    console.log(`   ✅ Rendered to slot: ${elementId}`);
+                    
+                    // ATTACH CLICK EVENT
+                    const card = slot.querySelector('.video-card');
+                    if (card) {
+                        card.addEventListener('click', () => {
+                            this.loadVideo(card, videoUrl, platform);
+                        });
+                    }
+                    
+                    console.log(`   ✅ Rendered card to slot: ${elementId}`);
                 }
             });
             
@@ -6718,6 +6714,153 @@ body.edit-mode [data-editable]::after {
             console.log(`   📦 Total: ${videos.length}`);
             
             return rendered;
+        },
+        
+        // CREATE VIDEO CARD (Placeholder with thumbnail + play button)
+        createVideoCard(videoUrl, platform, thumbnail, title) {
+            // Use thumbnail if provided, otherwise use default based on platform
+            let thumbSrc = thumbnail || this.getDefaultThumbnail(videoUrl, platform);
+            
+            return `
+                <div class="video-card" data-video-url="${videoUrl}" data-platform="${platform}">
+                    <img class="video-thumb" src="${thumbSrc}" alt="${title || 'Video'}" loading="lazy" />
+                    <div class="play-button">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                </div>
+            `;
+        },
+        
+        // GET DEFAULT THUMBNAIL based on platform
+        getDefaultThumbnail(videoUrl, platform) {
+            switch (platform) {
+                case 'youtube':
+                    const ytId = this.extractYouTubeId(videoUrl);
+                    return ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"%3E%3Crect fill="%23000" width="1920" height="1080"/%3E%3C/svg%3E';
+                
+                case 'vimeo':
+                    // Vimeo requires API call for thumbnail, use placeholder
+                    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"%3E%3Crect fill="%23000" width="1920" height="1080"/%3E%3Ctext x="50%25" y="50%25" fill="%23fff" font-size="48" text-anchor="middle" dy=".3em"%3EVimeo Video%3C/text%3E%3C/svg%3E';
+                
+                default:
+                    // Generic black placeholder
+                    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"%3E%3Crect fill="%23000" width="1920" height="1080"/%3E%3Ctext x="50%25" y="50%25" fill="%23fff" font-size="48" text-anchor="middle" dy=".3em"%3EClick to Play%3C/text%3E%3C/svg%3E';
+            }
+        },
+        
+        // LOAD VIDEO (Replace card with actual video iframe/tag)
+        loadVideo(card, videoUrl, platform) {
+            // Prevent multiple clicks
+            if (card.classList.contains('loading') || card.classList.contains('loaded')) {
+                return;
+            }
+            
+            card.classList.add('loading');
+            console.log(`🎥 Loading video: ${platform} - ${videoUrl.substring(0, 50)}...`);
+            
+            let embedHTML = '';
+            
+            // RENDER BASED ON PLATFORM
+            switch (platform) {
+                case 'streamable':
+                    const streamableId = this.extractStreamableId(videoUrl);
+                    if (streamableId) {
+                        embedHTML = `
+                            <iframe src="https://streamable.com/e/${streamableId}?autoplay=1" 
+                                    frameborder="0" 
+                                    allowfullscreen 
+                                    allow="autoplay; fullscreen">
+                            </iframe>
+                        `;
+                    }
+                    break;
+                
+                case 'cloudinary':
+                    if (videoUrl.includes('player.cloudinary.com')) {
+                        // Add autoplay parameter
+                        const autoplayUrl = videoUrl.includes('?') 
+                            ? `${videoUrl}&autoplay=true` 
+                            : `${videoUrl}?autoplay=true`;
+                        embedHTML = `
+                            <iframe src="${autoplayUrl}" 
+                                    frameborder="0" 
+                                    allowfullscreen 
+                                    allow="autoplay; fullscreen; encrypted-media; picture-in-picture">
+                            </iframe>
+                        `;
+                    } else {
+                        embedHTML = `
+                            <video controls autoplay playsinline>
+                                <source src="${videoUrl}" type="video/mp4">
+                            </video>
+                        `;
+                    }
+                    break;
+                
+                case 'youtube':
+                    const youtubeId = this.extractYouTubeId(videoUrl);
+                    if (youtubeId) {
+                        embedHTML = `
+                            <iframe src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" 
+                                    frameborder="0" 
+                                    allowfullscreen
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                            </iframe>
+                        `;
+                    }
+                    break;
+                
+                case 'vimeo':
+                    const vimeoId = this.extractVimeoId(videoUrl);
+                    if (vimeoId) {
+                        embedHTML = `
+                            <iframe src="https://player.vimeo.com/video/${vimeoId}?autoplay=1" 
+                                    frameborder="0" 
+                                    allowfullscreen
+                                    allow="autoplay; fullscreen; picture-in-picture">
+                            </iframe>
+                        `;
+                    }
+                    break;
+                
+                case 'native':
+                    embedHTML = `
+                        <video controls autoplay playsinline>
+                            <source src="${videoUrl}" type="video/mp4">
+                        </video>
+                    `;
+                    break;
+                
+                case 'iframe':
+                default:
+                    // Add autoplay if possible
+                    const autoplayUrl = videoUrl.includes('?') 
+                        ? `${videoUrl}&autoplay=1` 
+                        : `${videoUrl}?autoplay=1`;
+                    embedHTML = `
+                        <iframe src="${autoplayUrl}" 
+                                frameborder="0" 
+                                allowfullscreen
+                                allow="autoplay; fullscreen; encrypted-media; picture-in-picture">
+                        </iframe>
+                    `;
+                    break;
+            }
+            
+            if (embedHTML) {
+                // Small delay for smooth transition
+                setTimeout(() => {
+                    card.innerHTML = embedHTML;
+                    card.classList.remove('loading');
+                    card.classList.add('loaded');
+                    console.log(`   ✅ Video loaded successfully`);
+                }, 300);
+            } else {
+                console.error(`   ❌ Failed to generate embed HTML`);
+                card.classList.remove('loading');
+            }
         },
         
         // Helper: Extract Streamable ID from URL
