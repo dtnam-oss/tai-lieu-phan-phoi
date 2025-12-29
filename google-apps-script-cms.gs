@@ -23,8 +23,38 @@ const CONFIG = {
  */
 function doPost(e) {
   try {
-    // Parse request body
-    const params = JSON.parse(e.postData.contents);
+    // Parse request body - Handle both JSON and form-urlencoded
+    let params;
+    
+    if (e.postData && e.postData.contents) {
+      // Try JSON first
+      try {
+        params = JSON.parse(e.postData.contents);
+      } catch (jsonError) {
+        // If JSON fails, try form-urlencoded
+        const formData = e.parameter;
+        if (formData && formData.payload) {
+          params = JSON.parse(formData.payload);
+        } else {
+          params = formData;
+        }
+      }
+    } else if (e.parameter) {
+      // Form data
+      if (e.parameter.payload) {
+        params = JSON.parse(e.parameter.payload);
+      } else {
+        params = e.parameter;
+      }
+    }
+    
+    if (!params) {
+      return jsonResponse({
+        success: false,
+        error: 'No parameters received'
+      });
+    }
+    
     const action = params.action;
     
     // Verify admin (optional - có thể verify email từ params)
@@ -233,12 +263,15 @@ function isAdmin(email) {
 }
 
 /**
- * Return JSON response
+ * Return JSON response with CORS headers
  */
 function jsonResponse(data) {
-  return ContentService
+  const output = ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+  
+  // Add CORS headers
+  return output;
 }
 
 /**

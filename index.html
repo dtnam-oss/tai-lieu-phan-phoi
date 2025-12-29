@@ -6944,18 +6944,22 @@ body.edit-mode [data-editable]::after {
                 const userData = JSON.parse(localStorage.getItem('user') || '{}');
                 
                 // Send update request
+                // Google Apps Script yêu cầu redirect: 'follow' để tránh CORS
                 const response = await fetch(CMS_CONFIG.API_URL, {
                     method: 'POST',
+                    redirect: 'follow',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: JSON.stringify({
-                        action: 'update_content',
-                        sheet_name: this.currentData.sheet,
-                        id: this.currentData.id,
-                        column_name: this.currentData.column,
-                        new_value: newValue,
-                        user_email: userData.email || userData.username
+                    body: new URLSearchParams({
+                        payload: JSON.stringify({
+                            action: 'update_content',
+                            sheet_name: this.currentData.sheet,
+                            id: this.currentData.id,
+                            column_name: this.currentData.column,
+                            new_value: newValue,
+                            user_email: userData.email || userData.username
+                        })
                     })
                 });
                 
