@@ -50,7 +50,7 @@ const SYSTEM_PROMPT = `Bạn là trợ lý AI chuyên nghiệp của GHTK (Giao 
 
 /**
  * Handle GET requests
- * Routes between Video Database and Health Check based on params
+ * Routes between Video Database, Health Check, and User Verification based on params
  */
 function doGet(e) {
   const output = ContentService.createTextOutput();
@@ -62,18 +62,35 @@ function doGet(e) {
     const params = e.parameter || {};
     const action = params.action;
 
-    // ROUTE 1: Health Check (only if explicitly requested)
+    // ROUTE 1: User Verification (Authentication)
+    if (action === 'verify_user') {
+      const email = params.email;
+
+      if (!email) {
+        return output.setContent(JSON.stringify({
+          success: false,
+          authorized: false,
+          error: 'Email parameter is required',
+          timestamp: new Date().toISOString()
+        }));
+      }
+
+      const result = checkUserPermission(email);
+      return output.setContent(JSON.stringify(result));
+    }
+
+    // ROUTE 2: Health Check (only if explicitly requested)
     if (action === 'health' || action === 'status') {
       return output.setContent(JSON.stringify({
         status: 'ok',
         message: 'GHTK Web App is running!',
-        services: ['Video Database', 'AI Chatbot'],
-        version: '2.0.0',
+        services: ['Video Database', 'AI Chatbot', 'User Authentication'],
+        version: '2.1.0',
         timestamp: new Date().toISOString()
       }));
     }
 
-    // ROUTE 2: Video Database (DEFAULT for GET requests)
+    // ROUTE 3: Video Database (DEFAULT for GET requests)
     // This ensures VideoDatabase.getData() works correctly
     Logger.log('GET request - Returning video data');
 
@@ -92,7 +109,7 @@ function doGet(e) {
     return output.setContent(JSON.stringify({
       success: false,
       error: error.toString(),
-      message: 'Failed to fetch video data',
+      message: 'Failed to process request',
       timestamp: new Date().toISOString()
     }));
   }
@@ -766,6 +783,139 @@ function addVideoToSheet(data) {
 function deleteVideoFromSheet(id) {
   // TODO: Implement your actual logic here
   Logger.log('deleteVideoFromSheet() called with id: ' + id);
+}
+
+// ========================================
+// USER AUTHENTICATION FUNCTIONS
+// ========================================
+
+/**
+ * Check if user email has permission to access the system
+ * Reads from UserSetting tab in Google Sheets
+ *
+ * @param {string} email - User email to verify
+ * @return {object} - { authorized: boolean, userName: string, message: string }
+ */
+function checkUserPermission(email) {
+  try {
+    // Google Sheet configuration
+    const SHEET_ID = '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4';
+    const SHEET_NAME = 'UserSetting';
+
+    Logger.log('Checking user permission for email: ' + email);
+
+    // Normalize email: lowercase and trim whitespace
+    const normalizedEmail = email.toString().toLowerCase().trim();
+
+    if (!normalizedEmail || normalizedEmail === '') {
+      return {
+        success: false,
+        authorized: false,
+        message: 'Email không được để trống',
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // Open the spreadsheet and get the UserSetting sheet
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      Logger.log('❌ UserSetting sheet not found');
+      return {
+        success: false,
+        authorized: false,
+        message: 'Lỗi hệ thống: Không tìm thấy bảng UserSetting',
+        error: 'Sheet not found',
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // Get all data from the sheet
+    const data = sheet.getDataRange().getValues();
+
+    if (data.length < 2) {
+      Logger.log('⚠️ UserSetting sheet is empty or has no data rows');
+      return {
+        success: false,
+        authorized: false,
+        message: 'Hệ thống chưa có người dùng nào được cấp quyền',
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // Skip header row (row 0), start from row 1
+    // Column A (index 0): user_name
+    // Column B (index 1): user_email
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const userName = row[0] ? row[0].toString().trim() : '';
+      const userEmail = row[1] ? row[1].toString().toLowerCase().trim() : '';
+
+      // Check if email matches (case-insensitive, trimmed)
+      if (userEmail === normalizedEmail) {
+        Logger.log('✅ User found: ' + userName + ' (' + userEmail + ')');
+
+        return {
+          success: true,
+          authorized: true,
+          userName: userName,
+          userEmail: userEmail,
+          message: 'Đăng nhập thành công',
+          timestamp: new Date().toISOString()
+        };
+      }
+    }
+
+    // Email not found in the list
+    Logger.log('❌ Email not authorized: ' + normalizedEmail);
+
+    return {
+      success: false,
+      authorized: false,
+      message: 'Email "' + normalizedEmail + '" không có quyền truy cập hệ thống. Vui lòng liên hệ quản trị viên.',
+      timestamp: new Date().toISOString()
+    };
+
+  } catch (error) {
+    Logger.log('❌ Error in checkUserPermission: ' + error.toString());
+    Logger.log('Stack: ' + error.stack);
+
+    return {
+      success: false,
+      authorized: false,
+      message: 'Lỗi hệ thống khi kiểm tra quyền truy cập',
+      error: error.toString(),
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * Test user authentication
+ * Run this function to test the authentication system
+ */
+function testUserAuth() {
+  Logger.log('=== Testing User Authentication ===\n');
+
+  // Test 1: Valid user (replace with actual email from your sheet)
+  Logger.log('Test 1: Valid user');
+  const result1 = checkUserPermission('user@example.com');
+  Logger.log('Result: ' + JSON.stringify(result1, null, 2));
+
+  // Test 2: Invalid user
+  Logger.log('\nTest 2: Invalid user');
+  const result2 = checkUserPermission('unauthorized@example.com');
+  Logger.log('Result: ' + JSON.stringify(result2, null, 2));
+
+  // Test 3: Empty email
+  Logger.log('\nTest 3: Empty email');
+  const result3 = checkUserPermission('');
+  Logger.log('Result: ' + JSON.stringify(result3, null, 2));
+
+  // Test 4: Email with whitespace and mixed case
+  Logger.log('\nTest 4: Email with whitespace and mixed case');
+  const result4 = checkUserPermission('  User@Example.com  ');
+  Logger.log('Result: ' + JSON.stringify(result4, null, 2));
 }
 
 // ========================================

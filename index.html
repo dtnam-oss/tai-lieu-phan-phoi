@@ -3729,7 +3729,226 @@ article.page {
 	}
 }
 
+/* ========================================
+   AUTHENTICATION MODAL - LOGIN OVERLAY
+   ======================================== */
+
+/* Full-screen overlay that blocks all content */
+#auth-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(135deg, #00b14f 0%, #028a3d 100%);
+	z-index: 99999; /* Highest z-index to ensure it's always on top */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 1;
+	transition: opacity 0.3s ease;
+}
+
+/* Hide overlay when authenticated */
+#auth-overlay.auth-success {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Login modal container */
+#login-modal {
+	background: #ffffff;
+	border-radius: 16px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	padding: 48px 40px;
+	max-width: 440px;
+	width: 90%;
+	text-align: center;
+	animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Logo in modal */
+#login-modal .login-logo {
+	margin-bottom: 24px;
+}
+
+#login-modal .login-logo img {
+	width: 180px;
+	height: auto;
+}
+
+/* Modal title */
+#login-modal h2 {
+	margin: 0 0 12px 0;
+	font-size: 24px;
+	font-weight: 700;
+	color: #1e293b;
+}
+
+/* Modal description */
+#login-modal p {
+	margin: 0 0 32px 0;
+	font-size: 15px;
+	color: #64748b;
+	line-height: 1.5;
+}
+
+/* Login form */
+#login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+/* Email input */
+#user-email-input {
+	width: 100%;
+	padding: 14px 16px;
+	font-size: 15px;
+	border: 2px solid #e2e8f0;
+	border-radius: 8px;
+	outline: none;
+	transition: all 0.2s;
+	box-sizing: border-box;
+	font-family: 'Inter', sans-serif;
+}
+
+#user-email-input:focus {
+	border-color: #00b14f;
+	box-shadow: 0 0 0 3px rgba(0, 177, 79, 0.1);
+}
+
+#user-email-input::placeholder {
+	color: #94a3b8;
+}
+
+/* Login button */
+#login-submit-btn {
+	width: 100%;
+	padding: 14px 16px;
+	font-size: 15px;
+	font-weight: 600;
+	color: #ffffff;
+	background: linear-gradient(135deg, #00b14f 0%, #028a3d 100%);
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.2s;
+	box-shadow: 0 4px 12px rgba(0, 177, 79, 0.3);
+}
+
+#login-submit-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(0, 177, 79, 0.4);
+}
+
+#login-submit-btn:active {
+	transform: translateY(0);
+}
+
+#login-submit-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Error message */
+#auth-error-message {
+	margin-top: 16px;
+	padding: 12px 16px;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 8px;
+	color: #dc2626;
+	font-size: 14px;
+	display: none;
+	text-align: left;
+	line-height: 1.5;
+}
+
+#auth-error-message.show {
+	display: block;
+}
+
+/* Loading state */
+.loading-spinner {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #ffffff;
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: spin 0.6s linear infinite;
+	margin-right: 8px;
+	vertical-align: middle;
+}
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+	#login-modal {
+		padding: 32px 24px;
+		max-width: 90%;
+	}
+
+	#login-modal h2 {
+		font-size: 20px;
+	}
+
+	#login-modal p {
+		font-size: 14px;
+		margin-bottom: 24px;
+	}
+
+	#login-modal .login-logo img {
+		width: 140px;
+	}
+}
+
 </style></head><body>
+
+<!-- ========================================
+     AUTHENTICATION MODAL - LOGIN OVERLAY
+     Must be first element in body for proper z-index
+     ======================================== -->
+<div id="auth-overlay">
+	<div id="login-modal">
+		<div class="login-logo">
+			<img src="https://i.postimg.cc/sDPS4wnk/GHTK-Logo-RGB.webp" alt="GHTK Logo">
+		</div>
+		<h2>Xác thực người dùng</h2>
+		<p>Vui lòng nhập email để truy cập hệ thống tài liệu phân phối GHTK</p>
+
+		<form id="login-form">
+			<input
+				type="email"
+				id="user-email-input"
+				placeholder="Email của bạn (vd: user@ghtk.vn)"
+				required
+				autocomplete="email"
+			>
+			<button type="submit" id="login-submit-btn">
+				Đăng nhập
+			</button>
+		</form>
+
+		<div id="auth-error-message"></div>
+	</div>
+</div>
 
 <nav class="main-nav">
   <div class="nav-container">
@@ -3837,9 +4056,283 @@ article.page {
 <span style="font-size:14px;padding-top:2em"></span>
 <script>
 
+/* ============================================
+   USER AUTHENTICATION SYSTEM
+   ============================================ */
 
+(function() {
+    'use strict';
 
-    
+    // Google Apps Script Web App URL
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec';
+
+    // LocalStorage keys
+    const AUTH_KEY = 'ghtk_auth_user';
+    const AUTH_TIMESTAMP_KEY = 'ghtk_auth_timestamp';
+    const AUTH_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+    // DOM elements
+    let authOverlay, loginForm, emailInput, submitBtn, errorMessage;
+
+    // Initialize authentication on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initAuthElements();
+        checkLoginStatus();
+    });
+
+    /**
+     * Initialize DOM element references
+     */
+    function initAuthElements() {
+        authOverlay = document.getElementById('auth-overlay');
+        loginForm = document.getElementById('login-form');
+        emailInput = document.getElementById('user-email-input');
+        submitBtn = document.getElementById('login-submit-btn');
+        errorMessage = document.getElementById('auth-error-message');
+
+        // Attach form submit handler
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLoginSubmit);
+        }
+
+        // Prevent closing modal by clicking outside
+        if (authOverlay) {
+            authOverlay.addEventListener('click', function(e) {
+                if (e.target === authOverlay) {
+                    e.stopPropagation();
+                }
+            });
+        }
+
+        // Prevent F12 inspect on auth overlay (basic protection)
+        if (authOverlay) {
+            authOverlay.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+        }
+    }
+
+    /**
+     * Check if user is already logged in
+     */
+    function checkLoginStatus() {
+        console.log('🔐 Checking authentication status...');
+
+        const authData = localStorage.getItem(AUTH_KEY);
+        const authTimestamp = localStorage.getItem(AUTH_TIMESTAMP_KEY);
+
+        if (authData && authTimestamp) {
+            const timestamp = parseInt(authTimestamp, 10);
+            const now = Date.now();
+            const elapsed = now - timestamp;
+
+            // Check if auth is still valid (within 7 days)
+            if (elapsed < AUTH_DURATION) {
+                const user = JSON.parse(authData);
+                console.log('✅ User already authenticated:', user.userName);
+                grantAccess(user);
+                return;
+            } else {
+                console.log('⏰ Authentication expired. Please login again.');
+                clearAuthData();
+            }
+        }
+
+        // Not authenticated - show login modal
+        console.log('🔒 User not authenticated. Showing login modal.');
+        showLoginModal();
+    }
+
+    /**
+     * Show login modal
+     */
+    function showLoginModal() {
+        if (authOverlay) {
+            authOverlay.style.display = 'flex';
+            authOverlay.classList.remove('auth-success');
+
+            // Focus email input after animation
+            setTimeout(() => {
+                if (emailInput) emailInput.focus();
+            }, 400);
+        }
+    }
+
+    /**
+     * Handle login form submission
+     */
+    async function handleLoginSubmit(e) {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+
+        if (!email) {
+            showError('Vui lòng nhập email');
+            return;
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError('Email không hợp lệ. Vui lòng kiểm tra lại.');
+            return;
+        }
+
+        // Show loading state
+        setLoadingState(true);
+        hideError();
+
+        try {
+            console.log('🔐 Verifying email:', email);
+
+            // Call API to verify user
+            const url = `${API_URL}?action=verify_user&email=${encodeURIComponent(email)}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            console.log('📡 API Response:', result);
+
+            if (result.authorized === true) {
+                // Success - Save to localStorage
+                const userData = {
+                    userName: result.userName || 'User',
+                    userEmail: result.userEmail || email
+                };
+
+                localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
+                localStorage.setItem(AUTH_TIMESTAMP_KEY, Date.now().toString());
+
+                console.log('✅ Login successful:', userData.userName);
+
+                // Show success and grant access
+                showSuccess(userData);
+                setTimeout(() => {
+                    grantAccess(userData);
+                }, 1000);
+
+            } else {
+                // Failed - Email not authorized
+                const errorMsg = result.message || 'Email không có quyền truy cập. Vui lòng liên hệ quản trị viên.';
+                console.log('❌ Login failed:', errorMsg);
+                showError(errorMsg);
+                setLoadingState(false);
+            }
+
+        } catch (error) {
+            console.error('❌ Error during login:', error);
+            showError('Lỗi kết nối đến server. Vui lòng thử lại sau.\n\nChi tiết: ' + error.message);
+            setLoadingState(false);
+        }
+    }
+
+    /**
+     * Grant access to the system
+     */
+    function grantAccess(userData) {
+        console.log('✅ Granting access to:', userData.userName);
+
+        // Hide auth overlay with animation
+        if (authOverlay) {
+            authOverlay.classList.add('auth-success');
+
+            // Remove from DOM after animation
+            setTimeout(() => {
+                authOverlay.style.display = 'none';
+            }, 300);
+        }
+
+        // Show welcome message in console
+        console.log(`👋 Chào mừng ${userData.userName}!`);
+
+        // Optional: Display welcome banner on page
+        // showWelcomeBanner(userData);
+    }
+
+    /**
+     * Set loading state on submit button
+     */
+    function setLoadingState(isLoading) {
+        if (!submitBtn) return;
+
+        submitBtn.disabled = isLoading;
+
+        if (isLoading) {
+            submitBtn.innerHTML = '<span class="loading-spinner"></span>Đang xác thực...';
+        } else {
+            submitBtn.innerHTML = 'Đăng nhập';
+        }
+    }
+
+    /**
+     * Show error message
+     */
+    function showError(message) {
+        if (errorMessage) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+    }
+
+    /**
+     * Hide error message
+     */
+    function hideError() {
+        if (errorMessage) {
+            errorMessage.classList.remove('show');
+        }
+    }
+
+    /**
+     * Show success message
+     */
+    function showSuccess(userData) {
+        if (submitBtn) {
+            submitBtn.innerHTML = '✅ Đăng nhập thành công!';
+            submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        }
+    }
+
+    /**
+     * Clear authentication data
+     */
+    function clearAuthData() {
+        localStorage.removeItem(AUTH_KEY);
+        localStorage.removeItem(AUTH_TIMESTAMP_KEY);
+    }
+
+    /**
+     * Periodic auth check (every 5 minutes)
+     * Ensures user can't bypass by staying on page
+     */
+    setInterval(function() {
+        const authData = localStorage.getItem(AUTH_KEY);
+        if (!authData) {
+            console.log('⚠️ Authentication lost. Showing login modal.');
+            showLoginModal();
+        }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    // Expose logout function globally (for testing/admin)
+    window.GHTK_Logout = function() {
+        clearAuthData();
+        location.reload();
+    };
+
+    console.log('🔐 Authentication system initialized');
+    console.log('💡 To logout, run: GHTK_Logout()');
+
+})();
+
 /* ============================================
    INTERACTIVE FEATURES
    ============================================ */
