@@ -570,43 +570,68 @@ Hãy trả lời câu hỏi trên dựa vào tài liệu được cung cấp. Nh
  */
 function getVideosFromSheet() {
   try {
-    // TODO: Replace with your actual Google Sheet ID
-    // Get it from Sheet URL: https://docs.google.com/spreadsheets/d/SHEET_ID_HERE/edit
-    const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE';
-    const SHEET_NAME = 'Videos'; // Or your sheet tab name
+    // Google Sheet configuration
+    const SHEET_ID = '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4';
+    const SHEET_NAME = 'VideoData';
 
     Logger.log('Fetching videos from Google Sheets...');
+    Logger.log('Sheet ID: ' + SHEET_ID);
+    Logger.log('Sheet Name: ' + SHEET_NAME);
 
-    // Option 1: If you have a specific Sheet ID
-    // Uncomment and configure this if you have video data in Sheets
-    /*
+    // Open the spreadsheet and get the sheet
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      Logger.log('❌ Sheet not found: ' + SHEET_NAME);
+      return getSampleVideoData(); // Fallback to sample data
+    }
+
+    // Get all data
     const data = sheet.getDataRange().getValues();
+
+    if (data.length === 0) {
+      Logger.log('⚠️ Sheet is empty');
+      return [];
+    }
+
+    // First row is headers
     const headers = data[0];
     const rows = data.slice(1);
 
-    const videos = rows.map(row => {
-      const video = {};
-      headers.forEach((header, index) => {
-        video[header] = row[index];
+    Logger.log('📊 Headers: ' + headers.join(', '));
+    Logger.log('📊 Total rows: ' + rows.length);
+
+    // Map rows to video objects
+    const videos = rows
+      .filter(row => {
+        // Skip empty rows
+        return row[0] && row[0].toString().trim() !== '';
+      })
+      .map(row => {
+        const video = {};
+        headers.forEach((header, index) => {
+          // Map header names to object keys (exact match from Sheet)
+          video[header] = row[index];
+        });
+        return video;
+      })
+      .filter(video => {
+        // Only include rows that have Element_ID
+        return video.Element_ID && video.Element_ID.toString().trim() !== '';
       });
-      return video;
-    });
 
-    Logger.log('Fetched ' + videos.length + ' videos from Sheet');
+    Logger.log('✅ Fetched ' + videos.length + ' videos from Sheet');
+    Logger.log('📹 Video IDs: ' + videos.map(v => v.Element_ID).join(', '));
+
     return videos;
-    */
-
-    // Option 2: Return sample data for testing (CURRENT)
-    // Remove this after you configure Option 1
-    Logger.log('⚠️ Using sample data - Configure SHEET_ID to use real data');
-
-    return getSampleVideoData();
 
   } catch (error) {
-    Logger.log('Error in getVideosFromSheet: ' + error.toString());
-    // Return empty array instead of throwing to prevent crash
-    return [];
+    Logger.log('❌ Error in getVideosFromSheet: ' + error.toString());
+    Logger.log('Stack: ' + error.stack);
+
+    // Fallback to sample data instead of crashing
+    Logger.log('⚠️ Falling back to sample data');
+    return getSampleVideoData();
   }
 }
 
