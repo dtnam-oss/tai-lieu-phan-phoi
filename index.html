@@ -6275,25 +6275,91 @@ const VideoDatabase = {
 
     /**
      * Fetch from API and update cache
+     * Enhanced error handling for better debugging
      */
     async fetchAndUpdateCache() {
-        const response = await fetch(this.API_URL);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        console.log('🌐 Fetching from API:', this.API_URL);
+
+        let response;
+        try {
+            response = await fetch(this.API_URL);
+            console.log('📡 Response received:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok,
+                headers: {
+                    contentType: response.headers.get('content-type')
+                }
+            });
+        } catch (fetchError) {
+            console.error('❌ Network/Fetch Error:', {
+                name: fetchError.name,
+                message: fetchError.message,
+                stack: fetchError.stack
+            });
+            throw new Error(`Network Error: ${fetchError.message}. Check your internet connection or API endpoint.`);
         }
 
-        const result = await response.json();
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ HTTP Error Response:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText.substring(0, 500)
+            });
+            throw new Error(`HTTP ${response.status}: ${response.statusText}. Response: ${errorText.substring(0, 200)}`);
+        }
+
+        let result;
+        try {
+            const rawText = await response.text();
+            console.log('📄 Raw response (first 500 chars):', rawText.substring(0, 500));
+            result = JSON.parse(rawText);
+            console.log('✅ JSON parsed successfully:', {
+                success: result.success,
+                hasData: !!result.data,
+                dataLength: result.data?.length,
+                hasError: !!result.error
+            });
+        } catch (jsonError) {
+            console.error('❌ JSON Parse Error:', {
+                name: jsonError.name,
+                message: jsonError.message,
+                rawResponsePreview: rawText?.substring(0, 500)
+            });
+            throw new Error(`Invalid JSON response from API. The server may have returned HTML instead of JSON. Error: ${jsonError.message}`);
+        }
+
         if (!result.success) {
-            throw new Error(result.error || 'Unknown error');
+            const errorDetails = {
+                error: result.error,
+                message: result.message,
+                fullResult: result
+            };
+            console.error('❌ API returned success=false:', errorDetails);
+            throw new Error(result.error || result.message || `API Error: ${JSON.stringify(result)}`);
         }
 
         const data = result.data || [];
-        
+
+        if (!Array.isArray(data)) {
+            console.error('❌ Data is not an array:', typeof data, data);
+            throw new Error(`Invalid data format: Expected array, got ${typeof data}`);
+        }
+
+        console.log(`📊 Received ${data.length} videos from API`);
+
         // Save to cache
-        localStorage.setItem(this.CACHE_KEY, JSON.stringify({
-            data: data,
-            timestamp: Date.now()
-        }));
+        try {
+            localStorage.setItem(this.CACHE_KEY, JSON.stringify({
+                data: data,
+                timestamp: Date.now()
+            }));
+            console.log('💾 Data saved to cache');
+        } catch (storageError) {
+            console.warn('⚠️ Failed to save to localStorage:', storageError.message);
+            // Continue anyway - not critical
+        }
 
         console.log(`✅ Fetched ${data.length} videos from Google Sheets`);
         return data;
@@ -6479,30 +6545,67 @@ const VideoDatabase = {
 
 /**
  * Initialize Video System
+ * Enhanced error handling and logging
  */
 async function initVideoSystem() {
+    console.log('\n' + '='.repeat(80));
     console.log('🎬 Initializing Video System (Google Sheets)...');
-    
+    console.log('='.repeat(80));
+
     // Check if API URL is configured
     if (VideoDatabase.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE' || !VideoDatabase.API_URL) {
         console.error('❌ Google Apps Script URL not configured!');
         console.log('👉 Please update VideoDatabase.API_URL in the code');
+        console.log('='.repeat(80) + '\n');
         return;
     }
 
+    console.log('📍 API Endpoint:', VideoDatabase.API_URL);
+
     // Debug: Check data status before loading
+    console.log('\n📊 Pre-initialization check:');
     VideoDatabase.checkDataStatus();
 
     try {
+        console.log('\n🚀 Starting video data fetch...');
         const videoData = await VideoDatabase.getData();
+
+        console.log(`\n✅ Data fetched successfully: ${videoData.length} videos`);
+
+        console.log('\n🎨 Rendering videos to page...');
         VideoDatabase.renderVideos(videoData);
-        
+
         // Debug: Check data status after loading
-        console.log('\n✅ Video system initialized successfully!');
+        console.log('\n' + '='.repeat(80));
+        console.log('✅ VIDEO SYSTEM INITIALIZED SUCCESSFULLY!');
+        console.log('='.repeat(80));
         VideoDatabase.checkDataStatus();
+        console.log('='.repeat(80) + '\n');
+
+        return true;
     } catch (error) {
-        console.error('❌ Video system initialization failed:', error);
-        alert(`❌ Lỗi khởi tạo hệ thống video:\n\n${error.message}\n\nVui lòng kiểm tra:\n1. Google Apps Script API URL\n2. Kết nối internet\n3. Console (F12) để xem chi tiết`);
+        console.log('\n' + '='.repeat(80));
+        console.error('❌ VIDEO SYSTEM INITIALIZATION FAILED!');
+        console.log('='.repeat(80));
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+        console.log('='.repeat(80) + '\n');
+
+        // Show user-friendly error
+        const errorMessage = `❌ Lỗi khởi tạo hệ thống video:\n\n${error.message}\n\nVui lòng kiểm tra:\n1. Google Apps Script API URL đã deploy đúng chưa\n2. Kết nối internet\n3. Console (F12) để xem chi tiết lỗi`;
+
+        console.error('💡 Troubleshooting tips:');
+        console.log('1. Check API URL:', VideoDatabase.API_URL);
+        console.log('2. Test API manually: fetch(VideoDatabase.API_URL).then(r=>r.json()).then(console.log)');
+        console.log('3. Check Google Apps Script deployment');
+        console.log('4. Verify Sheet data exists and is accessible');
+
+        alert(errorMessage);
+
+        throw error; // Re-throw to prevent success message
     }
 }
 
