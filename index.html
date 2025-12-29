@@ -5256,18 +5256,18 @@ body.edit-mode [data-editable]::after {
         
         // Show cache structure
         console.log('💾 CACHE STRUCTURE:');
-        console.log('  First data row:', window.masterDataCache[1]);
+        console.log('  First data row:', window.masterDataCache[0]);
         console.log('');
         
-        // Skip header row (index 0) and start from index 1
-        const dataRows = window.masterDataCache.slice(1);
-        console.log(`📊 Processing ${dataRows.length} data rows (skipped header)`);
+        // Backend returns objects with column names
+        const dataRows = window.masterDataCache;
+        console.log(`📊 Processing ${dataRows.length} data rows`);
         console.log('');
         
         // Show first 5 from database
         console.log('💿 SAMPLE DATABASE (first 5):');
         dataRows.slice(0, 5).forEach((row, i) => {
-            console.log(`  ${i+1}. Text="${row.C}" ID="${row.B}" URL="${row.D || '(empty)'}"`);
+            console.log(`  ${i+1}. Text="${row.ten_the || row.C}" ID="${row.id_the || row.B}" URL="${row.url || row.D || '(empty)'}"`);
         });
         console.log('');
         console.log('🔄 STARTING TEXT-BASED MAPPING...');
@@ -5281,24 +5281,29 @@ body.edit-mode [data-editable]::after {
             
             if (!termText) return;
             
-            // MATCH BY TEXT (column C) instead of ID
-            const termData = dataRows.find(row => row && row.C && row.C.trim() === termText);
+            // MATCH BY TEXT - support both backend column names (ten_the) and legacy (C)
+            const termData = dataRows.find(row => {
+                const rowText = row.ten_the || row.C || '';
+                return rowText.trim() === termText;
+            });
             
             if (termData) {
                 matched++;
-                // Set the correct ID from database (column B)
-                term.setAttribute('data-term-id', termData.B);
+                // Set the correct ID - support both backend (id_the) and legacy (B)
+                const termId = termData.id_the || termData.B;
+                term.setAttribute('data-term-id', termId);
                 
-                // Set URL if available (column D)
-                if (termData.D && termData.D.trim()) {
-                    term.setAttribute('data-image-url', termData.D.trim());
+                // Set URL if available - support both backend (url) and legacy (D)
+                const termUrl = termData.url || termData.D;
+                if (termUrl && termUrl.trim && termUrl.trim()) {
+                    term.setAttribute('data-image-url', termUrl.trim());
                     populated++;
                     if (index < 5) {
-                        console.log(`✅ [${index+1}] MATCHED: "${termText}" → ID: ${termData.B}, URL: ${termData.D}`);
+                        console.log(`✅ [${index+1}] MATCHED: "${termText}" → ID: ${termId}, URL: ${termUrl}`);
                     }
                 } else {
                     if (index < 5) {
-                        console.log(`⚠️ [${index+1}] MATCHED but NO URL: "${termText}" (ID: ${termData.B})`);
+                        console.log(`⚠️ [${index+1}] MATCHED but NO URL: "${termText}" (ID: ${termId})`);
                     }
                 }
             } else {
@@ -5411,9 +5416,12 @@ body.edit-mode [data-editable]::after {
                 let termData = null;
                 try {
                     const dbData = window.masterDataCache;
-                    if (dbData && Array.isArray(dbData) && dbData.length > 1) {
-                        // Skip header row (index 0), search in data rows
-                        termData = dbData.slice(1).find(row => row && row.B === termId);
+                    if (dbData && Array.isArray(dbData)) {
+                        // Backend returns objects with column names, not row arrays
+                        termData = dbData.find(row => row && (row.id_the === termId || row.B === termId));
+                        if (termData) {
+                            console.log('✅ Found term data:', termData);
+                        }
                     }
                 } catch (error) {
                     console.warn('Could not fetch term data:', error);
@@ -5516,12 +5524,16 @@ body.edit-mode [data-editable]::after {
                 // Use global cache (synchronous, safe)
                 const dbData = window.masterDataCache;
                 
-                if (dbData && Array.isArray(dbData) && dbData.length > 1) {
-                    // Skip header row (index 0), search in data rows
-                    const termData = dbData.slice(1).find(row => row && row.B === termId);
-                    if (termData && termData.D) {
-                        finalUrl = termData.D;
-                        console.log('✅ Found URL in cache:', finalUrl);
+                if (dbData && Array.isArray(dbData)) {
+                    // Backend returns objects with column names: {hang_muc, id_the, ten_the, url}
+                    const termData = dbData.find(row => row && (row.id_the === termId || row.B === termId));
+                    if (termData) {
+                        // Try 'url' field first (from backend), then 'D' (legacy)
+                        finalUrl = termData.url || termData.D || imageUrl;
+                        console.log('✅ Found term data:', termData);
+                        console.log('✅ Using URL:', finalUrl);
+                    } else {
+                        console.log('⚠️ Term not found in cache:', termId);
                     }
                 }
             } catch (error) {
