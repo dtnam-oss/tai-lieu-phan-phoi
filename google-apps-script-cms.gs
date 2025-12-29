@@ -276,16 +276,105 @@ function jsonResponse(data) {
 
 /**
  * Handle GET requests (optional - for testing)
+ * ROUTING:
+ * - No action / action=get_content → Return video/content data
+ * - action=status → Return API status
  */
 function doGet(e) {
-  return jsonResponse({
-    status: 'CMS API is running',
-    version: '1.0.0',
-    endpoints: {
-      POST: {
-        update_content: 'Update single cell',
-        batch_update: 'Update multiple cells'
+  const params = e.parameter || {};
+  const action = params.action;
+  
+  // ROUTE 1: API Status Check
+  if (action === 'status') {
+    return jsonResponse({
+      status: 'CMS API is running',
+      version: '1.0.0',
+      endpoints: {
+        GET: {
+          get_content: 'Get videos/content data (default)',
+          status: 'Check API status'
+        },
+        POST: {
+          update_content: 'Update single cell',
+          batch_update: 'Update multiple cells'
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  // ROUTE 2: Get Content/Video Data (DEFAULT)
+  // This is the default behavior to maintain compatibility
+  try {
+    Logger.log('GET request - Returning video/content data');
+    
+    const videos = getVideosFromSheet();
+    
+    return jsonResponse({
+      success: true,
+      data: videos,
+      timestamp: new Date().toISOString(),
+      source: 'google-apps-script'
+    });
+    
+  } catch (error) {
+    Logger.log('Error fetching videos: ' + error.toString());
+    return jsonResponse({
+      success: false,
+      error: error.toString(),
+      message: 'Failed to fetch video data',
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
+/**
+ * Get video data from Google Sheets
+ * Reads from VideoData sheet
+ */
+function getVideosFromSheet() {
+  try {
+    const SHEET_NAME = 'VideoData';
+    
+    Logger.log('Fetching videos from sheet: ' + SHEET_NAME);
+    
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    
+    if (!sheet) {
+      throw new Error('Sheet not found: ' + SHEET_NAME);
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    
+    if (data.length <= 1) {
+      Logger.log('No video data found (only headers or empty)');
+      return [];
+    }
+    
+    const headers = data[0];
+    const videos = [];
+    
+    // Convert rows to objects
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const video = {};
+      
+      headers.forEach((header, index) => {
+        video[header] = row[index];
+      });
+      
+      // Only include non-empty rows
+      if (video[headers[0]]) {
+        videos.push(video);
       }
     }
-  });
+    
+    Logger.log('Found ' + videos.length + ' videos');
+    return videos;
+    
+  } catch (error) {
+    Logger.log('Error in getVideosFromSheet: ' + error.toString());
+    throw error;
+  }
 }
