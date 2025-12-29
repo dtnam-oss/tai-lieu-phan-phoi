@@ -4200,7 +4200,7 @@ article.page {
 }
 
 /* ============================================
-   VIDEO PLAYER CARDS - Modern Click-to-Load UI
+   VIDEO PLAYER CARDS - Modern Click-to-Load UI with GHTK Branding
    ============================================ */
 
 .video-card {
@@ -4209,14 +4209,14 @@ article.page {
     aspect-ratio: 16 / 9;
     border-radius: 12px;
     overflow: hidden;
-    background-color: #000;
+    background: linear-gradient(135deg, #069255, #00b14f);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .video-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(6, 146, 85, 0.2);
     transform: translateY(-2px);
 }
 
@@ -4228,67 +4228,110 @@ article.page {
     cursor: default;
 }
 
-/* Thumbnail */
-.video-thumb {
+/* Video Poster (Thumbnail or Gradient Background) */
+.video-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    display: block;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-/* Play Button Overlay */
-.play-button {
+/* If no thumbnail, gradient shows through */
+.video-card:not([data-has-thumb]) .video-poster {
+    background: linear-gradient(135deg, #069255, #00b14f);
+}
+
+/* Dark overlay for better logo visibility */
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease;
+}
+
+.video-card:hover .video-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* GHTK Logo as Play Button */
+.play-button-ghtk {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    width: 70px;
+    height: 70px;
+    background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    padding: 12px;
+}
+
+.video-card:hover .play-button-ghtk {
+    transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
+    box-shadow: 0 6px 24px rgba(6, 146, 85, 0.4);
+}
+
+.play-button-ghtk img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Video Title (Optional overlay) */
+.video-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
     pointer-events: none;
 }
 
-.video-card:hover .play-button {
-    transform: translate(-50%, -50%) scale(1.1);
-    background: rgba(6, 146, 85, 0.95);
-}
-
-.video-card:hover .play-button svg {
-    fill: white;
-}
-
-.play-button svg {
-    width: 32px;
-    height: 32px;
-    fill: #069255;
-    transition: fill 0.3s ease;
-    margin-left: 4px; /* Slight offset for visual balance */
+.video-card:hover .video-title {
+    opacity: 1;
 }
 
 /* Loading state */
-.video-card.loading .play-button {
-    animation: pulse 1.5s ease-in-out infinite;
+.video-card.loading .play-button-ghtk {
+    animation: pulse-ghtk 1.5s ease-in-out infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-ghtk {
     0%, 100% {
         opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
     }
     50% {
-        opacity: 0.5;
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1.05);
     }
 }
 
-/* Loaded state - hide thumbnail and play button */
-.video-card.loaded .video-thumb,
-.video-card.loaded .play-button {
+/* Loaded state - hide poster, overlay, and play button */
+.video-card.loaded .video-poster,
+.video-card.loaded .video-overlay,
+.video-card.loaded .play-button-ghtk,
+.video-card.loaded .video-title {
     display: none;
 }
 
@@ -4303,18 +4346,38 @@ article.page {
     border: none;
 }
 
+/* Thumbnail error fallback - show gradient */
+.video-poster img {
+    display: none; /* Hide img tag, use background-image instead */
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .play-button {
-        width: 60px;
-        height: 60px;
+    .play-button-ghtk {
+        width: 56px;
+        height: 56px;
+        padding: 10px;
     }
     
-    .play-button svg {
-        width: 24px;
-        height: 24px;
+    .video-title {
+        font-size: 13px;
+        padding: 12px 16px;
     }
 }
+
+@media (max-width: 480px) {
+    .play-button-ghtk {
+        width: 48px;
+        height: 48px;
+        padding: 8px;
+    }
+    
+    .video-title {
+        font-size: 12px;
+        padding: 10px 14px;
+    }
+}
+
 
 
 /* ============================================
@@ -6716,19 +6779,31 @@ body.edit-mode [data-editable]::after {
             return rendered;
         },
         
-        // CREATE VIDEO CARD (Placeholder with thumbnail + play button)
+        // CREATE VIDEO CARD (Placeholder with GHTK branding)
         createVideoCard(videoUrl, platform, thumbnail, title) {
-            // Use thumbnail if provided, otherwise use default based on platform
-            let thumbSrc = thumbnail || this.getDefaultThumbnail(videoUrl, platform);
+            // Use thumbnail if provided, otherwise gradient will show
+            const thumbStyle = thumbnail 
+                ? `background-image: url('${thumbnail}');` 
+                : '';
+            
+            const hasThumb = thumbnail ? 'data-has-thumb="true"' : '';
             
             return `
-                <div class="video-card" data-video-url="${videoUrl}" data-platform="${platform}">
-                    <img class="video-thumb" src="${thumbSrc}" alt="${title || 'Video'}" loading="lazy" />
-                    <div class="play-button">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
+                <div class="video-card" ${hasThumb} data-video-url="${videoUrl}" data-platform="${platform}">
+                    <!-- Background: Thumbnail or Gradient -->
+                    <div class="video-poster" style="${thumbStyle}"></div>
+                    
+                    <!-- Dark overlay for logo visibility -->
+                    <div class="video-overlay"></div>
+                    
+                    <!-- GHTK Logo as Play Button -->
+                    <div class="play-button-ghtk">
+                        <img src="https://i.postimg.cc/sDPS4wnk/GHTK-Logo-RGB.webp" 
+                             alt="GHTK Play" 
+                             onerror="this.style.display='none'">
                     </div>
+                    
+                    ${title ? `<div class="video-title">${title}</div>` : ''}
                 </div>
             `;
         },
