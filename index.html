@@ -3,6 +3,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ============================================================================
+     STATIC DATA - Pre-built data for ultra-fast loading (no API calls)
+     ============================================================================ -->
+<!-- 
+   USAGE: When content changes, run buildStaticData() in Google Apps Script,
+   then replace this file with the generated static-data.js
+   
+   To download: 
+   https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?action=download_static_data
+-->
+<script src="static-data.js"></script>
+<!-- If static-data.js not found, will fallback to API mode -->
+
 <style>
 
 /* ========================================
@@ -6553,6 +6567,28 @@ window.ResourceManager = {
         extractVimeoId(url) {
             const match = url.match(/vimeo\.com\/(\d+)/);
             return match ? match[1] : null;
+        },
+        
+        // ============================================
+        // STATIC MODE: Render videos from pre-built data
+        // ============================================
+        renderVideosFromStatic(videoData) {
+            if (!videoData || videoData.length === 0) {
+                console.log('ℹ️ No video data to render');
+                return 0;
+            }
+            
+            let rendered = 0;
+            
+            videoData.forEach(video => {
+                const element = document.getElementById(video.Element_ID);
+                if (element) {
+                    this.createVideoCard(element, video);
+                    rendered++;
+                }
+            });
+            
+            return rendered;
         }
     };
     
@@ -6561,13 +6597,71 @@ window.ResourceManager = {
     // ============================================
     const SheetLoader = {
         async init() {
+            // ============================================================================
+            // STATIC DATA MODE - Load from pre-built data file (no API calls)
+            // ============================================================================
+            if (window.STATIC_DATA) {
+                console.log('📦 Loading from STATIC DATA (pre-built)...');
+                console.log('   Version:', window.STATIC_DATA.version);
+                console.log('   Generated:', window.STATIC_DATA.generatedAt);
+                console.log('   Age:', window.STATIC_DATA.getStats().age);
+                
+                try {
+                    // 1. Load MasterData from static
+                    window.masterDataCache = window.STATIC_DATA.masterData;
+                    console.log(`✅ MasterData: ${window.STATIC_DATA.masterData.length} items loaded (static)`);
+                    
+                    // ⚡ RENDER FIRST: Initialize UI immediately
+                    setTimeout(() => {
+                        if (window.populateImageUrls) {
+                            window.populateImageUrls();
+                        }
+                    }, 50); // Ultra fast render
+                    
+                    // 🚀 PRELOAD LATER: Start background preload
+                    window.ResourceManager.preloadMasterDataImages(window.STATIC_DATA.masterData);
+                    
+                    // 2. Load ContentData from static
+                    const contentStats = TableContentUpdater.updateTableContent(window.STATIC_DATA.contentData);
+                    console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated (static)`);
+                    
+                    // 3. Load VideoData from static
+                    if (window.STATIC_DATA.videoData && window.STATIC_DATA.videoData.length > 0) {
+                        const rendered = VideoLoader.renderVideosFromStatic(window.STATIC_DATA.videoData);
+                        console.log(`✅ Videos: ${rendered} rendered (static)`);
+                    }
+                    
+                    // 4. Log ResourceManager statistics
+                    const stats = window.ResourceManager.getStats();
+                    console.log('');
+                    console.log('📊 RESOURCE MANAGER STATISTICS:');
+                    console.log(`   ✅ Cached: ${stats.cached} images`);
+                    console.log(`   ⏳ Queued: ${stats.queued} remaining`);
+                    console.log(`   🔄 Loading: ${stats.loading} in progress`);
+                    console.log(`   📈 Status: ${stats.isProcessing ? 'Processing' : 'Idle'}`);
+                    console.log('');
+                    console.log('⚡ PERFORMANCE: No API calls → Ultra fast load!');
+                    
+                    this.showNotification('✅ Đã load tất cả nội dung (static)', 'success');
+                    return;
+                    
+                } catch (error) {
+                    console.error('✗ Error loading static content:', error);
+                    console.warn('⚠️ Falling back to API mode...');
+                    // Fall through to API mode
+                }
+            }
+            
+            // ============================================================================
+            // FALLBACK: DYNAMIC API MODE (original logic)
+            // ============================================================================
             if (!CONFIG.API_URL) {
                 console.warn('⚠️ API_URL not configured. Using static content.');
                 window.masterDataCache = [];
                 return;
             }
             
-            console.log('🔄 Loading content from backend...');
+            console.log('🔄 Loading content from backend API...');
             
             try {
                 // 1. Load MasterData for hover preview
