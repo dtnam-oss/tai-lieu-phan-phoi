@@ -6515,37 +6515,67 @@ body.edit-mode [data-editable]::after {
         
         renderVideos(videos) {
             let rendered = 0;
+            let skipped = 0;
             
-            videos.forEach(video => {
+            console.log('📹 Starting video rendering...');
+            console.log(`   Total videos to render: ${videos.length}`);
+            
+            videos.forEach((video, index) => {
                 const elementId = video.Element_ID;
-                if (!elementId) return;
+                
+                if (!elementId) {
+                    console.warn(`⚠️ Video ${index}: Missing Element_ID`);
+                    skipped++;
+                    return;
+                }
                 
                 const slot = document.getElementById(elementId);
-                if (!slot) return;
+                
+                if (!slot) {
+                    console.warn(`⚠️ Video ${index}: Slot not found for ID: ${elementId}`);
+                    skipped++;
+                    return;
+                }
                 
                 const videoUrl = video.Video_URL || '';
                 const hangMuc = video.Hang_Muc || '';
                 const platform = video.platform || 'unknown';
                 
+                console.log(`🎬 Video ${index}:`, {
+                    elementId,
+                    hangMuc,
+                    platform,
+                    url: videoUrl.substring(0, 50) + '...'
+                });
+                
                 let embedHTML = '';
                 
                 if (platform === 'streamable') {
                     const videoId = video.video_id;
+                    if (!videoId) {
+                        console.warn(`⚠️ Video ${index}: No video_id for Streamable`);
+                        skipped++;
+                        return;
+                    }
                     embedHTML = `
-                        <div class="video-container">
+                        <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
                             <iframe src="https://streamable.com/e/${videoId}" 
                                     frameborder="0" 
-                                    width="100%" 
-                                    height="100%" 
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
                                     allowfullscreen 
                                     allow="autoplay">
                             </iframe>
                         </div>
                     `;
                 } else if (platform === 'cloudinary') {
+                    if (!videoUrl) {
+                        console.warn(`⚠️ Video ${index}: No URL for Cloudinary`);
+                        skipped++;
+                        return;
+                    }
                     embedHTML = `
-                        <div class="video-container">
-                            <video controls width="100%">
+                        <div class="video-container" style="width: 100%; max-width: 800px; margin: 0 auto;">
+                            <video controls width="100%" style="display: block;">
                                 <source src="${videoUrl}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -6553,25 +6583,39 @@ body.edit-mode [data-editable]::after {
                     `;
                 } else if (platform === 'youtube') {
                     const videoId = video.video_id;
+                    if (!videoId) {
+                        console.warn(`⚠️ Video ${index}: No video_id for YouTube`);
+                        skipped++;
+                        return;
+                    }
                     embedHTML = `
-                        <div class="video-container">
+                        <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
                             <iframe src="https://www.youtube.com/embed/${videoId}" 
                                     frameborder="0" 
-                                    width="100%" 
-                                    height="100%" 
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
                                     allowfullscreen>
                             </iframe>
                         </div>
                     `;
+                } else {
+                    console.warn(`⚠️ Video ${index}: Unknown platform: ${platform}`);
+                    skipped++;
+                    return;
                 }
                 
                 if (embedHTML) {
                     slot.innerHTML = embedHTML;
                     rendered++;
+                    console.log(`   ✅ Rendered to slot: ${elementId}`);
                 }
             });
             
-            console.log(`✅ Rendered ${rendered}/${videos.length} videos`);
+            console.log('');
+            console.log('📊 VIDEO RENDERING SUMMARY:');
+            console.log(`   ✅ Rendered: ${rendered}`);
+            console.log(`   ⚠️ Skipped: ${skipped}`);
+            console.log(`   📦 Total: ${videos.length}`);
+            
             return rendered;
         }
     };
