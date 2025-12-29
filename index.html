@@ -5256,7 +5256,6 @@ article.page {
         const interactiveTerms = document.querySelectorAll('.interactive-term');
         console.log(`🔍 DEBUG: Found ${interactiveTerms.length} interactive terms INSIDE tables to attach events`);
         
-        let currentTooltip = null;
         let imagePreview = null;
         let hoverTimer = null;
 
@@ -5300,22 +5299,6 @@ article.page {
                 clearTimeout(hoverTimer);
                 hideImagePreview();
             });
-        });
-
-        // Close tooltip on outside click
-        document.addEventListener('click', function(e) {
-            if (currentTooltip && !e.target.closest('.tooltip-popup') && !e.target.closest('.interactive-term')) {
-                currentTooltip.remove();
-                currentTooltip = null;
-            }
-        });
-
-        // Close tooltip on Esc key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && currentTooltip) {
-                currentTooltip.remove();
-                currentTooltip = null;
-            }
         });
 
         // Image preview functions
