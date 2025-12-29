@@ -3786,19 +3786,22 @@ article.page {
 	backdrop-filter: blur(0px);
 }
 
-/* Login modal container - Premium card design */
+/* Login modal container - Fixed compact card design */
 #login-modal {
 	background: #ffffff;
-	border-radius: 24px;
-	box-shadow: var(--shadow-xl);
-	padding: 56px 48px;
-	max-width: 480px;
-	width: 92%;
+	border-radius: 20px;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+	padding: 40px;
+	max-width: 450px;
+	width: 90%;
+	height: auto; /* CRITICAL: Auto height instead of stretching */
 	text-align: center;
 	position: relative;
-	overflow: hidden;
-	animation: modalSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	overflow: visible;
+	animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+	display: flex;
+	flex-direction: column;
+	gap: 24px; /* Even spacing between all children */
 }
 
 #login-modal::before {
@@ -3807,14 +3810,15 @@ article.page {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 6px;
+	height: 4px;
 	background: var(--ghtk-gradient);
+	border-radius: 20px 20px 0 0;
 }
 
 @keyframes modalSlideIn {
 	from {
 		opacity: 0;
-		transform: translateY(-40px) scale(0.95);
+		transform: translateY(-30px) scale(0.96);
 	}
 	to {
 		opacity: 1;
@@ -3822,44 +3826,47 @@ article.page {
 	}
 }
 
-/* Logo in modal - Enhanced */
+/* Logo in modal - Fixed spacing */
 #login-modal .login-logo {
-	margin-bottom: 32px;
+	margin: 0; /* Remove margin, use gap instead */
 	animation: logoFloat 3s ease-in-out infinite;
 }
 
 @keyframes logoFloat {
 	0%, 100% { transform: translateY(0px); }
-	50% { transform: translateY(-8px); }
+	50% { transform: translateY(-6px); }
 }
 
 #login-modal .login-logo img {
-	width: 160px;
+	width: 140px;
 	height: auto;
 	filter: drop-shadow(0 4px 12px rgba(6, 146, 85, 0.2));
 }
 
-/* Modal title - Modern typography */
+/* Modal title - Fixed spacing */
 #login-modal h2 {
-	margin: 0 0 16px 0;
-	font-size: 28px;
+	margin: 0; /* Remove margin, use gap instead */
+	font-size: 26px;
 	font-weight: 700;
 	color: var(--text-dark);
 	letter-spacing: -0.5px;
 	line-height: 1.2;
 }
 
-/* Modal description - Softer text */
+/* Modal description - Fixed spacing */
 #login-modal p {
-	margin: 0 0 40px 0;
+	margin: 0; /* Remove margin, use gap instead */
 	font-size: 15px;
 	color: var(--text-medium);
-	line-height: 1.6;
+	line-height: 1.5;
 	font-weight: 400;
 }
 
-/* Form container - smooth transitions */
+/* Form container - use flexbox with gap */
 #form-container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
 	transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -3867,7 +3874,7 @@ article.page {
 #login-form {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 16px; /* Tighter gap for compact feel */
 	transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -4115,25 +4122,32 @@ article.page {
 	to { transform: rotate(360deg); }
 }
 
-/* Mobile responsive - Premium mobile experience */
+/* Mobile responsive - Compact mobile experience */
 @media (max-width: 768px) {
 	#login-modal {
-		padding: 40px 28px;
-		max-width: 94%;
-		border-radius: 20px;
+		padding: 32px 24px;
+		max-width: 92%;
+		gap: 20px; /* Slightly tighter gap on mobile */
 	}
 
 	#login-modal h2 {
-		font-size: 24px;
+		font-size: 22px;
 	}
 
 	#login-modal p {
 		font-size: 14px;
-		margin-bottom: 32px;
 	}
 
 	#login-modal .login-logo img {
-		width: 140px;
+		width: 120px;
+	}
+
+	#form-container {
+		gap: 20px;
+	}
+
+	#login-form {
+		gap: 14px;
 	}
 
 	#user-email-input {
@@ -4153,12 +4167,12 @@ article.page {
 	}
 
 	.success-checkmark {
-		width: 70px;
-		height: 70px;
+		width: 64px;
+		height: 64px;
 	}
 
 	.success-title {
-		font-size: 22px;
+		font-size: 20px;
 	}
 
 	.success-subtitle {
