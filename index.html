@@ -4199,6 +4199,316 @@ article.page {
 	width: 100%;
 }
 
+/* ============================================
+   ADMIN TOOLBAR & EDIT MODE
+   ============================================ */
+
+/* Admin Toggle Switch - Góc phải màn hình */
+#admin-toolbar {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none; /* Hidden by default, shown for admins */
+    align-items: center;
+    gap: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+}
+
+#admin-toolbar.visible {
+    display: flex;
+}
+
+#admin-toolbar-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.toggle-switch.active {
+    background: #069255;
+}
+
+.toggle-switch-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-switch.active .toggle-switch-slider {
+    transform: translateX(24px);
+}
+
+/* Edit Mode - Highlight editable elements */
+body.edit-mode [data-editable] {
+    position: relative;
+    outline: 2px dashed #069255;
+    outline-offset: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+body.edit-mode [data-editable]:hover {
+    outline-color: #047a3f;
+    outline-width: 3px;
+    background-color: rgba(6, 146, 85, 0.05);
+}
+
+body.edit-mode [data-editable]::after {
+    content: '✏️';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #069255;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    pointer-events: none;
+}
+
+/* Edit Modal */
+#edit-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#edit-modal.visible {
+    display: flex;
+}
+
+#edit-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#edit-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#edit-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+    margin: 0;
+}
+
+#edit-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+#edit-modal-close:hover {
+    background: #f3f4f6;
+}
+
+#edit-modal-body {
+    padding: 24px;
+}
+
+.edit-field-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+#edit-field-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.2s;
+}
+
+#edit-field-input:focus {
+    outline: none;
+    border-color: #069255;
+}
+
+.edit-field-info {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.edit-field-info span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#edit-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+#edit-modal-cancel,
+#edit-modal-save {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#edit-modal-cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+#edit-modal-cancel:hover {
+    background: #e5e7eb;
+}
+
+#edit-modal-save {
+    background: #069255;
+    color: white;
+}
+
+#edit-modal-save:hover {
+    background: #047a3f;
+}
+
+#edit-modal-save:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+}
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Toast notification */
+#edit-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #10b981;
+    color: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10001;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: toastSlideIn 0.3s ease-out;
+}
+
+#edit-toast.visible {
+    display: flex;
+}
+
+#edit-toast.error {
+    background: #ef4444;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 #auth-overlay .btn-lg {
 	padding: 0.5rem 1rem;
 	font-size: 1.25rem;
@@ -6391,6 +6701,338 @@ article.page {
 })();
 
 // ==========================================
+// CMS CONTENT EDITOR - ADMIN EDIT MODE
+// ==========================================
+(function() {
+    'use strict';
+    
+    // Configuration
+    const CMS_CONFIG = {
+        API_URL: '', // TODO: Thêm Web App URL sau khi deploy Google Apps Script
+        ADMIN_EMAILS: [
+            'dtnamtoday@gmail.com',
+            'admin@example.com'
+        ]
+    };
+    
+    /**
+     * ContentEditor Class
+     * Quản lý chế độ chỉnh sửa trực tiếp trên web
+     */
+    class ContentEditor {
+        constructor() {
+            this.isEditMode = false;
+            this.currentElement = null;
+            this.currentData = null;
+            
+            // DOM elements
+            this.toolbar = document.getElementById('admin-toolbar');
+            this.toggle = document.getElementById('edit-mode-toggle');
+            this.modal = document.getElementById('edit-modal');
+            this.modalInput = document.getElementById('edit-field-input');
+            this.modalClose = document.getElementById('edit-modal-close');
+            this.modalCancel = document.getElementById('edit-modal-cancel');
+            this.modalSave = document.getElementById('edit-modal-save');
+            this.toast = document.getElementById('edit-toast');
+            
+            this.init();
+        }
+        
+        /**
+         * Initialize editor
+         */
+        init() {
+            // Check if user is admin
+            if (!this.isAdmin()) {
+                console.log('🔒 Not admin - CMS features disabled');
+                return;
+            }
+            
+            console.log('✓ Admin detected - Enabling CMS features');
+            this.showToolbar();
+            this.bindEvents();
+        }
+        
+        /**
+         * Check if current user is admin
+         */
+        isAdmin() {
+            const userData = localStorage.getItem('user');
+            if (!userData) return false;
+            
+            try {
+                const user = JSON.parse(userData);
+                const email = user.email || user.username || '';
+                return CMS_CONFIG.ADMIN_EMAILS.includes(email.toLowerCase());
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        /**
+         * Show admin toolbar
+         */
+        showToolbar() {
+            this.toolbar.classList.add('visible');
+        }
+        
+        /**
+         * Bind UI events
+         */
+        bindEvents() {
+            // Toggle edit mode
+            this.toggle.addEventListener('click', () => this.toggleEditMode());
+            
+            // Modal close buttons
+            this.modalClose.addEventListener('click', () => this.closeModal());
+            this.modalCancel.addEventListener('click', () => this.closeModal());
+            
+            // Modal save button
+            this.modalSave.addEventListener('click', () => this.saveChanges());
+            
+            // Close modal on background click
+            this.modal.addEventListener('click', (e) => {
+                if (e.target === this.modal) {
+                    this.closeModal();
+                }
+            });
+            
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.modal.classList.contains('visible')) {
+                    this.closeModal();
+                }
+            });
+        }
+        
+        /**
+         * Toggle edit mode on/off
+         */
+        toggleEditMode() {
+            this.isEditMode = !this.isEditMode;
+            
+            if (this.isEditMode) {
+                this.enableEditMode();
+            } else {
+                this.disableEditMode();
+            }
+        }
+        
+        /**
+         * Enable edit mode
+         */
+        enableEditMode() {
+            console.log('✏️ Edit mode enabled');
+            document.body.classList.add('edit-mode');
+            this.toggle.classList.add('active');
+            this.bindEditableElements();
+            this.showToast('Chế độ chỉnh sửa đã bật', 'success');
+        }
+        
+        /**
+         * Disable edit mode
+         */
+        disableEditMode() {
+            console.log('🔒 Edit mode disabled');
+            document.body.classList.remove('edit-mode');
+            this.toggle.classList.remove('active');
+            this.unbindEditableElements();
+            this.showToast('Chế độ chỉnh sửa đã tắt', 'success');
+        }
+        
+        /**
+         * Bind click events to editable elements
+         */
+        bindEditableElements() {
+            const editables = document.querySelectorAll('[data-editable]');
+            
+            editables.forEach(element => {
+                element.addEventListener('click', (e) => this.handleEditClick(e));
+            });
+            
+            console.log(`✓ Bound ${editables.length} editable elements`);
+        }
+        
+        /**
+         * Unbind click events from editable elements
+         */
+        unbindEditableElements() {
+            const editables = document.querySelectorAll('[data-editable]');
+            
+            editables.forEach(element => {
+                element.removeEventListener('click', (e) => this.handleEditClick(e));
+            });
+        }
+        
+        /**
+         * Handle click on editable element
+         */
+        handleEditClick(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const element = event.currentTarget;
+            
+            // Get data attributes
+            const data = {
+                id: element.getAttribute('data-id') || element.id,
+                sheet: element.getAttribute('data-sheet') || 'ContentData',
+                column: element.getAttribute('data-column') || 'content_html',
+                currentValue: element.innerHTML || element.textContent
+            };
+            
+            if (!data.id) {
+                this.showToast('Lỗi: Phần tử không có ID', 'error');
+                return;
+            }
+            
+            this.openModal(element, data);
+        }
+        
+        /**
+         * Open edit modal
+         */
+        openModal(element, data) {
+            this.currentElement = element;
+            this.currentData = data;
+            
+            // Populate modal
+            this.modalInput.value = data.currentValue;
+            document.getElementById('edit-field-sheet-value').textContent = data.sheet;
+            document.getElementById('edit-field-id-value').textContent = data.id;
+            
+            // Show modal
+            this.modal.classList.add('visible');
+            this.modalInput.focus();
+            this.modalInput.select();
+        }
+        
+        /**
+         * Close edit modal
+         */
+        closeModal() {
+            this.modal.classList.remove('visible');
+            this.currentElement = null;
+            this.currentData = null;
+            this.modalInput.value = '';
+        }
+        
+        /**
+         * Save changes to backend
+         */
+        async saveChanges() {
+            if (!this.currentData || !this.currentElement) return;
+            
+            const newValue = this.modalInput.value.trim();
+            
+            if (!newValue) {
+                this.showToast('Nội dung không được để trống', 'error');
+                return;
+            }
+            
+            // Show loading
+            this.modalSave.disabled = true;
+            this.modalSave.innerHTML = '<span class="spinner"></span> Đang lưu...';
+            
+            try {
+                // Check if API URL is configured
+                if (!CMS_CONFIG.API_URL) {
+                    throw new Error('CMS API URL chưa được cấu hình. Vui lòng deploy Google Apps Script và thêm URL vào CMS_CONFIG.API_URL');
+                }
+                
+                // Get user email
+                const userData = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                // Send update request
+                const response = await fetch(CMS_CONFIG.API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'update_content',
+                        sheet_name: this.currentData.sheet,
+                        id: this.currentData.id,
+                        column_name: this.currentData.column,
+                        new_value: newValue,
+                        user_email: userData.email || userData.username
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update DOM immediately (no need to reload page)
+                    this.updateElementDOM(this.currentElement, newValue);
+                    
+                    // Clear cache to force refresh on next page load
+                    this.clearCache(this.currentData.sheet);
+                    
+                    // Show success message
+                    this.showToast('✓ Đã lưu thay đổi thành công', 'success');
+                    
+                    // Close modal
+                    this.closeModal();
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
+                
+            } catch (error) {
+                console.error('Error saving changes:', error);
+                this.showToast(`Lỗi: ${error.message}`, 'error');
+            } finally {
+                // Hide loading
+                this.modalSave.disabled = false;
+                this.modalSave.innerHTML = '<span id="save-button-text">Lưu thay đổi</span>';
+            }
+        }
+        
+        /**
+         * Update element in DOM
+         */
+        updateElementDOM(element, newValue) {
+            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                element.value = newValue;
+            } else {
+                element.innerHTML = newValue;
+            }
+        }
+        
+        /**
+         * Clear cache for a sheet
+         */
+        clearCache(sheetName) {
+            const cacheKey = `sheet_${sheetName}`;
+            localStorage.removeItem(cacheKey);
+            console.log(`🗑️ Cleared cache: ${cacheKey}`);
+        }
+        
+        /**
+         * Show toast notification
+         */
+        showToast(message, type = 'success') {
+            this.toast.textContent = message;
+            this.toast.className = `visible ${type}`;
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                this.toast.classList.remove('visible');
+            }, 3000);
+        }
+    }
+    
+    // Initialize ContentEditor when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.ContentEditor = new ContentEditor();
+        });
+    } else {
+        window.ContentEditor = new ContentEditor();
+    }
+    
+})();
+
+// ==========================================
 // SMOOTH SCROLL & NAVIGATION FUNCTIONALITY
 // ==========================================
 (function() {
@@ -8314,5 +8956,44 @@ console.log('  - ghtkChat.toggleChat()    → Open/close chat window');
         </div>
     </div>
 </div>
+
+<!-- ============================================
+     ADMIN CMS TOOLBAR & EDIT MODAL
+     ============================================ -->
+
+<!-- Admin Toolbar (Chỉ hiện cho Admin) -->
+<div id="admin-toolbar">
+    <span id="admin-toolbar-label">Chế độ chỉnh sửa</span>
+    <div class="toggle-switch" id="edit-mode-toggle">
+        <div class="toggle-switch-slider"></div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal">
+    <div id="edit-modal-content">
+        <div id="edit-modal-header">
+            <h3 id="edit-modal-title">Chỉnh sửa nội dung</h3>
+            <button id="edit-modal-close" aria-label="Close">&times;</button>
+        </div>
+        <div id="edit-modal-body">
+            <label class="edit-field-label" for="edit-field-input">Nội dung</label>
+            <textarea id="edit-field-input" placeholder="Nhập nội dung mới..."></textarea>
+            <div class="edit-field-info">
+                <span>📄 <strong id="edit-field-sheet">Sheet</strong>: <span id="edit-field-sheet-value"></span></span>
+                <span>🔑 <strong id="edit-field-id">ID</strong>: <span id="edit-field-id-value"></span></span>
+            </div>
+        </div>
+        <div id="edit-modal-footer">
+            <button id="edit-modal-cancel">Hủy</button>
+            <button id="edit-modal-save">
+                <span id="save-button-text">Lưu thay đổi</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="edit-toast"></div>
 
 </body></html>
