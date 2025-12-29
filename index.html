@@ -3749,70 +3749,49 @@ article.page {
 	--shadow-xl: 0 32px 64px rgba(0, 0, 0, 0.16), 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* Full-screen overlay with backdrop blur */
+/* Overlay nền xanh full màn hình */
 #auth-overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(6, 146, 85, 0.95); /* GHTK green with transparency */
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	z-index: 99999;
-	display: flex;
-	align-items: center;
+	background-color: #069255; /* Xanh GHTK */
+	display: flex; /* Flexbox căn giữa */
 	justify-content: center;
+	align-items: center;
+	z-index: 99999;
+	padding: 20px; /* Khoảng cách an toàn cho mobile */
+	backdrop-filter: blur(5px);
+	transition: opacity 0.6s ease;
 	opacity: 1;
-	transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.6s ease;
-	animation: overlayFadeIn 0.5s ease-out;
 }
 
-@keyframes overlayFadeIn {
-	from {
-		opacity: 0;
-		backdrop-filter: blur(0px);
-	}
-	to {
-		opacity: 1;
-		backdrop-filter: blur(8px);
-	}
-}
-
-/* Hide overlay when authenticated - smooth fade out */
+/* Hide overlay when authenticated */
 #auth-overlay.auth-success {
 	opacity: 0;
 	pointer-events: none;
-	backdrop-filter: blur(0px);
 }
 
-/* Login modal container - Fixed compact card design */
-#login-modal {
-	background: #ffffff;
-	border-radius: 20px;
-	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
-	padding: 40px;
-	max-width: 450px;
+/* Card đăng nhập màu trắng - QUAN TRỌNG: height auto */
+.login-card {
+	background: white;
 	width: 90%;
-	height: auto; /* CRITICAL: Auto height instead of stretching */
+	max-width: 400px; /* Card nhỏ gọn hơn */
+	height: auto !important; /* Bắt buộc co lại theo nội dung */
+	min-height: unset !important; /* Bỏ min-height nếu có */
+	padding: 30px; /* Padding vừa phải */
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 	text-align: center;
-	position: relative;
-	overflow: visible;
-	animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+	
+	/* Flexbox để xếp nội dung */
 	display: flex;
 	flex-direction: column;
-	gap: 24px; /* Even spacing between all children */
-}
-
-#login-modal::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 4px;
-	background: var(--ghtk-gradient);
-	border-radius: 20px 20px 0 0;
+	align-items: center; /* Căn giữa trục ngang (Sửa lỗi logo lệch) */
+	gap: 16px; /* Khoảng cách đều giữa các phần tử con */
+	
+	animation: modalSlideIn 0.5s ease-out;
 }
 
 @keyframes modalSlideIn {
@@ -3826,9 +3805,31 @@ article.page {
 	}
 }
 
-/* Logo in modal - Fixed spacing */
-#login-modal .login-logo {
-	margin: 0; /* Remove margin, use gap instead */
+/* Reset Margin thừa của các phần tử con để dùng gap */
+#auth-overlay .login-logo,
+#auth-overlay h3,
+#auth-overlay p,
+#auth-overlay .form-group,
+#auth-overlay form,
+#auth-overlay button {
+	margin-bottom: 0 !important;
+	margin-top: 0 !important;
+	width: 100%; /* Đảm bảo input/button full width */
+}
+
+/* Logo specific - Đảm bảo căn giữa tuyệt đối */
+.login-logo {
+	width: 100%;
+	text-align: center;
+	margin: 0 !important;
+}
+
+.login-logo img {
+	max-width: 100px;
+	width: 100px;
+	height: auto;
+	display: block;
+	margin: 0 auto !important; /* Đảm bảo ảnh logo ra giữa */
 	animation: logoFloat 3s ease-in-out infinite;
 }
 
@@ -3837,157 +3838,92 @@ article.page {
 	50% { transform: translateY(-6px); }
 }
 
-#login-modal .login-logo img {
-	width: 140px;
-	height: auto;
-	filter: drop-shadow(0 4px 12px rgba(6, 146, 85, 0.2));
-}
-
-/* Modal title - Fixed spacing */
-#login-modal h2 {
-	margin: 0; /* Remove margin, use gap instead */
-	font-size: 26px;
+/* Typography */
+.login-title {
+	font-size: 22px;
 	font-weight: 700;
-	color: var(--text-dark);
-	letter-spacing: -0.5px;
-	line-height: 1.2;
+	color: #1e293b;
+	margin: 0 !important;
+	text-align: center;
 }
 
-/* Modal description - Fixed spacing */
-#login-modal p {
-	margin: 0; /* Remove margin, use gap instead */
-	font-size: 15px;
-	color: var(--text-medium);
-	line-height: 1.5;
-	font-weight: 400;
+.login-desc {
+	font-size: 14px;
+	color: #64748b;
+	margin: 0 !important;
+	text-align: center;
 }
 
-/* Form container - use flexbox with gap */
-#form-container {
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
-	transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* Login form */
-#login-form {
-	display: flex;
-	flex-direction: column;
-	gap: 16px; /* Tighter gap for compact feel */
-	transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* Hide form when showing success state */
-#login-form.hidden {
-	opacity: 0;
-	transform: scale(0.95);
-	pointer-events: none;
-}
-
-/* Input wrapper with icon */
-.input-wrapper {
-	position: relative;
+/* Form group */
+.form-group {
 	width: 100%;
+	margin: 0 !important;
 }
 
-.input-icon {
-	position: absolute;
-	left: 18px;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 20px;
-	height: 20px;
-	color: var(--text-light);
-	transition: color 0.3s ease;
-	pointer-events: none;
-}
-
-.input-wrapper:focus-within .input-icon {
-	color: var(--ghtk-primary);
-}
-
-/* Email input - Premium design */
-#user-email-input {
+/* Input Field */
+.login-input {
 	width: 100%;
-	padding: 16px 18px 16px 52px;
+	padding: 14px 16px;
 	font-size: 15px;
-	font-weight: 500;
-	border: 2px solid var(--border-color);
-	border-radius: 12px;
+	color: #1e293b;
+	border: 2px solid #e2e8f0;
+	border-radius: 10px;
 	outline: none;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-sizing: border-box;
+	box-sizing: border-box; /* Quan trọng để không bị vỡ layout */
+	transition: 0.3s;
 	font-family: 'Inter', sans-serif;
 	background: #f8fafc;
-	color: var(--text-dark);
 }
 
-#user-email-input:hover {
-	border-color: #cbd5e1;
-	background: #ffffff;
-}
-
-#user-email-input:focus {
-	border-color: var(--ghtk-primary);
+.login-input:focus {
+	border-color: #069255;
 	background: #ffffff;
 	box-shadow: 0 0 0 4px rgba(6, 146, 85, 0.1);
-	transform: translateY(-2px);
 }
 
-#user-email-input::placeholder {
-	color: var(--text-light);
-	font-weight: 400;
+.login-input::placeholder {
+	color: #94a3b8;
 }
 
-/* Login button - Premium gradient with hover lift */
+/* Button */
 #login-submit-btn {
 	width: 100%;
-	padding: 16px 24px;
+	padding: 14px;
+	background: linear-gradient(135deg, #00b14f 0%, #069255 100%);
+	color: white;
+	border: none;
+	border-radius: 10px;
 	font-size: 16px;
 	font-weight: 600;
-	color: #ffffff;
-	background: var(--ghtk-gradient);
-	border: none;
-	border-radius: 12px;
 	cursor: pointer;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	margin: 0 !important;
+	transition: all 0.3s ease;
 	box-shadow: 0 4px 16px rgba(6, 146, 85, 0.3);
-	position: relative;
-	overflow: hidden;
-}
-
-#login-submit-btn::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
-	opacity: 0;
-	transition: opacity 0.3s ease;
-}
-
-#login-submit-btn:hover::before {
-	opacity: 1;
 }
 
 #login-submit-btn:hover {
-	transform: translateY(-3px);
+	transform: translateY(-2px);
 	box-shadow: 0 8px 24px rgba(6, 146, 85, 0.4);
 }
 
 #login-submit-btn:active {
-	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(6, 146, 85, 0.3);
+	transform: translateY(0);
 }
 
 #login-submit-btn:disabled {
 	opacity: 0.7;
 	cursor: not-allowed;
 	transform: none;
-	box-shadow: 0 4px 16px rgba(6, 146, 85, 0.2);
+}
+
+/* Ẩn hiện form và success state */
+#login-form {
+	display: block;
+	width: 100%;
+}
+
+#login-form.hidden {
+	display: none;
 }
 
 /* ========================================
@@ -4122,50 +4058,287 @@ article.page {
 	to { transform: rotate(360deg); }
 }
 
-/* Mobile responsive - Compact mobile experience */
+/* Mobile responsive - Compact layout */
 @media (max-width: 768px) {
-	#login-modal {
-		padding: 32px 24px;
-		max-width: 92%;
-		gap: 20px; /* Slightly tighter gap on mobile */
+	#auth-overlay {
+		padding: 15px;
 	}
 
-	#login-modal h2 {
-		font-size: 22px;
+	.login-card {
+		padding: 25px 20px; /* Padding nhỏ hơn trên mobile */
+		max-width: 100%;
+		width: 95%;
+		gap: 14px; /* Giảm gap trên mobile */
 	}
 
-	#login-modal p {
+	.login-title {
+		font-size: 20px;
+	}
+
+	.login-desc {
+		font-size: 13px;
+	}
+
+	.login-logo img {
+		width: 90px !important;
+		max-width: 90px !important;
+	}
+
+	.login-input {
+		padding: 12px 14px;
 		font-size: 14px;
-	}
-
-	#login-modal .login-logo img {
-		width: 120px;
-	}
-
-	#form-container {
-		gap: 20px;
-	}
-
-	#login-form {
-		gap: 14px;
-	}
-
-	#user-email-input {
-		padding: 14px 16px 14px 48px;
-		font-size: 14px;
-	}
-
-	.input-icon {
-		left: 16px;
-		width: 18px;
-		height: 18px;
 	}
 
 	#login-submit-btn {
-		padding: 14px 20px;
+		padding: 12px;
 		font-size: 15px;
 	}
 
+	.success-checkmark {
+		width: 64px;
+		height: 64px;
+	}
+
+	.success-title {
+		font-size: 20px;
+	}
+}
+
+/* Bootstrap Grid System Support */
+#auth-overlay .container {
+	width: 100%;
+	padding-right: 15px;
+	padding-left: 15px;
+	margin-right: auto;
+	margin-left: auto;
+	height: 100%;
+}
+
+#auth-overlay .row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-right: -15px;
+	margin-left: -15px;
+	height: 100%;
+}
+
+#auth-overlay .h-100 {
+	height: 100% !important;
+}
+
+#auth-overlay .py-5 {
+	padding-top: 3rem !important;
+	padding-bottom: 3rem !important;
+}
+
+#auth-overlay .d-flex {
+	display: flex !important;
+}
+
+#auth-overlay .justify-content-center {
+	justify-content: center !important;
+}
+
+#auth-overlay .align-items-center {
+	align-items: center !important;
+}
+
+#auth-overlay .text-center {
+	text-align: center !important;
+}
+
+#auth-overlay .mb-4 {
+	margin-bottom: 1.5rem !important;
+}
+
+#auth-overlay .p-5 {
+	padding: 3rem !important;
+}
+
+#auth-overlay [class*="col-"] {
+	position: relative;
+	width: 100%;
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+#auth-overlay .col-12 {
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+@media (min-width: 768px) {
+	#auth-overlay .col-md-8 {
+		flex: 0 0 66.666667%;
+		max-width: 66.666667%;
+	}
+}
+
+@media (min-width: 992px) {
+	#auth-overlay .col-lg-6 {
+		flex: 0 0 50%;
+		max-width: 50%;
+	}
+}
+
+@media (min-width: 1200px) {
+	#auth-overlay .col-xl-5 {
+		flex: 0 0 41.666667%;
+		max-width: 41.666667%;
+	}
+}
+
+/* Form outline styles */
+#auth-overlay .form-outline {
+	position: relative;
+	margin-bottom: 1rem;
+}
+
+#auth-overlay .btn-block {
+	display: block;
+	width: 100%;
+}
+
+#auth-overlay .btn-lg {
+	padding: 0.5rem 1rem;
+	font-size: 1.25rem;
+	line-height: 1.5;
+}
+
+/* ========================================
+   SUCCESS STATE - The Magic Happens Here
+   ======================================== */
+
+#success-container {
+	display: none;
+	opacity: 0;
+	transform: scale(0.9);
+	transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#success-container.show {
+	display: block;
+	opacity: 1;
+	transform: scale(1);
+}
+
+/* Animated checkmark circle */
+.success-checkmark {
+	width: 80px;
+	height: 80px;
+	margin: 0 auto 32px;
+	position: relative;
+}
+
+.checkmark-circle {
+	stroke-dasharray: 251;
+	stroke-dashoffset: 251;
+	stroke: var(--ghtk-success);
+	stroke-width: 3;
+	fill: none;
+	animation: checkmarkCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes checkmarkCircle {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+.checkmark-check {
+	stroke-dasharray: 48;
+	stroke-dashoffset: 48;
+	stroke: var(--ghtk-success);
+	stroke-width: 3;
+	fill: none;
+	stroke-linecap: round;
+	animation: checkmarkCheck 0.3s 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes checkmarkCheck {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+/* Success text */
+.success-title {
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--text-dark);
+	margin: 0 0 12px 0;
+	animation: fadeInUp 0.5s 0.8s ease both;
+}
+
+.success-subtitle {
+	font-size: 16px;
+	color: var(--text-medium);
+	margin: 0 0 8px 0;
+	animation: fadeInUp 0.5s 0.9s ease both;
+}
+
+.success-redirect {
+	font-size: 14px;
+	color: var(--text-light);
+	margin: 0;
+	animation: fadeInUp 0.5s 1s ease both;
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Error message */
+#auth-error-message {
+	margin-top: 20px;
+	padding: 14px 18px;
+	background: #fef2f2;
+	border-left: 4px solid #ef4444;
+	border-radius: 8px;
+	color: #dc2626;
+	font-size: 14px;
+	display: none;
+	text-align: left;
+	line-height: 1.6;
+	animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-10px); }
+	75% { transform: translateX(10px); }
+}
+
+#auth-error-message.show {
+	display: block;
+}
+
+/* Loading state */
+.loading-spinner {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #ffffff;
+	border-radius: 50%;
+	animation: spin 0.7s linear infinite;
+	margin-right: 10px;
+	vertical-align: middle;
+}
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+
+/* Success state mobile responsive */
+@media (max-width: 768px) {
 	.success-checkmark {
 		width: 64px;
 		height: 64px;
@@ -4187,54 +4360,42 @@ article.page {
      Modern UI with Success Sequence
      ======================================== -->
 <div id="auth-overlay">
-	<div id="login-modal">
+	<div class="login-card">
 		<!-- Logo -->
 		<div class="login-logo">
 			<img src="https://i.postimg.cc/sDPS4wnk/GHTK-Logo-RGB.webp" alt="GHTK Logo">
 		</div>
 
-		<!-- Login Form State -->
-		<div id="form-container">
-			<h2>Xác thực người dùng</h2>
-			<p>Vui lòng nhập email để truy cập hệ thống tài liệu phân phối GHTK</p>
+		<h3 class="login-title">Xác thực người dùng</h3>
+		<p class="login-desc">Vui lòng nhập email để truy cập hệ thống</p>
 
-			<form id="login-form">
-				<!-- Email Input with Icon -->
-				<div class="input-wrapper">
-					<svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-					</svg>
-					<input
-						type="email"
-						id="user-email-input"
-						placeholder="Email của bạn (vd: user@ghtk.vn)"
-						required
-						autocomplete="email"
-					>
-				</div>
+		<!-- Login Form -->
+		<form id="login-form">
+			<div class="form-group">
+				<input 
+					type="email" 
+					id="user-email-input" 
+					class="login-input" 
+					placeholder="Email của bạn (vd: user@ghtk.vn)"
+					required
+					autocomplete="email"
+				/>
+			</div>
 
-				<!-- Submit Button -->
-				<button type="submit" id="login-submit-btn">
-					Truy cập
-				</button>
-			</form>
+			<button id="login-submit-btn" type="submit">Truy cập</button>
+		</form>
 
-			<!-- Error Message -->
-			<div id="auth-error-message"></div>
-		</div>
+		<!-- Error Message -->
+		<div id="auth-error-message"></div>
 
-		<!-- Success State (Hidden by default) -->
+		<!-- Success State -->
 		<div id="success-container">
-			<!-- Animated Checkmark -->
 			<svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
 				<circle class="checkmark-circle" cx="26" cy="26" r="25" />
 				<path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
 			</svg>
-
-			<!-- Success Messages -->
-			<h3 class="success-title">Đăng nhập thành công!</h3>
-			<p class="success-subtitle">Xin chào, <span id="success-user-name">User</span></p>
-			<p class="success-redirect">Đang chuyển đến tài liệu...</p>
+			<h3 class="success-title">Thành công!</h3>
+			<p class="success-redirect">Đang chuyển trang...</p>
 		</div>
 	</div>
 </div>
