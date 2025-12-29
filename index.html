@@ -5535,56 +5535,6 @@ article.page {
         }
     }
 
-    function createTooltip(termId, termText) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip-popup';
-        tooltip.innerHTML = `
-            <div class="tooltip-header">
-                <h3 class="tooltip-title">${escapeHtml(termText)}</h3>
-                <button class="tooltip-close" aria-label="Close">&times;</button>
-            </div>
-            <div class="tooltip-id">ID: ${escapeHtml(termId)}</div>
-            <div class="tooltip-content">
-                <div class="tooltip-placeholder">
-                    📝 Nội dung sẽ được tải từ database<br>
-                    <small>Kết nối Google Sheets đang được chuẩn bị</small>
-                </div>
-            </div>
-        `;
-        return tooltip;
-    }
-
-    function positionTooltip(tooltip, event) {
-        const padding = 20;
-        const tooltipRect = tooltip.getBoundingClientRect();
-
-        let left = event.clientX + padding;
-        let top = event.clientY + padding;
-
-        // Adjust if tooltip goes off right edge
-        if (left + tooltipRect.width > window.innerWidth - padding) {
-            left = event.clientX - tooltipRect.width - padding;
-        }
-
-        // Adjust if tooltip goes off bottom edge
-        if (top + tooltipRect.height > window.innerHeight - padding) {
-            top = event.clientY - tooltipRect.height - padding;
-        }
-
-        // Adjust if tooltip goes off left edge
-        if (left < padding) {
-            left = padding;
-        }
-
-        // Adjust if tooltip goes off top edge
-        if (top < padding) {
-            top = padding;
-        }
-
-        tooltip.style.left = left + 'px';
-        tooltip.style.top = top + 'px';
-    }
-
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
