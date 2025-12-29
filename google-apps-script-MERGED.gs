@@ -601,27 +601,51 @@ function getVideosFromSheet() {
     Logger.log('📊 Headers: ' + headers.join(', '));
     Logger.log('📊 Total rows: ' + rows.length);
 
-    // Map rows to video objects
+    // Map rows to video objects with field name conversion
     const videos = rows
       .filter(row => {
         // Skip empty rows
         return row[0] && row[0].toString().trim() !== '';
       })
       .map(row => {
-        const video = {};
+        // First, create raw object from Sheet
+        const rawVideo = {};
         headers.forEach((header, index) => {
-          // Map header names to object keys (exact match from Sheet)
-          video[header] = row[index];
+          rawVideo[header] = row[index];
         });
+
+        // Extract video info from URL
+        const videoUrl = rawVideo.Video_URL || '';
+        const platform = extractPlatform(videoUrl);
+        const videoId = extractVideoId(videoUrl, platform);
+
+        // Convert to frontend-compatible format
+        const video = {
+          element_id: rawVideo.Element_ID || '',
+          category: rawVideo.Hang_Muc || 'Video',
+          platform: platform,
+          video_id: videoId,
+          video_url: videoUrl,
+          thumbnail: rawVideo.Thumbnail || '',
+          title: rawVideo.Hang_Muc || 'Video',
+          description: rawVideo.Hang_Muc || '',
+          duration: ''
+        };
+
         return video;
       })
       .filter(video => {
-        // Only include rows that have Element_ID
-        return video.Element_ID && video.Element_ID.toString().trim() !== '';
+        // Only include rows that have element_id
+        return video.element_id && video.element_id.toString().trim() !== '';
       });
 
     Logger.log('✅ Fetched ' + videos.length + ' videos from Sheet');
-    Logger.log('📹 Video IDs: ' + videos.map(v => v.Element_ID).join(', '));
+    Logger.log('📹 Video IDs: ' + videos.map(v => v.element_id).join(', '));
+
+    // Log first video for debugging
+    if (videos.length > 0) {
+      Logger.log('📹 Sample video: ' + JSON.stringify(videos[0]));
+    }
 
     return videos;
 
@@ -632,6 +656,65 @@ function getVideosFromSheet() {
     // Fallback to sample data instead of crashing
     Logger.log('⚠️ Falling back to sample data');
     return getSampleVideoData();
+  }
+}
+
+/**
+ * Extract platform from video URL
+ * Supports: streamable, cloudinary, youtube, vimeo
+ */
+function extractPlatform(url) {
+  if (!url) return 'unknown';
+
+  url = url.toLowerCase();
+
+  if (url.includes('streamable.com')) return 'streamable';
+  if (url.includes('cloudinary.com')) return 'cloudinary';
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+  if (url.includes('vimeo.com')) return 'vimeo';
+
+  return 'unknown';
+}
+
+/**
+ * Extract video ID from URL based on platform
+ */
+function extractVideoId(url, platform) {
+  if (!url) return '';
+
+  try {
+    switch (platform) {
+      case 'streamable':
+        // https://streamable.com/abc123 → abc123
+        const streamableMatch = url.match(/streamable\.com\/([a-zA-Z0-9]+)/);
+        return streamableMatch ? streamableMatch[1] : '';
+
+      case 'cloudinary':
+        // https://res.cloudinary.com/demo/video/upload/v1234567890/sample.mp4
+        // Return full URL as video_id for cloudinary
+        return url;
+
+      case 'youtube':
+        // https://www.youtube.com/watch?v=abc123 → abc123
+        // https://youtu.be/abc123 → abc123
+        let youtubeMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+        if (!youtubeMatch) {
+          youtubeMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+        }
+        return youtubeMatch ? youtubeMatch[1] : '';
+
+      case 'vimeo':
+        // https://vimeo.com/123456789 → 123456789
+        const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+        return vimeoMatch ? vimeoMatch[1] : '';
+
+      default:
+        // Unknown platform - return URL as-is
+        return url;
+    }
+  } catch (error) {
+    Logger.log('⚠️ Error extracting video ID from URL: ' + url + ' - ' + error.toString());
+    return url;
   }
 }
 
