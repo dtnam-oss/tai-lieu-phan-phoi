@@ -5420,7 +5420,7 @@ article.page {
                 console.log('🖼️ Loading as image...');
                 
                 // ⚡ INSTANT PREVIEW: Check if image is already cached
-                const isCached = ResourceManager.isCached(directUrl);
+                const isCached = window.ResourceManager.isCached(directUrl);
                 console.log(`📦 Cache status: ${isCached ? 'HIT ✅' : 'MISS ❌'}`);
                 
                 if (isCached) {
@@ -5620,70 +5620,51 @@ article.page {
 })();
 
 // ==========================================
-// GOOGLE SHEETS DATABASE INTEGRATION
-// Dynamic Content Management System
+// RESOURCE MANAGER - Hybrid Preload System
 // ==========================================
-(function() {
-    'use strict';
+// 🌐 Global scope to be accessible from anywhere
+window.ResourceManager = {
+    cache: new Set(), // Track successfully loaded URLs
+    queue: [], // Queue of URLs to preload
+    isProcessing: false,
+    loadingMap: new Map(), // Track loading promises for deduplication
     
-    // ============================================
-    // CONFIGURATION - Cập nhật Google Sheet ID của bạn
-    // ============================================
-    const CONFIG = {
-        // Backend API URL
-        API_URL: 'https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec',
+    /**
+     * Add URL to preload queue
+     * @param {string} url - URL to preload
+     * @param {string} priority - 'high' or 'low' (default)
+     */
+    preload(url, priority = 'low') {
+        if (!url || this.cache.has(url) || this.loadingMap.has(url)) {
+            return; // Already cached or loading
+        }
         
-        // Google Sheet ID (legacy support)
-        SHEET_ID: '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4',
+        // Add to queue based on priority
+        if (priority === 'high') {
+            this.queue.unshift(url); // Add to front
+            console.log(`📌 [HIGH] Added to preload queue: ${url.substring(0, 60)}...`);
+        } else {
+            this.queue.push(url); // Add to back
+            console.log(`📋 [LOW] Added to preload queue: ${url.substring(0, 60)}...`);
+        }
         
-        // Tab names (legacy support)
-        SHEET_NAME: 'MasterData',
-        CONTENT_DATA_SHEET: 'ContentData',
-        
-        // Cache timeout (10 giây)
-        CACHE_DURATION: 10 * 1000
-    };
+        this.processQueue();
+    },
     
-    // ============================================
-    // RESOURCE MANAGER - Hybrid Preload System
-    // ============================================
-    const ResourceManager = {
-        cache: new Set(), // Track successfully loaded URLs
-        queue: [], // Queue of URLs to preload
-        isProcessing: false,
-        loadingMap: new Map(), // Track loading promises for deduplication
+    /**
+     * Process preload queue (non-blocking with requestIdleCallback)
+     */
+    processQueue() {
+        if (this.isProcessing || this.queue.length === 0) {
+            return;
+        }
         
-        /**
-         * Add URL to preload queue
-         * @param {string} url - URL to preload
-         * @param {string} priority - 'high' or 'low' (default)
-         */
-        preload(url, priority = 'low') {
-            if (!url || this.cache.has(url) || this.loadingMap.has(url)) {
-                return; // Already cached or loading
-            }
-            
-            // Add to queue based on priority
-            if (priority === 'high') {
-                this.queue.unshift(url); // Add to front
-                console.log(`📌 [HIGH] Added to preload queue: ${url.substring(0, 60)}...`);
-            } else {
-                this.queue.push(url); // Add to back
-                console.log(`📋 [LOW] Added to preload queue: ${url.substring(0, 60)}...`);
-            }
-            
-            this.processQueue();
-        },
+        this.isProcessing = true;
         
-        /**
-         * Process preload queue (sequential to avoid network congestion)
-         */
-        processQueue() {
-            if (this.isProcessing || this.queue.length === 0) {
-                return;
-            }
-            
-            this.isProcessing = true;
+        // ⚡ Use requestIdleCallback for non-blocking preload
+        const runTask = window.requestIdleCallback || ((cb) => setTimeout(cb, 10));
+        
+        runTask(() => {
             const url = this.queue.shift();
             
             console.log(`⏳ Preloading (${this.cache.size} cached, ${this.queue.length} queued): ${url.substring(0, 60)}...`);
@@ -5709,38 +5690,42 @@ article.page {
             // Start loading
             this.loadingMap.set(url, img);
             img.src = url;
-        },
+        });
+    },
+    
+    /**
+     * Check if URL is cached
+     * @param {string} url
+     * @returns {boolean}
+     */
+    isCached(url) {
+        return this.cache.has(url);
+    },
+    
+    /**
+     * Get preload statistics
+     * @returns {object}
+     */
+    getStats() {
+        return {
+            cached: this.cache.size,
+            queued: this.queue.length,
+            loading: this.loadingMap.size,
+            isProcessing: this.isProcessing
+        };
+    },
+    
+    /**
+     * Preload all images from MasterData (non-blocking)
+     * @param {Array} masterData
+     */
+    preloadMasterDataImages(masterData) {
+        if (!masterData || !Array.isArray(masterData)) return;
         
-        /**
-         * Check if URL is cached
-         * @param {string} url
-         * @returns {boolean}
-         */
-        isCached(url) {
-            return this.cache.has(url);
-        },
+        console.log('🖼️ Scheduling images for preload from MasterData...');
         
-        /**
-         * Get preload statistics
-         * @returns {object}
-         */
-        getStats() {
-            return {
-                cached: this.cache.size,
-                queued: this.queue.length,
-                loading: this.loadingMap.size,
-                isProcessing: this.isProcessing
-            };
-        },
-        
-        /**
-         * Preload all images from MasterData
-         * @param {Array} masterData
-         */
-        preloadMasterDataImages(masterData) {
-            if (!masterData || !Array.isArray(masterData)) return;
-            
-            console.log('🖼️ Preloading images from MasterData...');
+        // ⚡ Delay preload to not block UI rendering
+        setTimeout(() => {
             let count = 0;
             
             masterData.forEach(row => {
@@ -5751,32 +5736,58 @@ article.page {
                 }
             });
             
-            console.log(`📊 Queued ${count} images for preload`);
-        },
+            console.log(`📊 Queued ${count} images for background preload`);
+        }, 1000); // 1s delay to let UI render first
+    },
+    
+    /**
+     * Check if URL is an image
+     * @param {string} url
+     * @returns {boolean}
+     */
+    isImageUrl(url) {
+        if (!url) return false;
         
-        /**
-         * Check if URL is an image
-         * @param {string} url
-         * @returns {boolean}
-         */
-        isImageUrl(url) {
-            if (!url) return false;
-            
-            // Check common image hosting platforms
-            const imageHosts = [
-                'i.postimg.cc',
-                'i.imgur.com',
-                'drive.google.com',
-                'res.cloudinary.com',
-                'image.jpg',
-                'image.png',
-                'image.gif',
-                'image.webp'
-            ];
-            
-            return imageHosts.some(host => url.includes(host)) || 
-                   /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(url);
-        }
+        // Check common image hosting platforms
+        const imageHosts = [
+            'i.postimg.cc',
+            'i.imgur.com',
+            'drive.google.com',
+            'res.cloudinary.com',
+            'image.jpg',
+            'image.png',
+            'image.gif',
+            'image.webp'
+        ];
+        
+        return imageHosts.some(host => url.includes(host)) || 
+               /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(url);
+    }
+};
+
+// ==========================================
+// GOOGLE SHEETS DATABASE INTEGRATION
+// Dynamic Content Management System
+// ==========================================
+(function() {
+    'use strict';
+    
+    // ============================================
+    // CONFIGURATION - Cập nhật Google Sheet ID của bạn
+    // ============================================
+    const CONFIG = {
+        // Backend API URL
+        API_URL: 'https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec',
+        
+        // Google Sheet ID (legacy support)
+        SHEET_ID: '12iEpuLYiZJAB3AyqAzVefHI3MyShiEeoUYag6gMcXH4',
+        
+        // Tab names (legacy support)
+        SHEET_NAME: 'MasterData',
+        CONTENT_DATA_SHEET: 'ContentData',
+        
+        // Cache timeout (10 giây)
+        CACHE_DURATION: 10 * 1000
     };
     
     // ============================================
@@ -6336,7 +6347,7 @@ article.page {
                 // 🚀 PRELOAD: Get thumbnail and preload with HIGH priority
                 const finalThumbnail = thumbnail || this.getDefaultThumbnail(videoUrl, platform);
                 if (finalThumbnail && !finalThumbnail.startsWith('data:')) {
-                    ResourceManager.preload(finalThumbnail, 'high');
+                    window.ResourceManager.preload(finalThumbnail, 'high');
                 }
                 
                 // CREATE CLICK-TO-LOAD CARD
@@ -6568,15 +6579,15 @@ article.page {
                     window.masterDataCache = masterResult.data;
                     console.log(`✅ MasterData: ${masterResult.data.length} items loaded`);
                     
-                    // 🚀 PRELOAD: Start loading all images in background
-                    ResourceManager.preloadMasterDataImages(masterResult.data);
-                    
-                    // Re-initialize hover tooltips
+                    // ⚡ RENDER FIRST: Initialize UI immediately
                     setTimeout(() => {
                         if (window.populateImageUrls) {
                             window.populateImageUrls();
                         }
-                    }, 500);
+                    }, 100); // Quick render, don't wait for validation
+                    
+                    // 🚀 PRELOAD LATER: Start background preload after UI is ready
+                    window.ResourceManager.preloadMasterDataImages(masterResult.data);
                 } else {
                     console.warn('⚠️ No MasterData found');
                     window.masterDataCache = [];
@@ -6605,7 +6616,7 @@ article.page {
                 }
                 
                 // 4. Log ResourceManager statistics
-                const stats = ResourceManager.getStats();
+                const stats = window.ResourceManager.getStats();
                 console.log('');
                 console.log('📊 RESOURCE MANAGER STATISTICS:');
                 console.log(`   ✅ Cached: ${stats.cached} images`);
