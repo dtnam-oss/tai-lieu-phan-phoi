@@ -6060,13 +6060,13 @@ article.page {
             console.log(`🔄 Processing ${dataRows.length} ContentData rows...`);
             
             dataRows.forEach((row, index) => {
-                // Expected columns: table_id | section_name | row_number | column_name | content_text | content_html
-                const tableId = row.A;
-                const sectionName = row.B;
-                const rowNumber = parseInt(row.C);
-                const columnName = row.D;
-                const contentText = row.E || '';
-                const contentHtml = row.F || contentText;
+                // Expected columns: table_id | section_name | row_num | column_name | content_text | content_html
+                const tableId = row.table_id || row.A;
+                const sectionName = row.section_name || row.B;
+                const rowNumber = parseInt(row.row_num || row.C);
+                const columnName = row.column_name || row.D;
+                const contentText = row.content_text || row.E || '';
+                const contentHtml = row.content_html || row.F || contentText;
                 
                 // Skip if missing essential data
                 if (!tableId || !columnName || isNaN(rowNumber)) {
