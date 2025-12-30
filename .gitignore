@@ -60,3 +60,7 @@ yarn-error.log*
 # Test coverage
 coverage/
 .nyc_output/
+
+# Local testing files (do not commit)
+index-local.html
+*.local.html
