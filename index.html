@@ -4551,70 +4551,14 @@ article.page {
     // Populate image URLs from database cache
     function populateImageUrls() {
         if (!window.masterDataCache || !Array.isArray(window.masterDataCache)) {
-            console.log('⏳ Cache not ready yet, skipping image URL population');
             return;
         }
 
         // Match all code and mark elements (not just .interactive-term class)
         const terms = document.querySelectorAll('code, mark.interactive-term, .interactive-term');
-        let populated = 0;
         
-        // Debug: Show sample data
-        console.log('='.repeat(80));
-        console.log('🔍 DEBUG: TEXT-BASED MATCHING');
-        console.log('='.repeat(80));
-        console.log('📦 Cache has', window.masterDataCache.length, 'rows');
-        console.log('🎯 Found', terms.length, 'interactive terms in HTML');
-        console.log('');
-        
-        // Show first 5 terms from HTML
-        console.log('📄 SAMPLE HTML TERMS (first 5):');
-        Array.from(terms).slice(0, 5).forEach((term, i) => {
-            console.log(`  ${i+1}. Text="${term.textContent.trim()}"`);
-        });
-        console.log('');
-        
-        // Show cache structure
-        console.log('💾 CACHE STRUCTURE:');
-        console.log('  Total rows:', window.masterDataCache.length);
-        console.log('  First data row:', window.masterDataCache[0]);
-        console.log('  Available keys:', window.masterDataCache[0] ? Object.keys(window.masterDataCache[0]) : 'N/A');
-        console.log('');
-
         // Backend returns objects with column names
         const dataRows = window.masterDataCache;
-        console.log(`📊 Processing ${dataRows.length} data rows`);
-        console.log('');
-        
-        // Show first 5 from database
-        console.log('💿 SAMPLE DATABASE (first 5):');
-        dataRows.slice(0, 5).forEach((row, i) => {
-            const text = row.ten_the || row.C || row[2] || '(no text)';
-            const id = row.id_the || row.B || row[1] || '(no id)';
-            const url = row.url || row.D || row[3] || '(empty)';
-            console.log(`  ${i+1}. Text="${text}" ID="${id}" URL="${url}"`);
-        });
-        console.log('');
-
-        // DEBUG: Show some specific terms we're looking for
-        console.log('🔍 CHECKING SPECIFIC TERMS:');
-        const testTerms = ['Shop', 'Danh sách Shop', 'Phiếu PO', 'Đơn hàng', 'UT1'];
-        testTerms.forEach(testText => {
-            const found = dataRows.find(row => {
-                const rowText = row.ten_the || row.C || row[2] || '';
-                return rowText.trim() === testText;
-            });
-            if (found) {
-                const id = found.id_the || found.B || found[1];
-                console.log(`  ✅ Found "${testText}" → ID: ${id}`);
-            } else {
-                console.log(`  ❌ NOT found: "${testText}"`);
-            }
-        });
-        console.log('');
-
-        console.log('🔄 STARTING TEXT-BASED MAPPING...');
-        console.log('='.repeat(80));
         
         let matched = 0;
         let notFound = 0;
@@ -4641,43 +4585,13 @@ article.page {
                 const termUrl = termData.url || termData.D || termData[3]; // url, D, or column index 3
                 if (termUrl && termUrl.trim && termUrl.trim()) {
                     term.setAttribute('data-image-url', termUrl.trim());
-                    populated++;
-                    if (index < 5) {
-                        console.log(`✅ [${index+1}] MATCHED: "${termText}" → ID: ${termId}, URL: ${termUrl}`);
-                    }
-                } else {
-                    if (index < 5) {
-                        console.log(`⚠️ [${index+1}] MATCHED but NO URL: "${termText}" (ID: ${termId})`);
-                    }
                 }
             } else {
                 notFound++;
-                if (notFound <= 10) { // Show first 10 not found terms
-                    console.log(`❌ NOT FOUND: "${termText}"`);
-                    // Show similar terms from database for debugging
-                    const similar = dataRows.filter(row => {
-                        const rowText = row.ten_the || row.C || row[2] || '';
-                        return rowText.toLowerCase().includes(termText.toLowerCase().substring(0, 3));
-                    }).slice(0, 2);
-                    if (similar.length > 0) {
-                        similar.forEach(s => {
-                            const text = s.ten_the || s.C || s[2];
-                            console.log(`   💡 Similar: "${text}"`);
-                        });
-                    }
-                }
             }
         });
         
-        console.log('');
-        console.log('='.repeat(80));
-        console.log(`📊 RESULTS:`);
-        console.log(`   ✅ Matched: ${matched}/${terms.length}`);
-        console.log(`   🖼️ With URLs: ${populated}/${terms.length}`);
-        console.log(`   ❌ Not found: ${notFound}/${terms.length}`);
-        console.log('='.repeat(80));
-
-        // Export unmatched terms for easy debugging
+        // Export unmatched terms for debugging
         if (notFound > 0) {
             const unmatchedTerms = [];
             terms.forEach(term => {
@@ -4691,11 +4605,7 @@ article.page {
                     unmatchedTerms.push(termText);
                 }
             });
-            console.log('');
-            console.log('📋 UNMATCHED TERMS (copy to check against Google Sheet):');
-            console.log(JSON.stringify(unmatchedTerms, null, 2));
-            window.unmatchedTerms = unmatchedTerms; // Store for easy access
-            console.log('💡 TIP: Access via window.unmatchedTerms in console');
+            window.unmatchedTerms = unmatchedTerms; // Store for easy access in console
         }
     }
     
@@ -4704,8 +4614,6 @@ article.page {
     
     // Function to prepare interactive terms (add class only, NO ID yet)
     function prepareInteractiveTerms() {
-        console.log('🔧 PREPARING INTERACTIVE TERMS...');
-        
         // Find all code tags and mark tags (potential interactive terms)
         const allElements = document.querySelectorAll('code, mark');
         let prepared = 0;
@@ -4727,7 +4635,6 @@ article.page {
             }
         });
         
-        console.log(`✅ Prepared ${prepared} interactive terms`);
         return prepared;
     }
     
@@ -4737,29 +4644,18 @@ article.page {
         
         // STEP 2: Remove all interactive terms that are NOT inside table cells
         const allTerms = document.querySelectorAll('.interactive-term');
-        console.log(`🔍 DEBUG: Found ${allTerms.length} total interactive terms before filtering`);
         
-        let removed = 0;
         allTerms.forEach(term => {
             // Check if term is inside a table cell (td or th)
             const isInsideTable = term.closest('td, th') !== null;
             
             if (!isInsideTable) {
-                console.log(`🗑️ Removing term outside table:`, {
-                    id: term.getAttribute('data-term-id'),
-                    text: term.textContent.trim(),
-                    parent: term.parentElement?.tagName
-                });
                 term.remove();
-                removed++;
             }
         });
         
-        console.log(`✅ Removed ${removed} terms outside tables`);
-        
         // Now get the remaining valid terms
         const interactiveTerms = document.querySelectorAll('.interactive-term');
-        console.log(`🔍 DEBUG: Found ${interactiveTerms.length} interactive terms INSIDE tables to attach events`);
         
         let imagePreview = null;
         let hoverTimer = null;
@@ -4770,22 +4666,11 @@ article.page {
                 return;
             }
 
-            if (index < 3) {
-                console.log(`🔍 DEBUG: Attaching events to term ${index}:`, {
-                    id: term.getAttribute('data-term-id'),
-                    text: term.textContent.trim(),
-                    hasUrl: !!term.getAttribute('data-image-url'),
-                    url: term.getAttribute('data-image-url')
-                });
-            }
-
             // Mark as initialized
             term.setAttribute('data-events-attached', 'true');
 
             // Hover event - show image preview
             term.addEventListener('mouseenter', function(e) {
-                console.log('🐭 MOUSEENTER EVENT FIRED!');
-                
                 // Clear any existing timer and preview first
                 clearTimeout(hoverTimer);
                 hideImagePreview();
@@ -4793,11 +4678,8 @@ article.page {
                 const termId = this.getAttribute('data-term-id');
                 const imageUrl = this.getAttribute('data-image-url');
                 
-                console.log('🐭 Mouse entered term:', { termId, imageUrl, hasUrl: !!imageUrl, element: this });
-                
                 // Delay before showing preview
                 hoverTimer = setTimeout(() => {
-                    console.log('⏰ Timer fired, calling showImagePreview...');
                     showImagePreview(termId, imageUrl, e);
                 }, 500); // 500ms delay
             });
@@ -4816,8 +4698,6 @@ article.page {
 
         // Image preview functions
         function showImagePreview(termId, imageUrl, event) {
-            console.log('🖼️ showImagePreview called:', { termId, imageUrl });
-            
             // CRITICAL: Clear any existing preview first
             hideImagePreview();
             
@@ -4834,39 +4714,24 @@ article.page {
                     if (termData) {
                         // Try 'url' field first (from backend), then 'D' (legacy)
                         finalUrl = termData.url || termData.D || imageUrl;
-                        console.log('✅ Found term data:', termData);
-                        console.log('✅ Using URL:', finalUrl);
-                    } else {
-                        console.log('⚠️ Term not found in cache:', termId);
                     }
                 }
             } catch (error) {
-                console.warn('Could not fetch data from cache:', error);
                 // Continue with imageUrl from HTML attribute
             }
 
             // Early exit if no URL at all
             if (!finalUrl) {
-                console.log('⚠️ No URL provided, skipping preview');
                 return;
             }
-
-            console.log('🔍 Original URL:', finalUrl);
 
             // Convert to direct/embed URL first (important!)
             const directUrl = getDirectImageUrl(finalUrl);
-            if (directUrl !== finalUrl) {
-                console.log('🔄 Converted to:', directUrl);
-            }
 
             // Now check if the converted URL is valid
-            console.log('🔍 Checking if valid media URL:', isImageUrl(directUrl));
             if (!isImageUrl(directUrl)) {
-                console.log('⚠️ Not a valid media URL, skipping preview');
                 return;
             }
-
-            console.log('✅ Creating preview...');
             
             // Create preview tooltip
             imagePreview = document.createElement('div');
@@ -4879,7 +4744,6 @@ article.page {
 
             // Check if it's a Google Drive preview URL (iframe needed)
             if (directUrl.includes('drive.google.com') && directUrl.includes('/preview')) {
-                console.log('📹 Loading as iframe (Google Drive - may have performance issues)...');
                 const iframe = document.createElement('iframe');
                 iframe.src = directUrl;
                 iframe.style.width = '100%';
@@ -4888,7 +4752,6 @@ article.page {
                 iframe.allow = 'autoplay';
                 
                 iframe.onload = function() {
-                    console.log('✅ Iframe loaded successfully');
                     if (imagePreview) {
                         imagePreview.innerHTML = '';
                         imagePreview.appendChild(iframe);
@@ -4897,14 +4760,12 @@ article.page {
                 };
                 
                 iframe.onerror = function() {
-                    console.error('❌ Failed to load iframe:', directUrl);
                     if (imagePreview) {
                         imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải nội dung</div>';
                     }
                 };
             // Check if it's a YouTube embed URL (iframe needed)
             } else if (directUrl.includes('youtube.com/embed/')) {
-                console.log('🎬 Loading as iframe (YouTube)...');
                 const iframe = document.createElement('iframe');
                 iframe.src = directUrl;
                 iframe.style.width = '100%';
@@ -4914,7 +4775,6 @@ article.page {
                 iframe.allowFullscreen = true;
                 
                 iframe.onload = function() {
-                    console.log('✅ YouTube iframe loaded successfully');
                     if (imagePreview) {
                         imagePreview.innerHTML = '';
                         imagePreview.appendChild(iframe);
@@ -4923,22 +4783,18 @@ article.page {
                 };
                 
                 iframe.onerror = function() {
-                    console.error('❌ Failed to load YouTube iframe:', directUrl);
                     if (imagePreview) {
                         imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải video</div>';
                     }
                 };
             } else {
                 // Load as regular image
-                console.log('🖼️ Loading as image...');
                 
                 // ⚡ INSTANT PREVIEW: Check if image is already cached
                 const isCached = window.ResourceManager.isCached(directUrl);
-                console.log(`📦 Cache status: ${isCached ? 'HIT ✅' : 'MISS ❌'}`);
                 
                 if (isCached) {
                     // Image already preloaded - show instantly!
-                    console.log('⚡ INSTANT DISPLAY from cache');
                     const img = document.createElement('img');
                     img.src = directUrl;
                     img.alt = 'Preview';
@@ -4957,7 +4813,6 @@ article.page {
                 // Not cached yet - load normally with loading state
                 const img = new Image();
                 img.onload = function() {
-                    console.log('✅ Image loaded successfully');
                     if (imagePreview) {
                         imagePreview.innerHTML = '';
                         imagePreview.appendChild(img);
@@ -4965,7 +4820,6 @@ article.page {
                     }
                 };
                 img.onerror = function() {
-                    console.error('❌ Failed to load image:', directUrl);
                     if (imagePreview) {
                         imagePreview.innerHTML = '<div class="image-preview-error">❌ Không thể tải hình ảnh</div>';
                     }
@@ -5158,10 +5012,8 @@ window.ResourceManager = {
         // Add to queue based on priority
         if (priority === 'high') {
             this.queue.unshift(url); // Add to front
-            console.log(`📌 [HIGH] Added to preload queue: ${url.substring(0, 60)}...`);
         } else {
             this.queue.push(url); // Add to back
-            console.log(`📋 [LOW] Added to preload queue: ${url.substring(0, 60)}...`);
         }
         
         this.processQueue();
@@ -5183,21 +5035,17 @@ window.ResourceManager = {
         runTask(() => {
             const url = this.queue.shift();
             
-            console.log(`⏳ Preloading (${this.cache.size} cached, ${this.queue.length} queued): ${url.substring(0, 60)}...`);
-            
             const img = new Image();
             img.crossOrigin = 'anonymous'; // Enable CORS for cached images
             
             img.onload = () => {
                 this.cache.add(url);
                 this.loadingMap.delete(url);
-                console.log(`✅ Cached: ${url.substring(0, 60)}...`);
                 this.isProcessing = false;
                 this.processQueue(); // Continue with next
             };
             
             img.onerror = () => {
-                console.warn(`❌ Failed to cache: ${url.substring(0, 60)}...`);
                 this.loadingMap.delete(url);
                 this.isProcessing = false;
                 this.processQueue(); // Continue with next
@@ -5238,8 +5086,6 @@ window.ResourceManager = {
     preloadMasterDataImages(masterData) {
         if (!masterData || !Array.isArray(masterData)) return;
         
-        console.log('🖼️ Scheduling images for preload from MasterData...');
-        
         // ⚡ Delay preload to not block UI rendering
         setTimeout(() => {
             let count = 0;
@@ -5251,8 +5097,6 @@ window.ResourceManager = {
                     count++;
                 }
             });
-            
-            console.log(`📊 Queued ${count} images for background preload`);
         }, 1000); // 1s delay to let UI render first
     },
     
