@@ -64,3 +64,8 @@ coverage/
 # Local testing files (do not commit)
 index-local.html
 *.local.html
+
+# Google Sheets API credentials (NEVER commit!)
+google-sheets-credentials.json
+*-credentials.json
+*.json.key
