@@ -5218,8 +5218,19 @@ article.page {
                 }
             } else {
                 notFound++;
-                if (index < 5) {
-                    console.log(`❌ [${index+1}] NOT FOUND: "${termText}"`);
+                if (notFound <= 10) { // Show first 10 not found terms
+                    console.log(`❌ NOT FOUND: "${termText}"`);
+                    // Show similar terms from database for debugging
+                    const similar = dataRows.filter(row => {
+                        const rowText = row.ten_the || row.C || row[2] || '';
+                        return rowText.toLowerCase().includes(termText.toLowerCase().substring(0, 3));
+                    }).slice(0, 2);
+                    if (similar.length > 0) {
+                        similar.forEach(s => {
+                            const text = s.ten_the || s.C || s[2];
+                            console.log(`   💡 Similar: "${text}"`);
+                        });
+                    }
                 }
             }
         });
@@ -5231,6 +5242,27 @@ article.page {
         console.log(`   🖼️ With URLs: ${populated}/${terms.length}`);
         console.log(`   ❌ Not found: ${notFound}/${terms.length}`);
         console.log('='.repeat(80));
+
+        // Export unmatched terms for easy debugging
+        if (notFound > 0) {
+            const unmatchedTerms = [];
+            terms.forEach(term => {
+                const termText = term.textContent.trim();
+                if (!termText) return;
+                const termData = dataRows.find(row => {
+                    const rowText = row.ten_the || row.C || row[2] || '';
+                    return rowText.trim() === termText;
+                });
+                if (!termData) {
+                    unmatchedTerms.push(termText);
+                }
+            });
+            console.log('');
+            console.log('📋 UNMATCHED TERMS (copy to check against Google Sheet):');
+            console.log(JSON.stringify(unmatchedTerms, null, 2));
+            window.unmatchedTerms = unmatchedTerms; // Store for easy access
+            console.log('💡 TIP: Access via window.unmatchedTerms in console');
+        }
     }
     
     // Expose for external use
