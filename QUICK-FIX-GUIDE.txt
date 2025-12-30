@@ -1,0 +1,74 @@
+================================================================================
+🚀 QUICK FIX GUIDE - ContentData Column Mismatch
+================================================================================
+
+PROBLEM:
+- ContentData column_name không match với HTML table headers
+- table-19 đến table-46 không tồn tại trong HTML
+- Result: Website không load content, console đầy errors
+
+================================================================================
+✅ SOLUTION - AUTO-FIX (RECOMMENDED - 5 MINUTES)
+================================================================================
+
+STEP 1: Setup Google Sheets API (one-time only)
+-----------------------------------------------
+1. Go to: https://console.cloud.google.com/
+2. Create project: "GHTK ContentData Fixer"
+3. Enable: Google Sheets API
+4. Create service account: "contentdata-fixer"
+5. Download JSON key → save as: google-sheets-credentials.json
+6. Copy service account email from JSON file
+7. Share Google Sheet with that email (Editor permission)
+
+STEP 2: Install dependencies
+-----------------------------
+cd /Users/mac/Desktop/tai-lieu-phan-phoi
+pip3 install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+STEP 3: Preview changes (dry-run)
+----------------------------------
+python3 fix-contentdata-auto.py
+
+→ Review output to see what will be changed
+
+STEP 4: Apply fixes
+-------------------
+python3 fix-contentdata-auto.py --apply
+
+→ Deletes ~100+ invalid rows
+→ Updates ~50-60 column names
+→ Keeps ~75 correct rows
+
+STEP 5: Rebuild & deploy
+-------------------------
+1. Google Sheets: Tools → 🔨 Static Builder → Build Static Data
+2. Google Sheets: Tools → 🔨 Static Builder → Download Static File
+3. cp ~/Downloads/static-data.js .
+4. Test: open http://localhost:8000/index-local.html
+5. Deploy: git add static-data.js && git commit -m "fix" && git push
+
+================================================================================
+📚 DETAILED GUIDES
+================================================================================
+
+Main guide:         CONTENTDATA-FIX-README.md
+API setup:          GOOGLE-SHEETS-API-SETUP.md
+Manual fix:         FIX-CONTENTDATA-GUIDE.md
+Local testing:      LOCAL-TEST-GUIDE.md
+
+================================================================================
+✅ SUCCESS CHECK
+================================================================================
+
+After fix, console should show:
+✅ ContentData: 75/75 cells updated (static)
+⚡ PERFORMANCE: No API calls → Ultra fast load!
+
+NO errors about:
+❌ "Column not found"
+❌ "Table not found: table-19"
+
+================================================================================
+🎯 TOTAL TIME: ~5 minutes (auto) or ~30-60 minutes (manual)
+================================================================================
