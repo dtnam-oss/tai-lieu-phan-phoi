@@ -6255,7 +6255,15 @@ window.ResourceManager = {
             }
 
             if (!table) {
-                console.warn(`⚠️ Table not found: ${tableId}`);
+                // Debug: Show available tables (only first time for each tableId)
+                if (!this._warnedTables) this._warnedTables = new Set();
+                if (!this._warnedTables.has(tableId)) {
+                    const allTables = Array.from(document.querySelectorAll('table[data-table-id]'))
+                        .map(t => t.getAttribute('data-table-id'));
+                    console.warn(`⚠️ Table not found: ${tableId}`);
+                    console.warn(`   Available tables: ${JSON.stringify(allTables)}`);
+                    this._warnedTables.add(tableId);
+                }
                 return false;
             }
 
@@ -6271,7 +6279,10 @@ window.ResourceManager = {
             });
             
             if (columnIndex === -1) {
+                // Debug: Show available headers
+                const availableHeaders = Array.from(headers).map(th => th.textContent.trim());
                 console.warn(`⚠️ Column not found: "${columnName}" in table ${tableId}`);
+                console.warn(`   Available headers: ${JSON.stringify(availableHeaders)}`);
                 return false;
             }
             
