@@ -5275,6 +5275,11 @@ article.page {
         let hoverTimer = null;
 
         interactiveTerms.forEach((term, index) => {
+            // Skip if already initialized (prevent duplicate event listeners)
+            if (term.hasAttribute('data-events-attached')) {
+                return;
+            }
+
             if (index < 3) {
                 console.log(`🔍 DEBUG: Attaching events to term ${index}:`, {
                     id: term.getAttribute('data-term-id'),
@@ -5283,7 +5288,10 @@ article.page {
                     url: term.getAttribute('data-image-url')
                 });
             }
-            
+
+            // Mark as initialized
+            term.setAttribute('data-events-attached', 'true');
+
             // Hover event - show image preview
             term.addEventListener('mouseenter', function(e) {
                 console.log('🐭 MOUSEENTER EVENT FIRED!');
@@ -5573,6 +5581,9 @@ article.page {
             return url;
         }
     }
+
+    // Expose initHighlightedTerms globally for re-initialization after ContentData updates
+    window.initHighlightedTerms = initHighlightedTerms;
 
     function escapeHtml(text) {
         const div = document.createElement('div');
@@ -6745,6 +6756,12 @@ window.ResourceManager = {
                 if (contentResult.success && contentResult.data) {
                     const contentStats = TableContentUpdater.updateTableContent(contentResult.data);
                     console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated`);
+
+                    // Re-initialize hover events for newly added content
+                    if (typeof initHighlightedTerms === 'function') {
+                        console.log('🔄 Re-initializing hover events for updated content...');
+                        initHighlightedTerms();
+                    }
                 } else {
                     console.log('ℹ️ No ContentData found');
                 }
