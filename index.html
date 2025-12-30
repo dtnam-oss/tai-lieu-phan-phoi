@@ -5153,7 +5153,10 @@ article.page {
         // Show first 5 from database
         console.log('💿 SAMPLE DATABASE (first 5):');
         dataRows.slice(0, 5).forEach((row, i) => {
-            console.log(`  ${i+1}. Text="${row.ten_the || row.C}" ID="${row.id_the || row.B}" URL="${row.url || row.D || '(empty)'}"`);
+            const text = row.ten_the || row.C || row[2] || '(no text)';
+            const id = row.id_the || row.B || row[1] || '(no id)';
+            const url = row.url || row.D || row[3] || '(empty)';
+            console.log(`  ${i+1}. Text="${text}" ID="${id}" URL="${url}"`);
         });
         console.log('');
         console.log('🔄 STARTING TEXT-BASED MAPPING...');
@@ -5167,20 +5170,21 @@ article.page {
             
             if (!termText) return;
             
-            // MATCH BY TEXT - support both backend column names (ten_the) and legacy (C)
+            // MATCH BY TEXT - support multiple column name formats
+            // Backend may return: {ten_the, id_the, url} or {A, B, C, D} or mixed
             const termData = dataRows.find(row => {
-                const rowText = row.ten_the || row.C || '';
+                const rowText = row.ten_the || row.C || row[2] || ''; // ten_the, C, or column index 2
                 return rowText.trim() === termText;
             });
-            
+
             if (termData) {
                 matched++;
-                // Set the correct ID - support both backend (id_the) and legacy (B)
-                const termId = termData.id_the || termData.B;
+                // Set the correct ID - support multiple formats
+                const termId = termData.id_the || termData.B || termData[1]; // id_the, B, or column index 1
                 term.setAttribute('data-term-id', termId);
-                
-                // Set URL if available - support both backend (url) and legacy (D)
-                const termUrl = termData.url || termData.D;
+
+                // Set URL if available - support multiple formats
+                const termUrl = termData.url || termData.D || termData[3]; // url, D, or column index 3
                 if (termUrl && termUrl.trim && termUrl.trim()) {
                     term.setAttribute('data-image-url', termUrl.trim());
                     populated++;
