@@ -5142,9 +5142,11 @@ article.page {
         
         // Show cache structure
         console.log('💾 CACHE STRUCTURE:');
+        console.log('  Total rows:', window.masterDataCache.length);
         console.log('  First data row:', window.masterDataCache[0]);
+        console.log('  Available keys:', window.masterDataCache[0] ? Object.keys(window.masterDataCache[0]) : 'N/A');
         console.log('');
-        
+
         // Backend returns objects with column names
         const dataRows = window.masterDataCache;
         console.log(`📊 Processing ${dataRows.length} data rows`);
@@ -5159,6 +5161,24 @@ article.page {
             console.log(`  ${i+1}. Text="${text}" ID="${id}" URL="${url}"`);
         });
         console.log('');
+
+        // DEBUG: Show some specific terms we're looking for
+        console.log('🔍 CHECKING SPECIFIC TERMS:');
+        const testTerms = ['Shop', 'Danh sách Shop', 'Phiếu PO', 'Đơn hàng', 'UT1'];
+        testTerms.forEach(testText => {
+            const found = dataRows.find(row => {
+                const rowText = row.ten_the || row.C || row[2] || '';
+                return rowText.trim() === testText;
+            });
+            if (found) {
+                const id = found.id_the || found.B || found[1];
+                console.log(`  ✅ Found "${testText}" → ID: ${id}`);
+            } else {
+                console.log(`  ❌ NOT found: "${testText}"`);
+            }
+        });
+        console.log('');
+
         console.log('🔄 STARTING TEXT-BASED MAPPING...');
         console.log('='.repeat(80));
         
