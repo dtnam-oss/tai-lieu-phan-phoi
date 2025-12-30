@@ -6306,11 +6306,34 @@ window.ResourceManager = {
             }
             
             // Update cell content
-            targetCell.innerHTML = content;
-            
+            // Decode HTML entities first (backend may escape HTML)
+            const decodedContent = this.decodeHtmlEntities(content);
+            targetCell.innerHTML = decodedContent;
+
             return true;
         },
         
+        // Decode HTML entities (backend may escape HTML)
+        decodeHtmlEntities(html) {
+            if (!html) return '';
+
+            // Step 1: Fix CSV-style double quotes ("" -> ")
+            let cleaned = html.replace(/""/g, '"');
+
+            // Step 2: Decode HTML entities
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = cleaned;
+            let decoded = textarea.value;
+
+            // Step 3: Convert line breaks to <br> if not already present
+            // Only convert \n that are NOT already part of <br> tags
+            if (!decoded.includes('<br>') && !decoded.includes('<br/>')) {
+                decoded = decoded.replace(/\n/g, '<br>');
+            }
+
+            return decoded;
+        },
+
         // Get statistics about tables
         getTableStats() {
             const tables = document.querySelectorAll('table[id]');
@@ -6318,7 +6341,7 @@ window.ResourceManager = {
                 totalTables: tables.length,
                 tableIds: []
             };
-            
+
             tables.forEach(table => {
                 const rows = table.querySelectorAll('tbody tr').length;
                 const cols = table.querySelectorAll('thead th').length;
@@ -6328,7 +6351,7 @@ window.ResourceManager = {
                     cols: cols
                 });
             });
-            
+
             return stats;
         }
     };
