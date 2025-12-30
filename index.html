@@ -5122,7 +5122,8 @@ article.page {
             return;
         }
 
-        const terms = document.querySelectorAll('.interactive-term');
+        // Match all code and mark elements (not just .interactive-term class)
+        const terms = document.querySelectorAll('code, mark.interactive-term, .interactive-term');
         let populated = 0;
         
         // Debug: Show sample data
@@ -6758,16 +6759,16 @@ window.ResourceManager = {
                     const contentStats = TableContentUpdater.updateTableContent(window.STATIC_DATA.contentData);
                     console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated (static)`);
 
-                    // 3. Populate term IDs AFTER ContentData loads (ensures DOM elements exist)
-                    if (window.populateImageUrls) {
-                        console.log('🔄 Populating term IDs from MasterData...');
-                        window.populateImageUrls();
+                    // 3. Initialize interactive terms FIRST (adds .interactive-term class to code/mark elements)
+                    if (typeof initHighlightedTerms === 'function') {
+                        console.log('🔄 Preparing interactive terms...');
+                        initHighlightedTerms();
                     }
 
-                    // 4. Initialize hover events AFTER term IDs are set
-                    if (typeof initHighlightedTerms === 'function') {
-                        console.log('🔄 Initializing hover events...');
-                        initHighlightedTerms();
+                    // 4. Populate term IDs AFTER terms are prepared (sets data-term-id and data-image-url)
+                    if (window.populateImageUrls) {
+                        console.log('🔄 Populating term IDs and URLs from MasterData...');
+                        window.populateImageUrls();
                     }
                     
                     // 3. Load VideoData from static
@@ -6837,17 +6838,17 @@ window.ResourceManager = {
                     const contentStats = TableContentUpdater.updateTableContent(contentResult.data);
                     console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated`);
 
-                    // CRITICAL: Populate term IDs FIRST, then attach hover events
-                    // This ensures data-term-id attributes exist before event listeners read them
-                    if (window.populateImageUrls) {
-                        console.log('🔄 Populating term IDs from MasterData...');
-                        window.populateImageUrls();
+                    // CRITICAL: Initialize interactive terms FIRST (adds .interactive-term class)
+                    if (typeof initHighlightedTerms === 'function') {
+                        console.log('🔄 Preparing interactive terms for updated content...');
+                        initHighlightedTerms();
                     }
 
-                    // Re-initialize hover events for newly added content (AFTER IDs are set)
-                    if (typeof initHighlightedTerms === 'function') {
-                        console.log('🔄 Re-initializing hover events for updated content...');
-                        initHighlightedTerms();
+                    // Then populate term IDs and URLs (sets data-term-id and data-image-url attributes)
+                    // This ensures data-term-id attributes exist before event listeners read them
+                    if (window.populateImageUrls) {
+                        console.log('🔄 Populating term IDs and URLs from MasterData...');
+                        window.populateImageUrls();
                     }
                 } else {
                     console.log('ℹ️ No ContentData found');
