@@ -6718,20 +6718,25 @@ window.ResourceManager = {
                     // 1. Load MasterData from static
                     window.masterDataCache = window.STATIC_DATA.masterData;
                     console.log(`✅ MasterData: ${window.STATIC_DATA.masterData.length} items loaded (static)`);
-                    
-                    // ⚡ RENDER FIRST: Initialize UI immediately
-                    setTimeout(() => {
-                        if (window.populateImageUrls) {
-                            window.populateImageUrls();
-                        }
-                    }, 50); // Ultra fast render
-                    
+
                     // 🚀 PRELOAD LATER: Start background preload
                     window.ResourceManager.preloadMasterDataImages(window.STATIC_DATA.masterData);
-                    
+
                     // 2. Load ContentData from static
                     const contentStats = TableContentUpdater.updateTableContent(window.STATIC_DATA.contentData);
                     console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated (static)`);
+
+                    // 3. Populate term IDs AFTER ContentData loads (ensures DOM elements exist)
+                    if (window.populateImageUrls) {
+                        console.log('🔄 Populating term IDs from MasterData...');
+                        window.populateImageUrls();
+                    }
+
+                    // 4. Initialize hover events AFTER term IDs are set
+                    if (typeof initHighlightedTerms === 'function') {
+                        console.log('🔄 Initializing hover events...');
+                        initHighlightedTerms();
+                    }
                     
                     // 3. Load VideoData from static
                     if (window.STATIC_DATA.videoData && window.STATIC_DATA.videoData.length > 0) {
@@ -6780,14 +6785,10 @@ window.ResourceManager = {
                 if (masterResult.success && masterResult.data) {
                     window.masterDataCache = masterResult.data;
                     console.log(`✅ MasterData: ${masterResult.data.length} items loaded`);
-                    
-                    // ⚡ RENDER FIRST: Initialize UI immediately
-                    setTimeout(() => {
-                        if (window.populateImageUrls) {
-                            window.populateImageUrls();
-                        }
-                    }, 100); // Quick render, don't wait for validation
-                    
+
+                    // NOTE: populateImageUrls() will be called AFTER ContentData loads
+                    // This ensures all <code> and <mark> elements exist in DOM first
+
                     // 🚀 PRELOAD LATER: Start background preload after UI is ready
                     window.ResourceManager.preloadMasterDataImages(masterResult.data);
                 } else {
@@ -6804,7 +6805,14 @@ window.ResourceManager = {
                     const contentStats = TableContentUpdater.updateTableContent(contentResult.data);
                     console.log(`✅ ContentData: ${contentStats.updated}/${contentStats.total} cells updated`);
 
-                    // Re-initialize hover events for newly added content
+                    // CRITICAL: Populate term IDs FIRST, then attach hover events
+                    // This ensures data-term-id attributes exist before event listeners read them
+                    if (window.populateImageUrls) {
+                        console.log('🔄 Populating term IDs from MasterData...');
+                        window.populateImageUrls();
+                    }
+
+                    // Re-initialize hover events for newly added content (AFTER IDs are set)
                     if (typeof initHighlightedTerms === 'function') {
                         console.log('🔄 Re-initializing hover events for updated content...');
                         initHighlightedTerms();
