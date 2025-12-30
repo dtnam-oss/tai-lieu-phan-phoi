@@ -1,5 +1,9 @@
 # 🚀 User Authentication - Quick Start (5 phút)
 
+> **💡 QUAN TRỌNG:** Hệ thống sử dụng **hybrid loading strategy**:
+> - ✅ **Authentication**: Gọi API mỗi lần login (vì user list thay đổi liên tục)
+> - ✅ **Content Data**: Load 1 lần từ Static Build (vì nội dung ít thay đổi)
+
 ## 📋 Checklist Setup
 
 ### ✅ Step 1: Chuẩn bị Google Sheet (2 phút)
@@ -45,7 +49,7 @@
 Mở browser, paste URL (thay YOUR_EMAIL):
 
 ```
-https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec?action=verify_user&email=admin@ghtk.vn
+https://script.google.com/macros/s/AKfycbxaujZ9IVqRWnpAOA-HuCvDWDg46J_Q8xSZOGAbJ8IQ0DOsybDf-hWptKVl9q7ncfNS8g/exec?action=verify_user&email=dtnam@nakvn.com
 ```
 
 **Expected:**
