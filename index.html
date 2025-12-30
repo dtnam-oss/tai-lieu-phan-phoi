@@ -6158,32 +6158,31 @@ window.ResourceManager = {
     // ============================================
     const TableContentUpdater = {
         // ============================================
-        // NOTION DATA PARSER - Extract plain text from Notion JSON
+        // PARSE CONTENT - Handle both plain text and Notion JSON format
         // ============================================
         parseNotionColumn(columnData) {
-            // Handle different formats:
-            // 1. Simple string: "Column Name"
-            // 2. Notion JSON: {plain_text=..., annotations={...}, ...}
-            
+            // ContentData now uses manual edits in content_text and content_html
+            // This parser handles backwards compatibility with Notion JSON format
+
             if (!columnData) return '';
-            
-            // If already a simple string
+
+            // If already a simple string (manual edit format)
             if (typeof columnData === 'string' && !columnData.includes('{')) {
                 return columnData.trim();
             }
-            
-            // Try to extract plain_text from Notion format
+
+            // Legacy: Try to extract plain_text from Notion format
             const plainTextMatch = String(columnData).match(/plain_text=([^,}]+)/);
             if (plainTextMatch) {
                 return plainTextMatch[1].trim();
             }
-            
+
             // Fallback: Try to extract from text.content
             const textContentMatch = String(columnData).match(/content=([^,}]+)/);
             if (textContentMatch) {
                 return textContentMatch[1].trim();
             }
-            
+
             // Last resort: return as-is
             return String(columnData).trim();
         },
@@ -6245,23 +6244,14 @@ window.ResourceManager = {
         
         // Update a specific table cell
         updateCell(tableId, rowNumber, columnName, content) {
-            // Find table by ID - Try multiple strategies for flexibility
-            // Strategy 1: Try data-table-id attribute (friendly ID like "table-1")
-            let table = document.querySelector(`table[data-table-id="${tableId}"]`);
-
-            // Strategy 2: Fallback to original ID (Notion UUID)
-            if (!table) {
-                table = document.getElementById(tableId);
-            }
+            // Find table by original Notion UUID (simplified - no conversion)
+            const table = document.getElementById(tableId);
 
             if (!table) {
-                // Debug: Show available tables (only first time for each tableId)
+                // Debug: Show warning once per table
                 if (!this._warnedTables) this._warnedTables = new Set();
                 if (!this._warnedTables.has(tableId)) {
-                    const allTables = Array.from(document.querySelectorAll('table[data-table-id]'))
-                        .map(t => t.getAttribute('data-table-id'));
                     console.warn(`⚠️ Table not found: ${tableId}`);
-                    console.warn(`   Available tables: ${JSON.stringify(allTables)}`);
                     this._warnedTables.add(tableId);
                 }
                 return false;

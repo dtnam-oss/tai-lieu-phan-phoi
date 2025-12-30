@@ -1,8 +1,8 @@
 # 🚀 User Authentication - Quick Start (5 phút)
 
-> **💡 QUAN TRỌNG:** Hệ thống sử dụng **hybrid loading strategy**:
+> **💡 QUAN TRỌNG:** Hệ thống sử dụng **simplified loading strategy**:
 > - ✅ **Authentication**: Gọi API mỗi lần login (vì user list thay đổi liên tục)
-> - ✅ **Content Data**: Load 1 lần từ Static Build (vì nội dung ít thay đổi)
+> - ✅ **Content Data**: Load từ backend mỗi lần (hỗ trợ manual edits trực tiếp trong Google Sheets)
 
 ## 📋 Checklist Setup
 
